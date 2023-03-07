@@ -8,9 +8,9 @@ const STATUS_CODE  = require('../util/SettingSystem');
 const RegisterUser_se = async (user) => {
     const { name, email, password, userRole, userImage } = user;
 
-    userModel.getUser('ln26805@gmail.com').then((user) => {
-        console.log(user);
-    });
+    // userModel.getUser('ln26805@gmail.com').then((user) => {
+    //     console.log(user);
+    // });
 
     // Check for existing user
     const userFind = await User.findOne({ email });
