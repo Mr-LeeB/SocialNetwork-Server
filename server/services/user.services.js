@@ -6,31 +6,33 @@ const STATUS_CODE  = require('../util/SettingSystem');
 
 
 const RegisterUser_se = async (user) => {
-    const { userName, passWord } = user;
+    const { name, email, password, userRole, userImage } = user;
+
+    userModel.getUser('ln26805@gmail.com').then((user) => {
+        console.log(user);
+    });
 
     // Check for existing user
-    const userFind = await User.findOne({ userName });
+    const userFind = await User.findOne({ email });
     if (userFind) {
         return {
             status: STATUS_CODE.CONFLICT, 
             success: false,
-            message: 'Username already exists'
+            message: 'Email already exists!'
         }
     }
     // All good
-    const hashedPassword = await argon2.hash(passWord);
+    const hashedPassword = await argon2.hash(password);
     const newUser = new User({
-        userName,
-        passWord: hashedPassword,
-        createAt: Date.now()
+        name,
+        email,
+        password: hashedPassword,
+        userRole,
+        userImage
     });
     await newUser.save();
 
     const accessToken = jwt.sign({ userId: newUser._id }, process.env.ACCESS_TOKEN_SECRET);
-
-    // userModel.getUser('Admintck2').then((user) => {
-    //     console.log(user);
-    // });
 
     return {
         status: STATUS_CODE.CREATED,

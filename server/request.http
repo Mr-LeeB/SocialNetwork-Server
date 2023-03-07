@@ -2,16 +2,11 @@ POST http://localhost:7000/api/users
 Content-Type: application/json
 
 {
-    "userName": "Admintck1",
-    "passWord": "Admintck"
+    "name": "LoganZ",
+    "email": "ln26805@gmail.com",
+    "password": "alooo",
+    "userImage": "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
+    "userRole": 1
 }
 
-###
-DELETE http://localhost:5000/api/posts/64041f04dc06397551f003a0
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDAzZjM5ZmZhNTU2Y2VhOTJlMTI1Y2QiLCJpYXQiOjE2Nzc5OTExNTR9.gh0OLZs2reyxfoEuI4sWijM7rqzK7683Ux-2zaUiOhw
-
-
-
-
-
-
+### 

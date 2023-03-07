@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.e8ci6h5.mongodb.net/?retryWrites=true&w=majority`).then(() => {
-            console.log('MongoDB connected');
-        }).catch(err => {
-            console.log(err);
-        });
+        // const conn = await mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.e8ci6h5.mongodb.net/?retryWrites=true&w=majority`).then(() => {
+        //     console.log('MongoDB connected');
+        // }).catch(err => {
+        //     console.log(err);
+        // });
 
-        // await mongoose.connect('mongodb://127.0.0.1:27017/mern');
-        // console.log('MongoDB connected');
+        await mongoose.connect('mongodb://127.0.0.1:27017/LoganZ');
+        console.log('MongoDB connected!');
 
     } catch (err) {
         console.error(err);

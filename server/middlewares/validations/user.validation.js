@@ -2,11 +2,11 @@ const STATUS_CODE = require('../../util/SettingSystem');
 
 
 const RegisterUser_checkEmpty = (req, res, next) => {
-    const { userName, passWord } = req.body;
+    const { name, email, password, userRole } = req.body;
 
     // Simple validation
-    if (!userName || !passWord) {
-        return res.status(STATUS_CODE.BAD_REQUEST).send({ success: false, message: 'Missing username and/or password' });
+    if (!name || !email || !password || !userRole) {
+        return res.status(STATUS_CODE.BAD_REQUEST).send({ success: false, message: 'Please enter all fields' });
     }
     next();
 }
