@@ -32,7 +32,9 @@ const RegisterUser_se = async (user) => {
     });
     await newUser.save();
 
-    const accessToken = jwt.sign({ userId: newUser._id }, process.env.ACCESS_TOKEN_SECRET);
+    // Update secretKey to user
+    const accessToken = jwt.sign({ userId: newUser._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+    await userModel.updateUser(email, { secretKey: accessToken });
 
     return {
         status: STATUS_CODE.CREATED,

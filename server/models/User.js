@@ -63,13 +63,19 @@ const UserSchema = new mongoose.Schema(
 
 const User = mongoose.model('User', UserSchema);
 
-// Additional function
+// Find user by email
 const getUser = async (email) => {
     return await User.findOne({ email: email })
 };
 
+// Update user
+const updateUser = async (email, data) => {
+    return await User.updateOne({ email: email }, data);
+};
+
 module.exports = {
     User,
-    getUser
+    getUser,
+    updateUser
 }
 
