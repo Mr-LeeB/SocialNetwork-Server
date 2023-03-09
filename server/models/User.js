@@ -37,6 +37,7 @@ const UserSchema = new mongoose.Schema(
       userRole: {
         type: Number,
         required: true,
+        default: 1,
       },
       phoneNumber: {
         type: Number,
