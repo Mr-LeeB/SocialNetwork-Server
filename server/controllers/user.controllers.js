@@ -14,11 +14,11 @@ const RegisterUser_co = async (req, res) => {
         const result = await RegisterUser_se(user);
 
         // Return result
-        const { status, success, message, data } = result;
+        const { status, success, message, content } = result;
         if (!success) {
             return res.status(status).send({ success, message });
         } else {
-            return res.status(status).send({ success, message, data });
+            return res.status(status).send({ success, message, content });
         }
 
     } catch (error) {

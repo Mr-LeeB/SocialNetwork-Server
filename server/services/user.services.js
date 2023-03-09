@@ -40,10 +40,8 @@ const RegisterUser_se = async (user) => {
         status: STATUS_CODE.CREATED,
         success: true,
         message: 'User created successfully',
-        data: {
-            content: {
-                accessToken
-            }
+        content: {
+            accessToken
         }
     };
 }

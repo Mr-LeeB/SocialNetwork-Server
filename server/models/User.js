@@ -53,7 +53,11 @@ const UserSchema = new mongoose.Schema(
         type: String,
         default: null,
       },
-      history: {
+      like: {
+        type: Array,
+        default: [],
+      },
+      comment: {
         type: Array,
         default: [],
       },
