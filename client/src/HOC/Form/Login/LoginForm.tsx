@@ -14,8 +14,8 @@ const LoginForm = () => {
     dispatch(
       REGIS_USER_SAGA({
         userRegister: {
-          name: "LoganZzZ",
-          email: "hgdjha@yahoo.com",
+          name: "LoganZ",
+          email: "ln26805@gmail.com",
           password: "alooo",
           userImage:
             "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
