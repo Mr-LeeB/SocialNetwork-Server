@@ -5,7 +5,7 @@ const userModel = require("../models/User");
 const STATUS_CODE = require("../util/SettingSystem");
 
 const RegisterUser_Service = async (user) => {
-  const { name, email, password } = user;
+  const { firstname, lastname, email, password } = user;
 
   // userModel.getUser('ln26805@gmail.com').then((user) => {
   //     console.log(user);
@@ -23,7 +23,8 @@ const RegisterUser_Service = async (user) => {
   // All good
   const hashedPassword = await argon2.hash(password);
   const newUser = new User({
-    name,
+    firstname,
+    lastname,
     email,
     password: hashedPassword,
   });
