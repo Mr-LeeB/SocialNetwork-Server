@@ -3,8 +3,6 @@ const STATUS_CODE = require("../../util/SettingSystem");
 const RegisterUser_checkEmpty = (req, res, next) => {
   const { firstname, lastname, email, password } = req.body;
 
-  console.log(req.body);
-
   // Simple validation
   if (!firstname || !lastname || !email || !password) {
     return res
