@@ -18,7 +18,12 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
-    name: {
+    firstname: {
+      type: String,
+      required: true,
+      maxlength: 32,
+    },
+    lastname: {
       type: String,
       required: true,
       maxlength: 32,
@@ -28,7 +33,6 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
       index: { unique: true },
-      match: /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/,
     },
     password: {
       type: String,

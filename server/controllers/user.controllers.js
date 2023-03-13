@@ -5,9 +5,9 @@ const { RegisterUser_Service } = require("../services/user.services");
 // @access Public
 
 const RegisterUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstname, lastname, email, password } = req.body;
 
-  const user = { name, email, password };
+  const user = { firstname, lastname, email, password };
 
   try {
     // Call service
