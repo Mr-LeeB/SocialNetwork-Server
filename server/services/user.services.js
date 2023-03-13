@@ -4,8 +4,8 @@ const { User } = require("../models/User");
 const userModel = require("../models/User");
 const STATUS_CODE = require("../util/SettingSystem");
 
-const RegisterUser_service = async (user) => {
-  const { name, email, password, userRole, userImage } = user;
+const RegisterUser_Service = async (user) => {
+  const { name, email, password } = user;
 
   // userModel.getUser('ln26805@gmail.com').then((user) => {
   //     console.log(user);
@@ -26,8 +26,6 @@ const RegisterUser_service = async (user) => {
     name,
     email,
     password: hashedPassword,
-    userRole,
-    userImage,
   });
   await newUser.save();
 
@@ -37,7 +35,7 @@ const RegisterUser_service = async (user) => {
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "1d" }
   );
-  await userModel.updateUser(email, { secretKey: accessToken });
+  await userModel.updateUser(email, { accessToken: accessToken });
 
   return {
     status: STATUS_CODE.CREATED,
@@ -50,5 +48,5 @@ const RegisterUser_service = async (user) => {
 };
 
 module.exports = {
-  RegisterUser_service,
+  RegisterUser_Service,
 };

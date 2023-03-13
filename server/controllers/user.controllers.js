@@ -1,17 +1,17 @@
-const { RegisterUser_service } = require("../services/user.services");
+const { RegisterUser_Service } = require("../services/user.services");
 
 // @route POST api/users
 // @desc Register user
 // @access Public
 
-const RegisterUser_co = async (req, res) => {
-  const { name, email, password, userRole, userImage } = req.body;
+const RegisterUser = async (req, res) => {
+  const { name, email, password } = req.body;
 
-  const user = { name, email, password, userRole, userImage };
+  const user = { name, email, password };
 
   try {
     // Call service
-    const result = await RegisterUser_service(user);
+    const result = await RegisterUser_Service(user);
 
     // Return result
     const { status, success, message, content } = result;
@@ -27,5 +27,5 @@ const RegisterUser_co = async (req, res) => {
 };
 
 module.exports = {
-  RegisterUser_co,
+  RegisterUser,
 };

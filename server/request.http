@@ -1,4 +1,4 @@
-POST http://localhost:7000/api/users
+POST http://localhost:7000/api/users/register
 Content-Type: application/json
 
 {
@@ -10,3 +10,10 @@ Content-Type: application/json
 }
 
 ### 
+
+POST http://localhost:7000/api/checkAuthorized
+Content-Type: application/json
+
+{
+    "accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDBmM2U1MzA5OTg2ODQzYzIxNWE3ZTMiLCJpYXQiOjE2Nzg3MjA1OTUsImV4cCI6MTY3ODgwNjk5NX0.vrEcN9BcRQgR4-F5oBDDYaGqH5HNAP_OhOqqCID6Dbs"
+}
