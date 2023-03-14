@@ -6,6 +6,6 @@ const authRouter = require("./auth.router");
 router.use("/", userRouter);
 
 //check access token
-router.use("/checkLoginBefore", authRouter);
+router.use("/", authRouter);
 
 module.exports = router;
