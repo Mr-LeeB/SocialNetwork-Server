@@ -48,49 +48,6 @@ const RegisterUser_Service = async (user) => {
   };
 };
 
-const LoginUser_Service = async (user) => {
-  const { email, password } = user;
-
-  // Check for invalid user
-  const userFind = await userModel.getUserByEmail(email);
-  if (!userFind) {
-    return {
-      status: STATUS_CODE.SUCCESS,
-      success: false,
-      message: "Email does not exist!",
-    };
-  }
-
-  // Check for invalid password
-  const validPassword = await argon2.verify(userFind.password, password);
-  if (!validPassword) {
-    return {
-      status: STATUS_CODE.SUCCESS,
-      success: false,
-      message: "Invalid password!",
-    };
-  }
-
-  // All good
-  // Update secretKey to user
-  const accessToken = jwt.sign(
-    { userId: userFind._id },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "1d" }
-  );
-  await userModel.updateUser(email, { accessToken: accessToken });
-
-  return {
-    status: STATUS_CODE.SUCCESS,
-    userID: userFind._id,
-    success: true,
-    message: "User login successfully",
-    content: {
-      accessToken,
-    },
-  };
-};
-
 const FindUserByID_Service = async (userID) => {
   const userFind = await userModel.getUserById(userID);
   if (!userFind) {
@@ -113,6 +70,5 @@ const FindUserByID_Service = async (userID) => {
 
 module.exports = {
   RegisterUser_Service,
-  LoginUser_Service,
   FindUserByID_Service,
 };
