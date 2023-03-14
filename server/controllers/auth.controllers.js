@@ -52,7 +52,9 @@ const LoginUser = async (req, res) => {
 };
 
 const Logout = async (req, res) => {
-  const accessToken = req.body.accessToken;
+  const token = req.body.accessToken;
+
+  const accessToken = token.replaceAll('"', "");
 
   try {
     // Call service
