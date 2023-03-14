@@ -21,6 +21,20 @@ const checkToken = async (req, res, next) => {
   next();
 };
 
+const LoginUser_checkEmpty = (req, res, next) => {
+  const { email, password } = req.body;
+
+  // Simple validation
+  if (!email || !password) {
+    return res.status(STATUS_CODE.SUCCESS).send({
+      success: false,
+      message: "Please enter all fields",
+    });
+  }
+  next();
+};
+
 module.exports = {
   checkToken,
+  LoginUser_checkEmpty,
 };

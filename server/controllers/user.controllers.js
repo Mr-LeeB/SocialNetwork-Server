@@ -1,6 +1,5 @@
 const {
   RegisterUser_Service,
-  LoginUser_Service,
   FindUserByID_Service,
 } = require("../services/user.services");
 const STATUS_CODE = require("../util/SettingSystem");
@@ -17,30 +16,6 @@ const RegisterUser = async (req, res) => {
   try {
     // Call service
     const result = await RegisterUser_Service(user);
-
-    // Return result
-    const { status, success, message, content } = result;
-    if (!success) {
-      return res.status(status).send({ success, message });
-    } else {
-      return res.status(status).send({ success, message, content });
-    }
-  } catch (error) {
-    console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
-  }
-};
-
-const LoginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = { email, password };
-
-  try {
-    // Call service
-    const result = await LoginUser_Service(user);
 
     // Return result
     const { status, success, message, content } = result;
@@ -81,6 +56,5 @@ const FindUserByID = async (req, res) => {
 
 module.exports = {
   RegisterUser,
-  LoginUser,
   FindUserByID,
 };
