@@ -1,4 +1,7 @@
-const { RegisterUser_Service } = require("../services/user.services");
+const {
+  RegisterUser_Service,
+  LoginUser_Service,
+} = require("../services/user.services");
 const STATUS_CODE = require("../util/SettingSystem");
 
 // @route POST api/users
@@ -29,6 +32,31 @@ const RegisterUser = async (req, res) => {
   }
 };
 
+const LoginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = { email, password };
+
+  try {
+    // Call service
+    const result = await LoginUser_Service(user);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   RegisterUser,
+  LoginUser,
 };
