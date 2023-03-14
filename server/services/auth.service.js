@@ -3,33 +3,30 @@ const userModel = require("../models/User");
 const STATUS_CODE = require("../util/SettingSystem");
 
 const checkLoginBefore_Service = async (accessToken) => {
-  let userID;
-  jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    userID = decoded.userId;
-  });
-  userModel.getUserById(userID).then((user) => {
-    if (!user) {
-      return {
-        status: STATUS_CODE.SUCCESS,
-        success: false,
-        message: "User does not exist!",
-      };
-    } else {
-      if (user.accessToken === accessToken) {
-        return {
-          status: STATUS_CODE.SUCCESS,
-          success: true,
-          message: "Have login before!",
-        };
-      } else {
-        return {
-          status: STATUS_CODE.SUCCESS,
-          success: false,
-          message: "Have not login before!",
-        };
-      }
-    }
-  });
+  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+  const userID = decoded.userId;
+
+  const user = await userModel.getUserById(userID);
+  if (!user) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: false,
+      message: "User does not exist!",
+    };
+  }
+  if (user.accessToken !== accessToken) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: false,
+      message: "Have not logged in!",
+    };
+  }
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: "User have logged in!",
+  };
 };
 
 module.exports = {
