@@ -2,7 +2,8 @@ const jwt = require("jsonwebtoken");
 const STATUS_CODE = require("../../util/SettingSystem");
 
 const checkToken = async (req, res, next) => {
-  const accessToken = req.body.accessToken;
+  const token = req.body.accessToken;
+  const accessToken = token.replaceAll('"', "");
 
   if (!accessToken) {
     return res

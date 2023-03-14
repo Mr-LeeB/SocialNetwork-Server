@@ -72,7 +72,38 @@ const LoginUser_Service = async (user) => {
   };
 };
 
+const Logout_Service = async (accessToken) => {
+  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+  const userID = decoded.userId;
+
+  const user = await userModel.getUserById(userID);
+  if (!user) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: false,
+      message: "User does not exist!",
+    };
+  }
+
+  if (user.accessToken !== accessToken) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: false,
+      message: "Have not logged in!",
+    };
+  }
+
+  await userModel.updateUser(user.email, { accessToken: null });
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: "User logout successfully",
+  };
+};
+
 module.exports = {
   checkLoginBefore_Service,
   LoginUser_Service,
+  Logout_Service,
 };
