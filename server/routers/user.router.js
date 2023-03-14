@@ -8,7 +8,6 @@ const {
   RegisterUser_checkEmpty,
 } = require("../middlewares/validations/user.validation");
 
-// Thêm người dùng
 userRouter.post("/users", RegisterUser_checkEmpty, RegisterUser);
 
 userRouter.get("/users/:id", FindUserByID);
