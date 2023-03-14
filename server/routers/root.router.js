@@ -5,36 +5,36 @@ const STATUS_CODE = require("../util/SettingSystem");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/User");
 
-router.use("/users", userRouter);
+router.use("/", userRouter);
 
 //check access token
-router.post("/checkAuthorized", (req, res) => {
+router.post("/checkLoginBefore", (req, res) => {
   const accessToken = req.body.accessToken;
   if (!accessToken) {
     return res
-      .status(STATUS_CODE.BAD_REQUEST)
-      .send({ success: false, message: "No token provided!" });
+      .status(STATUS_CODE.SUCCESS)
+      .send({ success: false, message: "No token found!" });
   }
   jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       return res
-        .status(STATUS_CODE.UN_AUTHOR)
+        .status(STATUS_CODE.SUCCESS)
         .send({ success: false, message: "Invalid token!" });
     } else {
       userModel.getUserById(decoded.userId).then((user) => {
         if (!user) {
           return res
-            .status(STATUS_CODE.NOT_FOUND)
+            .status(STATUS_CODE.SUCCESS)
             .send({ success: false, message: "User not found!" });
         } else {
           if (user.accessToken === accessToken) {
             return res
               .status(STATUS_CODE.SUCCESS)
-              .send({ success: true, message: "Authorized!" });
+              .send({ success: true, message: "Have already login!" });
           } else {
             return res
-              .status(STATUS_CODE.UN_AUTHOR)
-              .send({ success: false, message: "Unauthorized!" });
+              .status(STATUS_CODE.SUCCESS)
+              .send({ success: false, message: "Have not login before!" });
           }
         }
       });
