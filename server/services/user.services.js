@@ -82,6 +82,7 @@ const LoginUser_Service = async (user) => {
 
   return {
     status: STATUS_CODE.SUCCESS,
+    userID: userFind._id,
     success: true,
     message: "User login successfully",
     content: {
@@ -90,7 +91,28 @@ const LoginUser_Service = async (user) => {
   };
 };
 
+const FindUserByID_Service = async (userID) => {
+  const userFind = await userModel.getUserById(userID);
+  if (!userFind) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: false,
+      message: "User does not exist!",
+    };
+  } else {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "User found successfully",
+      content: {
+        user: userFind,
+      },
+    };
+  }
+};
+
 module.exports = {
   RegisterUser_Service,
   LoginUser_Service,
+  FindUserByID_Service,
 };
