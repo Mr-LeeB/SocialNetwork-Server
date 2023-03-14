@@ -15,7 +15,7 @@ const RegisterUser_Service = async (user) => {
   const userFind = await User.findOne({ email });
   if (userFind) {
     return {
-      status: STATUS_CODE.CONFLICT,
+      status: STATUS_CODE.SUCCESS,
       success: false,
       message: "Email already exists!",
     };
