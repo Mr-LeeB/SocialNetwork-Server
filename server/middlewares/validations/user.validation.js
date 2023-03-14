@@ -5,9 +5,10 @@ const RegisterUser_checkEmpty = (req, res, next) => {
 
   // Simple validation
   if (!firstname || !lastname || !email || !password) {
-    return res
-      .status(STATUS_CODE.BAD_REQUEST)
-      .send({ success: false, message: "Please enter all fields" });
+    return res.status(STATUS_CODE.SUCCESS).send({
+      success: false,
+      message: "Please enter all fields",
+    });
   }
   next();
 };

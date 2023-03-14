@@ -1,4 +1,5 @@
 const { RegisterUser_Service } = require("../services/user.services");
+const STATUS_CODE = require("../util/SettingSystem");
 
 // @route POST api/users
 // @desc Register user
@@ -22,7 +23,9 @@ const RegisterUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send({ success: false, message: "Internal server error" });
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
   }
 };
 

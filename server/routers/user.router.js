@@ -6,6 +6,6 @@ const {
 } = require("../middlewares/validations/user.validation");
 
 // Thêm người dùng
-userRouter.post("/", RegisterUser_checkEmpty, RegisterUser);
+userRouter.post("/users", RegisterUser_checkEmpty, RegisterUser);
 
 module.exports = userRouter;

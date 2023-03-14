@@ -5,7 +5,7 @@ const STATUS_CODE = require("../util/SettingSystem");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/User");
 
-router.use("/users", userRouter);
+router.use("/", userRouter);
 
 //check access token
 router.post("/checkLoginBefore", (req, res) => {
