@@ -40,14 +40,13 @@ const LoginUser = async (req, res) => {
 
   try {
     // Call service
-    const result = await LoginUser_Service(req, user);
+    const result = await LoginUser_Service(user);
 
     // Return result
-    const { status, success, message, content, userID } = result;
+    const { status, success, message, content } = result;
     if (!success) {
       return res.status(status).send({ success, message });
     } else {
-      req.session.userID = userID;
       return res.status(status).send({ success, message, content });
     }
   } catch (error) {

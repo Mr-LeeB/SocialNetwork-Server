@@ -82,7 +82,6 @@ const LoginUser_Service = async (user) => {
 
   return {
     status: STATUS_CODE.SUCCESS,
-    userID: userFind._id,
     success: true,
     message: "User login successfully",
     content: {
