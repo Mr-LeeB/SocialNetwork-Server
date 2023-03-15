@@ -3,13 +3,14 @@ const STATUS_CODE = require("../../util/SettingSystem");
 
 const checkToken = async (req, res, next) => {
   const token = req.body.accessToken;
-  const accessToken = token.replaceAll('"', "");
 
-  if (!accessToken) {
+  if (!token) {
     return res
       .status(STATUS_CODE.NOT_FOUND)
       .send({ success: false, message: "No token found!" });
   }
+
+  const accessToken = token.replaceAll('"', "");
 
   try {
     await jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
