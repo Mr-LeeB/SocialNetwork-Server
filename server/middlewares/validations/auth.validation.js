@@ -6,7 +6,7 @@ const checkToken = async (req, res, next) => {
 
   if (!accessToken) {
     return res
-      .status(STATUS_CODE.SUCCESS)
+      .status(STATUS_CODE.NOT_FOUND)
       .send({ success: false, message: "No token found!" });
   }
 
@@ -14,7 +14,7 @@ const checkToken = async (req, res, next) => {
     await jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
   } catch (error) {
     return res
-      .status(STATUS_CODE.SUCCESS)
+      .status(STATUS_CODE.BAD_REQUEST)
       .send({ success: false, message: error.message });
   }
 
@@ -26,7 +26,7 @@ const LoginUser_checkEmpty = (req, res, next) => {
 
   // Simple validation
   if (!email || !password) {
-    return res.status(STATUS_CODE.SUCCESS).send({
+    return res.status(STATUS_CODE.BAD_REQUEST).send({
       success: false,
       message: "Please enter all fields",
     });

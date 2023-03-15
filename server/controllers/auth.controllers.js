@@ -5,7 +5,7 @@ const {
   Logout_Service,
 } = require("../services/auth.service");
 
-const checkLoginBefore = async (req, res) => {
+const checkLogin = async (req, res) => {
   const accessToken = req.body.accessToken;
 
   try {
@@ -76,7 +76,7 @@ const Logout = async (req, res) => {
 };
 
 module.exports = {
-  checkLoginBefore,
+  checkLogin,
   LoginUser,
   Logout,
 };

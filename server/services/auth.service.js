@@ -10,14 +10,14 @@ const checkLoginBefore_Service = async (accessToken) => {
   const user = await userModel.getUserById(userID);
   if (!user) {
     return {
-      status: STATUS_CODE.SUCCESS,
+      status: STATUS_CODE.NOT_FOUND,
       success: false,
       message: "User does not exist!",
     };
   }
   if (user.accessToken !== accessToken) {
     return {
-      status: STATUS_CODE.SUCCESS,
+      status: STATUS_CODE.UNAUTHORIZED,
       success: false,
       message: "Have not logged in!",
     };
@@ -37,7 +37,7 @@ const LoginUser_Service = async (user) => {
   const userFind = await userModel.getUserByEmail(email);
   if (!userFind) {
     return {
-      status: STATUS_CODE.SUCCESS,
+      status: STATUS_CODE.NOT_FOUND,
       success: false,
       message: "Email does not exist!",
     };
@@ -47,7 +47,7 @@ const LoginUser_Service = async (user) => {
   const validPassword = await argon2.verify(userFind.password, password);
   if (!validPassword) {
     return {
-      status: STATUS_CODE.SUCCESS,
+      status: STATUS_CODE.BAD_REQUEST,
       success: false,
       message: "Invalid password!",
     };
@@ -79,7 +79,7 @@ const Logout_Service = async (accessToken) => {
   const user = await userModel.getUserById(userID);
   if (!user) {
     return {
-      status: STATUS_CODE.SUCCESS,
+      status: STATUS_CODE.NOT_FOUND,
       success: false,
       message: "User does not exist!",
     };
@@ -87,7 +87,7 @@ const Logout_Service = async (accessToken) => {
 
   if (user.accessToken !== accessToken) {
     return {
-      status: STATUS_CODE.SUCCESS,
+      status: STATUS_CODE.UNAUTHORIZED,
       success: false,
       message: "Have not logged in!",
     };
