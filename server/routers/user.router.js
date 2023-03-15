@@ -1,15 +1,14 @@
 const express = require("express");
 const userRouter = express.Router();
-const {
-  RegisterUser,
-  FindUserByID,
-} = require("../controllers/user.controllers");
-const {
-  RegisterUser_checkEmpty,
-} = require("../middlewares/validations/user.validation");
+const userController = require("../controllers/user.controllers");
+const userValidation = require("../middlewares/validations/user.validation");
 
-userRouter.post("/users", RegisterUser_checkEmpty, RegisterUser);
+userRouter.post(
+  "/users",
+  userValidation.registerUser_checkEmpty,
+  userController.registerUser
+);
 
-userRouter.get("/users/:id", FindUserByID);
+userRouter.get("/users/:id", userController.findUserByID);
 
 module.exports = userRouter;

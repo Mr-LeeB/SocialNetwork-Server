@@ -3,7 +3,7 @@ const userModel = require("../models/User");
 const STATUS_CODE = require("../util/SettingSystem");
 const argon2 = require("argon2");
 
-const checkLoginBefore_Service = async (accessToken) => {
+const checkLogin_Service = async (accessToken) => {
   const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
   const userID = decoded.userId;
 
@@ -30,7 +30,7 @@ const checkLoginBefore_Service = async (accessToken) => {
   };
 };
 
-const LoginUser_Service = async (user) => {
+const login_Service = async (user) => {
   const { email, password } = user;
 
   // Check for invalid user
@@ -72,7 +72,7 @@ const LoginUser_Service = async (user) => {
   };
 };
 
-const Logout_Service = async (accessToken) => {
+const logout_Service = async (accessToken) => {
   const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
   const userID = decoded.userId;
 
@@ -103,7 +103,7 @@ const Logout_Service = async (accessToken) => {
 };
 
 module.exports = {
-  checkLoginBefore_Service,
-  LoginUser_Service,
-  Logout_Service,
+  checkLogin_Service,
+  login_Service,
+  logout_Service,
 };

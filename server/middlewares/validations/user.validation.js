@@ -1,6 +1,6 @@
 const STATUS_CODE = require("../../util/SettingSystem");
 
-const RegisterUser_checkEmpty = (req, res, next) => {
+const registerUser_checkEmpty = (req, res, next) => {
   const { firstname, lastname, email, password } = req.body;
 
   // Simple validation
@@ -14,5 +14,5 @@ const RegisterUser_checkEmpty = (req, res, next) => {
 };
 
 module.exports = {
-  RegisterUser_checkEmpty,
+  registerUser_checkEmpty,
 };

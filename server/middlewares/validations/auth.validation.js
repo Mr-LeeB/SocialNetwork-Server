@@ -23,7 +23,7 @@ const checkToken = async (req, res, next) => {
   next();
 };
 
-const LoginUser_checkEmpty = (req, res, next) => {
+const login_checkEmpty = (req, res, next) => {
   const { email, password } = req.body;
 
   // Simple validation
@@ -38,5 +38,5 @@ const LoginUser_checkEmpty = (req, res, next) => {
 
 module.exports = {
   checkToken,
-  LoginUser_checkEmpty,
+  login_checkEmpty,
 };

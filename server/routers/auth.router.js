@@ -1,19 +1,20 @@
 const express = require("express");
 const authRouter = express.Router();
-const {
-  checkLogin,
-  LoginUser,
-  Logout,
-} = require("../controllers/auth.controllers");
-const {
-  checkToken,
-  LoginUser_checkEmpty,
-} = require("../middlewares/validations/auth.validation");
+const authController = require("../controllers/auth.controllers");
+const authValidation = require("../middlewares/validations/auth.validation");
 
-authRouter.post("/checklogin", checkToken, checkLogin);
+authRouter.post(
+  "/checklogin",
+  authValidation.checkToken,
+  authController.checkLogin
+);
 
-authRouter.post("/login", LoginUser_checkEmpty, LoginUser);
+authRouter.post(
+  "/login",
+  authValidation.login_checkEmpty,
+  authController.login
+);
 
-authRouter.post("/logout", checkToken, Logout);
+authRouter.post("/logout", authValidation.checkToken, authController.logout);
 
 module.exports = authRouter;
