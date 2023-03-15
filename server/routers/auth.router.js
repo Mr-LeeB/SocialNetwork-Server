@@ -1,7 +1,7 @@
 const express = require("express");
 const authRouter = express.Router();
 const {
-  checkLoginBefore,
+  checkLogin,
   LoginUser,
   Logout,
 } = require("../controllers/auth.controllers");
@@ -10,7 +10,7 @@ const {
   LoginUser_checkEmpty,
 } = require("../middlewares/validations/auth.validation");
 
-authRouter.post("/checkLoginBefore", checkToken, checkLoginBefore);
+authRouter.post("/checklogin", checkToken, checkLogin);
 
 authRouter.post("/login", LoginUser_checkEmpty, LoginUser);
 
