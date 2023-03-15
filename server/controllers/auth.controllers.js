@@ -6,7 +6,9 @@ const {
 } = require("../services/auth.service");
 
 const checkLogin = async (req, res) => {
-  const accessToken = req.body.accessToken;
+  const token = req.body.accessToken;
+
+  const accessToken = token.replaceAll('"', "");
 
   try {
     // Call service
