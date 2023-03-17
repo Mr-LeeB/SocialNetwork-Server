@@ -49,7 +49,7 @@ const registerUser_Service = async (user) => {
 };
 
 const findUserByID_Service = async (userID) => {
-  const userFind = await userModel.getUserById(userID);
+  const userFind = await User.findById(userID);
   if (!userFind) {
     return {
       status: STATUS_CODE.NOT_FOUND,

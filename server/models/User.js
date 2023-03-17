@@ -77,11 +77,6 @@ const getUserByEmail = async (email) => {
   return await User.findOne({ email: email });
 };
 
-// Find user by id
-const getUserById = async (id) => {
-  return await User.findById({ _id: id });
-};
-
 // Update user
 const updateUser = async (email, data) => {
   return await User.updateOne({ email: email }, data);
@@ -91,5 +86,4 @@ module.exports = {
   User,
   getUserByEmail,
   updateUser,
-  getUserById,
 };
