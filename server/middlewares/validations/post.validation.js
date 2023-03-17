@@ -1,10 +1,10 @@
 const STATUS_CODE = require("../../util/SettingSystem");
 
-const registerUser_checkEmpty = (req, res, next) => {
-  const { firstname, lastname, email, password } = req.body;
+const post_checkEmpty = (req, res, next) => {
+  const { title, content, user } = req.body;
 
   // Simple validation
-  if (!firstname || !lastname || !email || !password) {
+  if (!title || !content || !user) {
     return res.status(STATUS_CODE.BAD_REQUEST).send({
       success: false,
       message: "Please enter all fields",
@@ -14,5 +14,5 @@ const registerUser_checkEmpty = (req, res, next) => {
 };
 
 module.exports = {
-  registerUser_checkEmpty,
+  post_checkEmpty,
 };

@@ -4,7 +4,7 @@ const { User } = require("../models/User");
 const userModel = require("../models/User");
 const STATUS_CODE = require("../util/SettingSystem");
 
-const RegisterUser_Service = async (user) => {
+const registerUser_Service = async (user) => {
   const { firstname, lastname, email, password } = user;
 
   // userModel.getUser('ln26805@gmail.com').then((user) => {
@@ -48,8 +48,8 @@ const RegisterUser_Service = async (user) => {
   };
 };
 
-const FindUserByID_Service = async (userID) => {
-  const userFind = await userModel.getUserById(userID);
+const findUserByID_Service = async (userID) => {
+  const userFind = await User.findById(userID);
   if (!userFind) {
     return {
       status: STATUS_CODE.NOT_FOUND,
@@ -69,6 +69,6 @@ const FindUserByID_Service = async (userID) => {
 };
 
 module.exports = {
-  RegisterUser_Service,
-  FindUserByID_Service,
+  registerUser_Service,
+  findUserByID_Service,
 };

@@ -1,9 +1,5 @@
 const STATUS_CODE = require("../util/SettingSystem");
-const {
-  checkLoginBefore_Service,
-  LoginUser_Service,
-  Logout_Service,
-} = require("../services/auth.service");
+const authService = require("../services/auth.service");
 
 const checkLogin = async (req, res) => {
   const token = req.body.accessToken;
@@ -12,7 +8,7 @@ const checkLogin = async (req, res) => {
 
   try {
     // Call service
-    const result = await checkLoginBefore_Service(accessToken);
+    const result = await authService.checkLogin_Service(accessToken);
 
     // Return result
     const { status, success, message } = result;
@@ -29,14 +25,14 @@ const checkLogin = async (req, res) => {
   }
 };
 
-const LoginUser = async (req, res) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = { email, password };
 
   try {
     // Call service
-    const result = await LoginUser_Service(user);
+    const result = await authService.login_Service(user);
 
     // Return result
     const { status, success, message, content } = result;
@@ -53,14 +49,14 @@ const LoginUser = async (req, res) => {
   }
 };
 
-const Logout = async (req, res) => {
+const logout = async (req, res) => {
   const token = req.body.accessToken;
 
   const accessToken = token.replaceAll('"', "");
 
   try {
     // Call service
-    const result = await Logout_Service(accessToken);
+    const result = await authService.logout_Service(accessToken);
 
     // Return result
     const { status, success, message } = result;
@@ -79,6 +75,6 @@ const Logout = async (req, res) => {
 
 module.exports = {
   checkLogin,
-  LoginUser,
-  Logout,
+  login,
+  logout,
 };

@@ -1,21 +1,18 @@
-const {
-  RegisterUser_Service,
-  FindUserByID_Service,
-} = require("../services/user.services");
+const userService = require("../services/user.services");
 const STATUS_CODE = require("../util/SettingSystem");
 
 // @route POST api/users
 // @desc Register user
 // @access Public
 
-const RegisterUser = async (req, res) => {
+const registerUser = async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
 
   const user = { firstname, lastname, email, password };
 
   try {
     // Call service
-    const result = await RegisterUser_Service(user);
+    const result = await userService.registerUser_Service(user);
 
     // Return result
     const { status, success, message, content } = result;
@@ -32,12 +29,12 @@ const RegisterUser = async (req, res) => {
   }
 };
 
-const FindUserByID = async (req, res) => {
+const findUserByID = async (req, res) => {
   const { id } = req.params;
 
   try {
     // Call service
-    const result = await FindUserByID_Service(id);
+    const result = await userService.findUserByID_Service(id);
 
     // Return result
     const { status, success, message, content } = result;
@@ -55,6 +52,6 @@ const FindUserByID = async (req, res) => {
 };
 
 module.exports = {
-  RegisterUser,
-  FindUserByID,
+  registerUser,
+  findUserByID,
 };
