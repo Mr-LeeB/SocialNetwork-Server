@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/User");
+const { User } = require("../models/User");
 const STATUS_CODE = require("../util/SettingSystem");
 const argon2 = require("argon2");
 
@@ -7,7 +8,7 @@ const checkLogin_Service = async (accessToken) => {
   const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
   const userID = decoded.userId;
 
-  const user = await userModel.getUserById(userID);
+  const user = await User.findById(userID);
   if (!user) {
     return {
       status: STATUS_CODE.NOT_FOUND,
@@ -76,7 +77,7 @@ const logout_Service = async (accessToken) => {
   const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
   const userID = decoded.userId;
 
-  const user = await userModel.getUserById(userID);
+  const user = await User.findById(userID);
   if (!user) {
     return {
       status: STATUS_CODE.NOT_FOUND,
