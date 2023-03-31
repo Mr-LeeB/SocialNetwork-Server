@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+const argon2 = require("argon2");
+const crypto = require("crypto");
+const { promisify } = require("util");
+const jwt = require("jsonwebtoken");
 
 // const UserSchema = new mongoose.Schema({
 //     userName: {
@@ -70,20 +74,38 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+UserSchema.methods = {
+  authenticate: async function (password) {
+    return await argon2.verify(this.password, password);
+  },
+};
+
+UserSchema.pre("save", async function (next) {
+  const user = this;
+
+  const salt = crypto.randomBytes(32);
+  const hash = await argon2.hash(user.password, salt);
+  user.password = hash;
+  next();
+});
+
+UserSchema.pre("save", async function (next) {
+  if (this.isNew || this.isModified("password")) {
+    // Generate a new access token
+    const accessToken = await promisify(jwt.sign)(
+      { id: this._id },
+      process.env.ACCESS_TOKEN_SECRET
+    );
+
+    // Save the access token to the user document
+    this.accessToken = accessToken;
+  }
+
+  next();
+});
+
 const User = mongoose.model("User", UserSchema);
-
-// Find user by email
-const getUserByEmail = async (email) => {
-  return await User.findOne({ email: email });
-};
-
-// Update user
-const updateUser = async (email, data) => {
-  return await User.updateOne({ email: email }, data);
-};
 
 module.exports = {
   User,
-  getUserByEmail,
-  updateUser,
 };

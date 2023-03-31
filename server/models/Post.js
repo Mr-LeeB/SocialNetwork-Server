@@ -35,16 +35,6 @@ const PostSchema = new mongoose.Schema(
 
 const Post = mongoose.model("Post", PostSchema);
 
-const updatePost = async (id, data) => {
-  return await Post.updateOne({ _id: id }, data);
-};
-
-const get3LastestPost = async () => {
-  return await Post.find().sort({ createdAt: -1 }).limit(3);
-};
-
 module.exports = {
   Post,
-  updatePost,
-  get3LastestPost,
 };

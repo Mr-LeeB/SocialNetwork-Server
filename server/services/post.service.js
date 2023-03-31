@@ -1,6 +1,14 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const { Post } = require("../models/Post");
 
+const handleError = (error, statusCode) => {
+  return {
+    status: statusCode,
+    success: false,
+    message: error.message || "Server Error",
+  };
+};
+
 const upPost_Service = async (post) => {
   const { title, content, user } = post;
 
@@ -19,11 +27,7 @@ const upPost_Service = async (post) => {
       content: result,
     };
   } catch (error) {
-    return {
-      status: STATUS_CODE.SERVER_ERROR,
-      success: false,
-      message: error.message,
-    };
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 
@@ -37,11 +41,7 @@ const getPost_Service = async (id) => {
       content: result,
     };
   } catch (error) {
-    return {
-      status: STATUS_CODE.SERVER_ERROR,
-      success: false,
-      message: error.message,
-    };
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 
@@ -55,11 +55,7 @@ const load10Post_Service = async () => {
       content: result,
     };
   } catch (error) {
-    return {
-      status: STATUS_CODE.SERVER_ERROR,
-      success: false,
-      message: error.message,
-    };
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 
@@ -75,11 +71,7 @@ const editPost_Service = async (id, post) => {
       content: result,
     };
   } catch (error) {
-    return {
-      status: STATUS_CODE.SERVER_ERROR,
-      success: false,
-      message: error.message,
-    };
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 

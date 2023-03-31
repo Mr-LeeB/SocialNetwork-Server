@@ -1,12 +1,10 @@
 const jwt = require("jsonwebtoken");
-const userModel = require("../models/User");
 const { User } = require("../models/User");
 const STATUS_CODE = require("../util/SettingSystem");
-const argon2 = require("argon2");
 
 const checkLogin_Service = async (accessToken) => {
   const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-  const userID = decoded.userId;
+  const userID = decoded.id;
 
   const user = await User.findById(userID);
   if (!user) {
@@ -35,7 +33,7 @@ const login_Service = async (user) => {
   const { email, password } = user;
 
   // Check for invalid user
-  const userFind = await userModel.getUserByEmail(email);
+  const userFind = await User.findOne({ email: email });
   if (!userFind) {
     return {
       status: STATUS_CODE.NOT_FOUND,
@@ -45,7 +43,7 @@ const login_Service = async (user) => {
   }
 
   // Check for invalid password
-  const validPassword = await argon2.verify(userFind.password, password);
+  const validPassword = await userFind.authenticate(password);
   if (!validPassword) {
     return {
       status: STATUS_CODE.BAD_REQUEST,
@@ -57,11 +55,10 @@ const login_Service = async (user) => {
   // All good
   // Update secretKey to user
   const accessToken = jwt.sign(
-    { userId: userFind._id },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "1d" }
+    { id: userFind._id },
+    process.env.ACCESS_TOKEN_SECRET
   );
-  await userModel.updateUser(email, { accessToken: accessToken });
+  await User.updateOne({ email: email }, { accessToken: accessToken });
 
   return {
     status: STATUS_CODE.SUCCESS,
@@ -75,7 +72,7 @@ const login_Service = async (user) => {
 
 const logout_Service = async (accessToken) => {
   const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-  const userID = decoded.userId;
+  const userID = decoded.id;
 
   const user = await User.findById(userID);
   if (!user) {
@@ -94,7 +91,7 @@ const logout_Service = async (accessToken) => {
     };
   }
 
-  await userModel.updateUser(user.email, { accessToken: null });
+  await User.updateOne({ _id: userID }, { accessToken: null });
 
   return {
     status: STATUS_CODE.SUCCESS,
