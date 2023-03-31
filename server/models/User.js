@@ -40,7 +40,6 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
     userRole: {
       type: Number,
@@ -82,6 +81,7 @@ UserSchema.methods = {
 
 UserSchema.pre("save", async function (next) {
   const user = this;
+  if (!user.isModified("password")) return next();
 
   const salt = crypto.randomBytes(32);
   const hash = await argon2.hash(user.password, salt);
