@@ -51,7 +51,34 @@ const findUserByID = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+
+  const { firstname, lastname, password } = req.body;
+
+  const user = { firstname, lastname, password };
+
+  try {
+    // Call service
+    const result = await userService.updateUser_Service(id, user);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   registerUser,
   findUserByID,
+  updateUser,
 };

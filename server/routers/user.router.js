@@ -11,4 +11,6 @@ userRouter.post(
 
 userRouter.get("/users/:id", userController.findUserByID);
 
+userRouter.put("/users/:id", userController.updateUser);
+
 module.exports = userRouter;

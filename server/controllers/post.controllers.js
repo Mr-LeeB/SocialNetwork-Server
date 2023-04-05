@@ -47,10 +47,10 @@ const getPost = async (req, res) => {
   }
 };
 
-const load10Post = async (req, res) => {
+const loadAllPost = async (req, res) => {
   try {
     // Call service
-    const result = await postService.load10Post_Service();
+    const result = await postService.loadAllPost_Service();
 
     // Return result
     const { status, success, message, content } = result;
@@ -117,7 +117,7 @@ const getPostByUser = async (req, res) => {
 module.exports = {
   upPost,
   getPost,
-  load10Post,
+  loadAllPost,
   editPost,
   getPostByUser,
 };
