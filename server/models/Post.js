@@ -33,6 +33,25 @@ const PostSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+PostSchema.statics = {
+  SavePost: async function (post) {
+    const newPost = new this(post);
+    return newPost.save();
+  },
+  GetPost: async function (id) {
+    return this.findById(id).populate("user");
+  },
+  GetPosts: async function () {
+    return this.find().populate("user");
+  },
+  UpdatePost: async function (id, post) {
+    return this.updateOne({ _id: id }, { $set: post });
+  },
+  DeletePost: async function (id) {
+    return this.deleteOne({ _id: id });
+  },
+};
+
 const Post = mongoose.model("Post", PostSchema);
 
 module.exports = {
