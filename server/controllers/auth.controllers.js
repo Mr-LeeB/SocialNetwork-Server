@@ -105,10 +105,56 @@ const logout = async (req, res) => {
   }
 };
 
+const forgot_password = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Call service
+    const result = await authService.forgot_password_Service(email);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
+const verify_code = async (req, res) => {
+  const { code, email } = req.body;
+
+  try {
+    // Call service
+    const result = await authService.verify_code_Service(email, code);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   checkLogin,
   login,
   logout,
   login_Google,
   login_Google_Callback,
+  forgot_password,
+  verify_code,
 };

@@ -26,4 +26,12 @@ authRouter.get(
 
 authRouter.post("/logout", authValidation.checkToken, authController.logout);
 
+authRouter.post(
+  "/forgot",
+  authValidation.checkEmail_Empty,
+  authController.forgot_password
+);
+
+authRouter.post("/verify", authController.verify_code);
+
 module.exports = authRouter;

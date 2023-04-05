@@ -49,8 +49,21 @@ const login_validation_Google = (req, res, next) => {
   next();
 };
 
+const checkEmail_Empty = (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(STATUS_CODE.BAD_REQUEST).send({
+      success: false,
+      message: "Please enter email",
+    });
+  }
+  next();
+};
+
 module.exports = {
   checkToken,
   login_checkEmpty,
   login_validation_Google,
+  checkEmail_Empty,
 };
