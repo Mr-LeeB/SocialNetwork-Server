@@ -94,7 +94,7 @@ const editPost = async (req, res) => {
 
 const getPostByUser = async (req, res) => {
   const { id } = req.params;
-
+  console.log(id);
   try {
     // Call service
     const result = await postService.getPostByUser_Service(id);
