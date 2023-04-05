@@ -1,5 +1,6 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const { Post } = require("../models/Post");
+const { User } = require("../models/User");
 
 const handleError = (error, statusCode) => {
   return {
@@ -77,12 +78,23 @@ const editPost_Service = async (id, post) => {
 
 const getPostByUser_Service = async (id) => {
   try {
-    const result = await Post.GetPosts({ user: id });
+    const postArr = await Post.GetPosts({ user: id });
+    const user = await User.findById(postArr[0].user);
+
+    const userInfo = {
+      id: user._id,
+      username: user.lastname + " " + user.firstname,
+      userImage: user.userImage,
+    };
+
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
       message: "Post found",
-      content: result,
+      content: {
+        userInfo,
+        postArr,
+      },
     };
   } catch (error) {
     return handleError(error, STATUS_CODE.SERVER_ERROR);

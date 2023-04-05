@@ -39,10 +39,10 @@ PostSchema.statics = {
     return newPost.save();
   },
   GetPost: async function (id) {
-    return this.findById(id).populate("user");
+    return this.findById(id);
   },
   GetPosts: async function () {
-    return this.find().populate("user");
+    return this.find();
   },
   UpdatePost: async function (id, post) {
     return this.updateOne({ _id: id }, { $set: post });
