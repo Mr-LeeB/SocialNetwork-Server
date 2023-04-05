@@ -11,7 +11,7 @@ postRouter.post(
 );
 postRouter.get("/posts/:id", postController.getPost);
 postRouter.get("/:id/posts", postController.getPostByUser);
-postRouter.get("/posts", postController.load10Post);
+postRouter.get("/posts", postController.loadAllPost);
 postRouter.put("/posts/:id", postController.editPost);
 
 module.exports = postRouter;
