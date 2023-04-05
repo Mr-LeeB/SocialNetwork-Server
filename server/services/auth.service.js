@@ -8,9 +8,10 @@ const crypto = require("crypto");
 const cache = {
   get: (key) => cache[key],
   set: (key, value) => (cache[key] = value),
+  del: (key) => delete cache[key],
 };
 
-function generateCode(email) {
+const generateCode = (email) => {
   const code = crypto.randomBytes(3).toString("hex");
   const timestamp = Date.now();
   const expires = timestamp + 30 * 60 * 1000; // 30 minutes in milliseconds
@@ -20,7 +21,14 @@ function generateCode(email) {
     timestamp,
     expires,
   };
-}
+};
+
+const storeCache = (email) => {
+  const code = generateCode(email);
+  cache.set(email, code);
+  setTimeout(() => cache.del(email), 30 * 60 * 1000); // 30 minutes in milliseconds
+  return code.code;
+};
 
 const fetchUserProfile = async (accessToken) => {
   const url = "https://www.googleapis.com/oauth2/v3/userinfo";
@@ -184,14 +192,11 @@ const forgot_password_Service = async (email) => {
     };
   }
 
-  //Generate random code with 30 minutes expire
-  const codeInfo = generateCode(email);
-
-  //Save code to cache
-  cache.set(email, codeInfo);
+  //Save code to cache and get code
+  const code = storeCache(email);
 
   //Send email
-  await transporter.sendMailForgotPassword(email, codeInfo.code);
+  await transporter.sendMailForgotPassword(email, code);
 
   return {
     status: STATUS_CODE.SUCCESS,
