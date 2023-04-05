@@ -93,6 +93,9 @@ UserSchema.statics = {
     const user = await this.findOne({ email: email });
     return user === null ? false : user;
   },
+  updateUser: async function (id, data) {
+    return this.updateOne({ _id: id }, { $set: data });
+  },
 };
 
 UserSchema.pre("save", async function (next) {
@@ -118,6 +121,24 @@ UserSchema.pre("save", async function (next) {
   }
 
   next();
+});
+
+UserSchema.pre("updateOne", async function (next) {
+  if (this.getUpdate().$set.password) {
+    try {
+      const salt = crypto.randomBytes(32);
+      const hashedPassword = await argon2.hash(
+        this.getUpdate().$set.password,
+        salt
+      );
+      this.getUpdate().$set.password = hashedPassword;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    next();
+  }
 });
 
 const User = mongoose.model("User", UserSchema);

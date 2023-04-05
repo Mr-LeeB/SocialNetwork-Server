@@ -52,7 +52,26 @@ const findUserByID_Service = async (userID) => {
   }
 };
 
+const updateUser_Service = async (userID, user) => {
+  const userFind = await User.updateUser(userID, user);
+
+  if (!userFind) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: "User does not exist!",
+    };
+  }
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: "User updated successfully",
+  };
+};
+
 module.exports = {
   registerUser_Service,
   findUserByID_Service,
+  updateUser_Service,
 };
