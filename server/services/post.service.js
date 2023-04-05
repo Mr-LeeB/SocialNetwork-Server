@@ -75,9 +75,24 @@ const editPost_Service = async (id, post) => {
   }
 };
 
+const getPostByUser_Service = async (id) => {
+  try {
+    const result = await Post.find({ user: id });
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "Post found",
+      content: result,
+    };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
   load10Post_Service,
   editPost_Service,
+  getPostByUser_Service,
 };
