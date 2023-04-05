@@ -5,7 +5,7 @@ const registerUser_Service = async (user) => {
   const { firstname, lastname, email, password } = user;
 
   // Check for existing user
-  const userFind = await User.findOne({ email });
+  const userFind = await User.checkEmail(email);
   if (userFind) {
     return {
       status: STATUS_CODE.CONFLICT,

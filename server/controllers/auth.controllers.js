@@ -1,5 +1,6 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const authService = require("../services/auth.service");
+const client = require("../config/google-config");
 
 const checkLogin = async (req, res) => {
   const token = req.body.accessToken;
@@ -49,6 +50,37 @@ const login = async (req, res) => {
   }
 };
 
+const login_Google = async (req, res) => {
+  const authUrl = client.generateAuthUrl({
+    access_type: "offline",
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ],
+  });
+  res.redirect(authUrl);
+};
+
+const login_Google_Callback = async (req, res) => {
+  const { code } = req.query;
+
+  try {
+    const result = await authService.login_Google_Callback_Service(code);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    }
+    return res.status(status).send({ success, message, content });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 const logout = async (req, res) => {
   const token = req.body.accessToken;
 
@@ -73,8 +105,56 @@ const logout = async (req, res) => {
   }
 };
 
+const forgot_password = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Call service
+    const result = await authService.forgot_password_Service(email);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
+const verify_code = async (req, res) => {
+  const { code, email } = req.body;
+
+  try {
+    // Call service
+    const result = await authService.verify_code_Service(email, code);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   checkLogin,
   login,
   logout,
+  login_Google,
+  login_Google_Callback,
+  forgot_password,
+  verify_code,
 };

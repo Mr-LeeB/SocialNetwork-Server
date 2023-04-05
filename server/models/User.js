@@ -40,7 +40,6 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
     userRole: {
       type: Number,
@@ -75,13 +74,30 @@ const UserSchema = new mongoose.Schema(
 );
 
 UserSchema.methods = {
-  authenticate: async function (password) {
+  checkPassword: async function (password) {
     return await argon2.verify(this.password, password);
+  },
+  setToken: async function () {
+    const accessToken = await promisify(jwt.sign)(
+      { id: this._id },
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    this.accessToken = accessToken;
+    await this.save();
+    return accessToken;
+  },
+};
+
+UserSchema.statics = {
+  checkEmail: async function (email) {
+    const user = await this.findOne({ email: email });
+    return user === null ? false : user;
   },
 };
 
 UserSchema.pre("save", async function (next) {
   const user = this;
+  if (!user.isModified("password")) return next();
 
   const salt = crypto.randomBytes(32);
   const hash = await argon2.hash(user.password, salt);
