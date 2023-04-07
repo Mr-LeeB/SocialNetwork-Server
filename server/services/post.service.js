@@ -92,14 +92,6 @@ const editPost_Service = async (id, post) => {
 };
 
 const getPostByUser_Service = async (id) => {
-  if (id === "me") {
-    const accessToken = req
-      .header("Authorization")
-      .split(" ")[1]
-      .replace(/"/g, "");
-    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-    id = decoded.id;
-  }
   try {
     const postArr = await Post.GetPost({ user: id });
     const user = await User.findById(postArr[0].user);
