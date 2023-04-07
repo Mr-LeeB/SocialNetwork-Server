@@ -2,13 +2,17 @@ const STATUS_CODE = require("../util/SettingSystem");
 const postService = require("../services/post.service");
 
 const upPost = async (req, res) => {
-  const { title, content, user } = req.body;
+  const { accessToken } = req.headers("Bearer");
+  const { title, content, linkImage } = req.body;
 
-  const post = { title, content, user };
+  const post = {};
+
+  if (!linkImage) post = { title, content };
+  else post = { title, content, linkImage };
 
   try {
     // Call service
-    const result = await postService.upPost_Service(post);
+    const result = await postService.upPost_Service(post, accessToken);
 
     // Return result
     const { status, success, message, content } = result;
