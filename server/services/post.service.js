@@ -1,6 +1,7 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const { Post } = require("../models/Post");
 const { User } = require("../models/User");
+const jwt = require("jsonwebtoken");
 
 const handleError = (error, statusCode) => {
   return {
