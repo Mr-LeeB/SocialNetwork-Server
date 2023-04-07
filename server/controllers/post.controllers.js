@@ -3,10 +3,10 @@ const postService = require("../services/post.service");
 
 const upPost = async (req, res) => {
   // get accessToken from header
-  const accessToken = req.header("Bearer").split(" ")[1].replace(/"/g, "");
+  const accessToken = req.header("Authorization").split(" ")[1].replace(/"/g, "");
   const { title, content, linkImage } = req.body;
 
-  const post = {};
+  let post = {};
 
   if (!linkImage) post = { title, content };
   else post = { title, content, linkImage };
@@ -99,7 +99,7 @@ const editPost = async (req, res) => {
 
 const getPostByUser = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
+
   try {
     // Call service
     const result = await postService.getPostByUser_Service(id);
