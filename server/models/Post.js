@@ -38,11 +38,13 @@ PostSchema.statics = {
     const newPost = new this(post);
     return newPost.save();
   },
+  // Get post by id and sort by createdAt, the latest post will be on top
   GetPost: async function (id) {
-    return this.findById(id);
+    return this.findById(id).sort({ createdAt: -1 });
   },
+  // Get post and sort by createdAt, the latest post will be on top
   GetPosts: async function () {
-    return this.find();
+    return this.find().sort({ createdAt: -1 });
   },
   UpdatePost: async function (id, post) {
     return this.updateOne({ _id: id }, { $set: post });
