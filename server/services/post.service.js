@@ -2,6 +2,12 @@ const STATUS_CODE = require("../util/SettingSystem");
 const { Post } = require("../models/Post");
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
+const aws = require("aws-sdk");
+const configAWS = require("../config/config.json");
+
+const REGION = configAWS.REGION;
+const ACCESS_KEY = configAWS.AWS_ACCESS_KEY;
+const SECRET_KEY = configAWS.AWS_SECRET_KEY;
 
 const handleError = (error, statusCode) => {
   return {
@@ -42,6 +48,50 @@ const upPost_Service = async (post, accessToken) => {
       message: "Post created successfully",
       content: result,
     };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
+const uploadPostImage_Service = async (
+  imageName,
+  imageContent,
+  imageType,
+  imageSize
+) => {
+  aws.config.update({
+    accessKeyId: ACCESS_KEY,
+    secretAccessKey: SECRET_KEY,
+    region: REGION,
+  });
+
+  const s3 = new aws.S3();
+  const s3Params = {
+    Bucket: configAWS.BUCKET,
+    Key: imageName,
+    Body: imageContent,
+    ACL: "public-read",
+    ContentType: imageType,
+    ContentLength: imageSize,
+  };
+
+  // Uploading files to the bucket and waiting for the result
+  try {
+    const result = await s3.upload(s3Params).promise();
+    if (result) {
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: "Upload image successfully",
+        content: result.Location,
+      };
+    } else {
+      return {
+        status: STATUS_CODE.BAD_REQUEST,
+        success: false,
+        message: "Upload image failed",
+      };
+    }
   } catch (error) {
     return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
@@ -122,4 +172,5 @@ module.exports = {
   loadAllPost_Service,
   editPost_Service,
   getPostByUser_Service,
+  uploadPostImage_Service,
 };

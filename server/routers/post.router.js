@@ -9,6 +9,7 @@ postRouter.post(
   postValidation.post_checkEmpty,
   postController.upPost
 );
+/* postRouter.post("/posts/uploadImage", postController.uploadPostImage); */
 postRouter.get("/posts/:id", postController.getPost);
 postRouter.get("/:id/posts", postController.getPostByUser);
 postRouter.get("/posts", postController.loadAllPost);
