@@ -37,7 +37,7 @@ const upPost_Service = async (post, accessToken) => {
     title,
     content,
     user: user._id,
-    url: linkImage ? linkImage : "",
+    url: linkImage ? linkImage : null,
   };
 
   try {

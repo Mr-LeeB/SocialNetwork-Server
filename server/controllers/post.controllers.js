@@ -7,8 +7,9 @@ const upPost = async (req, res) => {
     .header("Authorization")
     .split(" ")[1]
     .replace(/"/g, "");
+
   const { title, content } = req.body;
-  const image = req.files.image;
+  const image = req.files?.image;
 
   // Check if post have image
   if (!image) {
