@@ -2,7 +2,7 @@ const STATUS_CODE = require("../../util/SettingSystem");
 
 const post_checkEmpty = (req, res, next) => {
   // get accessToken from header
-  const accessToken = req.header("Bearer");
+  const accessToken = req.header("Bearer").split(" ")[1].replace(/"/g, "");
   const { title, content } = req.body;
 
   // Simple validation
