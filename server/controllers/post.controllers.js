@@ -3,7 +3,10 @@ const postService = require("../services/post.service");
 
 const upPost = async (req, res) => {
   // get accessToken from header
-  const accessToken = req.header("Authorization").split(" ")[1].replace(/"/g, "");
+  const accessToken = req
+    .header("Authorization")
+    .split(" ")[1]
+    .replace(/"/g, "");
   const { title, content, linkImage } = req.body;
 
   let post = {};
