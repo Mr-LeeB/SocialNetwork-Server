@@ -1,10 +1,12 @@
 const STATUS_CODE = require("../../util/SettingSystem");
 
 const post_checkEmpty = (req, res, next) => {
-  const { title, content, user } = req.body;
+  // get accessToken from header
+  const accessToken = req.header("Bearer");
+  const { title, content } = req.body;
 
   // Simple validation
-  if (!title || !content || !user) {
+  if (!title || !content || !user || !accessToken) {
     return res.status(STATUS_CODE.BAD_REQUEST).send({
       success: false,
       message: "Please enter all fields",

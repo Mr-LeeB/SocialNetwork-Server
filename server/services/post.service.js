@@ -10,13 +10,27 @@ const handleError = (error, statusCode) => {
   };
 };
 
-const upPost_Service = async (post) => {
-  const { title, content, user } = post;
+const upPost_Service = async (post, accessToken) => {
+  const { title, content, linkImage } = post;
+
+  //Decode token
+  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+
+  //Check user
+  const user = await User.findById(decoded.id);
+  if (!user) {
+    return {
+      status: STATUS_CODE.BAD_REQUEST,
+      success: false,
+      message: "User not found",
+    };
+  }
 
   const newPost = {
     title,
     content,
-    user,
+    user: user._id,
+    url: linkImage ? linkImage : "",
   };
 
   try {
