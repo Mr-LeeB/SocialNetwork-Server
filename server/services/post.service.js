@@ -101,7 +101,7 @@ const getPostByUser_Service = async (id) => {
     id = decoded.id;
   }
   try {
-    const postArr = await Post.GetPosts({ user: id });
+    const postArr = await Post.GetPost({ user: id });
     const user = await User.findById(postArr[0].user);
 
     const userInfo = {
