@@ -2,7 +2,8 @@ const STATUS_CODE = require("../util/SettingSystem");
 const postService = require("../services/post.service");
 
 const upPost = async (req, res) => {
-  const { accessToken } = req.headers("Bearer");
+  // get accessToken from header
+  const accessToken = req.header("Bearer").split(" ")[1].replace(/"/g, "");
   const { title, content, linkImage } = req.body;
 
   const post = {};
