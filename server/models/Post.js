@@ -40,7 +40,7 @@ PostSchema.statics = {
   },
   // Get post by id and sort by createdAt, the latest post will be on top
   GetPost: async function (id) {
-    return this.findById(id).sort({ createdAt: -1 });
+    return this.find({ user: id }).sort({ createdAt: -1 });
   },
   // Get post and sort by createdAt, the latest post will be on top
   GetPosts: async function () {

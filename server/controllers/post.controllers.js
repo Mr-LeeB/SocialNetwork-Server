@@ -1,5 +1,6 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const postService = require("../services/post.service");
+const jwt = require("jsonwebtoken");
 
 const upPost = async (req, res) => {
   // get accessToken from header
@@ -101,7 +102,7 @@ const editPost = async (req, res) => {
 };
 
 const getPostByUser = async (req, res) => {
-  const { id } = req.params;
+  let { id } = req.params;
 
   if (id === "me") {
     const accessToken = req
