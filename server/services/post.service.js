@@ -17,26 +17,13 @@ const handleError = (error, statusCode) => {
   };
 };
 
-const upPost_Service = async (post, accessToken) => {
+const upPost_Service = async (post, id) => {
   const { title, content, linkImage } = post;
-
-  //Decode token
-  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-
-  //Check user
-  const user = await User.findById(decoded.id);
-  if (!user) {
-    return {
-      status: STATUS_CODE.BAD_REQUEST,
-      success: false,
-      message: "User not found",
-    };
-  }
 
   const newPost = {
     title,
     content,
-    user: user._id,
+    user: id,
     url: linkImage ? linkImage : null,
   };
 
@@ -125,8 +112,19 @@ const loadAllPost_Service = async () => {
   }
 };
 
-const editPost_Service = async (id, post) => {
+const editPost_Service = async (id, post, userID) => {
+  // check owner
+  const Post = await Post.GetPost(id);
+  if (Post.user != userID) {
+    return {
+      status: STATUS_CODE.BAD_REQUEST,
+      success: false,
+      message: "You are not authorized to edit this post",
+    };
+  }
+
   const { title, content } = post;
+
   try {
     await Post.UpdatePost(id, { title, content });
     const result = await Post.findById(id);
@@ -166,18 +164,16 @@ const getPostByUser_Service = async (id) => {
   }
 };
 
-const deletePost_Service = async (id, accessToken) => {
-  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-
+const deletePost_Service = async (id, userID) => {
   //Find post
   const post = await Post.GetPost(id);
 
   //Check user
-  if (post.user.toString() !== decoded.id) {
+  if (post.user.toString() !== userID) {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
-      message: "User not authorized",
+      message: "User is not the owner of this post",
     };
   }
 

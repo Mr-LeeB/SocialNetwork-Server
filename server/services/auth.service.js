@@ -39,33 +39,6 @@ const fetchUserProfile = async (accessToken) => {
   return data;
 };
 
-const checkLogin_Service = async (accessToken) => {
-  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-  const userID = decoded.id;
-
-  const user = await User.findById(userID);
-  if (!user) {
-    return {
-      status: STATUS_CODE.NOT_FOUND,
-      success: false,
-      message: "User does not exist!",
-    };
-  }
-  if (user.accessToken !== accessToken) {
-    return {
-      status: STATUS_CODE.UNAUTHORIZED,
-      success: false,
-      message: "Have not logged in!",
-    };
-  }
-
-  return {
-    status: STATUS_CODE.SUCCESS,
-    success: true,
-    message: "User have logged in!",
-  };
-};
-
 const login_Service = async (user) => {
   const { email, password } = user;
 
@@ -151,9 +124,8 @@ const login_Google_Callback_Service = async (code) => {
   };
 };
 
-const logout_Service = async (accessToken) => {
-  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-  const userID = decoded.id;
+const logout_Service = async (id) => {
+  const userID = id;
 
   const user = await User.findById(userID);
   if (!user) {
@@ -234,7 +206,6 @@ const verify_code_Service = async (email, code) => {
 };
 
 module.exports = {
-  checkLogin_Service,
   login_Service,
   login_Google_Callback_Service,
   logout_Service,

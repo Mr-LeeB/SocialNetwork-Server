@@ -2,30 +2,6 @@ const STATUS_CODE = require("../util/SettingSystem");
 const authService = require("../services/auth.service");
 const client = require("../config/google-config");
 
-const checkLogin = async (req, res) => {
-  const token = req.body.accessToken;
-
-  const accessToken = token.replaceAll('"', "");
-
-  try {
-    // Call service
-    const result = await authService.checkLogin_Service(accessToken);
-
-    // Return result
-    const { status, success, message } = result;
-    if (!success) {
-      return res.status(status).send({ success, message });
-    } else {
-      return res.status(status).send({ success, message });
-    }
-  } catch (error) {
-    console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
-  }
-};
-
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -82,13 +58,11 @@ const login_Google_Callback = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  const token = req.body.accessToken;
-
-  const accessToken = token.replaceAll('"', "");
+  const id = req.id;
 
   try {
     // Call service
-    const result = await authService.logout_Service(accessToken);
+    const result = await authService.logout_Service(id);
 
     // Return result
     const { status, success, message } = result;
@@ -150,7 +124,6 @@ const verify_code = async (req, res) => {
 };
 
 module.exports = {
-  checkLogin,
   login,
   logout,
   login_Google,
