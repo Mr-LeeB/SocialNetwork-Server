@@ -1,6 +1,7 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const { Post } = require("../models/Post");
 const { User } = require("../models/User");
+const { Like } = require("../models/Like");
 const jwt = require("jsonwebtoken");
 const aws = require("aws-sdk");
 const configAWS = require("../config/config.json");
@@ -114,8 +115,8 @@ const loadAllPost_Service = async () => {
 
 const editPost_Service = async (id, post, userID) => {
   // check owner
-  const Post = await Post.GetPost(id);
-  if (Post.user != userID) {
+  const postFind = await Post.GetPost(id);
+  if (postFind.user != userID) {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
@@ -126,8 +127,7 @@ const editPost_Service = async (id, post, userID) => {
   const { title, content } = post;
 
   try {
-    await Post.UpdatePost(id, { title, content });
-    const result = await Post.findById(id);
+    const result = await Post.UpdatePost(id, { title, content });
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
@@ -142,7 +142,12 @@ const editPost_Service = async (id, post, userID) => {
 const getPostByUser_Service = async (id) => {
   try {
     const postArr = await Post.GetPostByUser(id);
-    const user = await User.findById(postArr[0].user);
+    const user = postArr[0].user;
+
+    //delete user from post
+    postArr.forEach((post) => {
+      post.user = undefined;
+    });
 
     const userInfo = {
       id: user._id,
@@ -190,6 +195,50 @@ const deletePost_Service = async (id, userID) => {
   }
 };
 
+const handleLikePost_Service = async (id, userID) => {
+  //Find post
+  const post = await Post.GetPostPopulateLike(id);
+  const user = await User.GetUser(userID);
+
+  //Check user liked
+  if (post.likes.filter((like) => like.user.toString() === userID).length > 0) {
+    //Remove like
+    const like = await Like.GetLikeByPostAndUser(id, userID);
+    await post.RemoveLike(like);
+    await user.RemoveLike(like);
+    await Like.DeleteLike(like._id);
+
+    try {
+      const result = await post.save();
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: "Post unliked successfully",
+        content: result,
+      };
+    } catch (error) {
+      return handleError(error, STATUS_CODE.SERVER_ERROR);
+    }
+  } else {
+    //Add like
+    const like = await Like.SaveLike(userID, id, "like");
+    await post.SaveLike(like);
+    await user.SaveLike(like);
+
+    try {
+      const result = await post.save();
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: "Post liked successfully",
+        content: result,
+      };
+    } catch (error) {
+      return handleError(error, STATUS_CODE.SERVER_ERROR);
+    }
+  }
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -198,4 +247,5 @@ module.exports = {
   getPostByUser_Service,
   uploadPostImage_Service,
   deletePost_Service,
+  handleLikePost_Service,
 };

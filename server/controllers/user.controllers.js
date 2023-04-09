@@ -51,7 +51,7 @@ const findUserByID = async (req, res) => {
   }
 };
 
-const updateUser = async (req, res) => {
+const UpdateUser = async (req, res) => {
   const { id } = req.params;
 
   const { firstname, lastname, password } = req.body;
@@ -80,5 +80,5 @@ const updateUser = async (req, res) => {
 module.exports = {
   registerUser,
   findUserByID,
-  updateUser,
+  UpdateUser,
 };

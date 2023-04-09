@@ -18,5 +18,10 @@ postRouter.get("/:id/posts", checkAuthentication, postController.getPostByUser);
 postRouter.get("/posts", checkAuthentication, postController.loadAllPost);
 postRouter.put("/posts/:id", checkAuthentication, postController.editPost);
 postRouter.delete("/posts/:id", checkAuthentication, postController.deletePost);
+postRouter.post(
+  "/posts/:id/like",
+  checkAuthentication,
+  postController.handleLikePost
+);
 
 module.exports = postRouter;

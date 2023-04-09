@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
+require("./Like");
+require("./Comment");
+require("./User");
 
 const PostSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
     },
     content: {
       type: String,
+      required: true,
     },
     url: {
       type: String,
@@ -22,16 +25,27 @@ const PostSchema = new mongoose.Schema(
       required: true,
     },
     likes: {
-      type: Array,
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
       default: [],
     },
     comments: {
-      type: Array,
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
     },
   },
   { timestamps: true }
 );
+
+PostSchema.methods = {
+  SaveLike: async function (like) {
+    this.likes.push(like);
+    return this.save();
+  },
+  RemoveLike: async function (likeID) {
+    this.likes.pull(likeID);
+    return this.save();
+  },
+};
 
 PostSchema.statics = {
   SavePost: async function (post) {
@@ -44,22 +58,26 @@ PostSchema.statics = {
   },
   // Get post by user id and sort by createdAt, the latest post will be on top
   GetPostByUser: async function (id) {
-    return this.find({ user: id }).sort({ createdAt: -1 });
+    return this.find({ user: id }).sort({ createdAt: -1 }).populate("user");
   },
   // Get all posts and sort by createdAt, the latest post will be on top
   GetPosts: async function () {
     return this.find().sort({ createdAt: -1 });
   },
   UpdatePost: async function (id, post) {
-    return this.updateOne({ _id: id }, { $set: post });
+    return this.findOneAndUpdate({ _id: id }, { $set: post });
   },
   DeletePost: async function (id) {
     return this.deleteOne({ _id: id });
   },
+  GetPostPopulateLike: async function (id) {
+    return this.findById(id).populate("likes");
+  },
+  GetPostPopulateComment: async function (id) {
+    return this.findById(id).populate("comments");
+  },
 };
 
-const Post = mongoose.model("Post", PostSchema);
-
 module.exports = {
-  Post,
+  Post: mongoose.model("Post", PostSchema),
 };
