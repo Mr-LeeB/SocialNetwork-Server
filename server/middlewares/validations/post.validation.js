@@ -1,11 +1,12 @@
 const STATUS_CODE = require("../../util/SettingSystem");
 
 const post_checkEmpty = (req, res, next) => {
-  // get accessToken from header
+  // get accessToken from header Authorization and remove "Bearer "
   const accessToken = req
     .header("Authorization")
     .split(" ")[1]
     .replace(/"/g, "");
+
   const { title, content } = req.body;
 
   // Simple validation

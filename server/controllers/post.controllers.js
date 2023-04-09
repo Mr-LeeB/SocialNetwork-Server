@@ -2,23 +2,87 @@ const STATUS_CODE = require("../util/SettingSystem");
 const postService = require("../services/post.service");
 const jwt = require("jsonwebtoken");
 
+// Function to get accessToken from header
+const getAccessToken = (req) => {
+  return req.header("Authorization").split(" ")[1].replace(/"/g, "");
+};
+
 const upPost = async (req, res) => {
   // get accessToken from header
-  const accessToken = req
-    .header("Authorization")
-    .split(" ")[1]
-    .replace(/"/g, "");
-  const { title, content, linkImage } = req.body;
+  const accessToken = getAccessToken(req);
 
-  let post = {};
+  const { title, content } = req.body;
+  const image = req.files?.image;
 
-  if (!linkImage) post = { title, content };
-  else post = { title, content, linkImage };
+  // Check if post have image
+  if (!image) {
+    const post = { title, content };
+    try {
+      // Call service
+      const result = await postService.upPost_Service(post, accessToken);
+
+      // Return result
+      const { status, success, message, content } = result;
+      if (!success) {
+        return res.status(status).send({ success, message });
+      } else {
+        return res.status(status).send({ success, message, content });
+      }
+    } catch (error) {
+      console.log(error);
+      res
+        .status(STATUS_CODE.SERVER_ERROR)
+        .send({ success: false, message: "Internal server error" });
+    }
+  }
+  // If post have image
+  else {
+    const imageContent = Buffer.from(req.files.image.data, "binary");
+    const imageName = req.files.image.name;
+    const imageType = req.files.image.mimetype;
+    const imageSize = req.files.image.size;
+    try {
+      // Call service
+      const imageUpload = await postService.uploadPostImage_Service(
+        imageName,
+        imageContent,
+        imageType,
+        imageSize
+      );
+      const imageLink = imageUpload.content;
+      const post = { title, content, linkImage: imageLink };
+      const result = await postService.upPost_Service(post, accessToken);
+
+      // Return result
+      const { status, success, message, content } = result;
+      if (!success) {
+        return res.status(status).send({ success, message });
+      } else {
+        return res.status(status).send({ success, message, content });
+      }
+    } catch (error) {
+      console.log(error);
+      res
+        .status(STATUS_CODE.SERVER_ERROR)
+        .send({ success: false, message: "Internal server error" });
+    }
+  }
+};
+
+/* const uploadPostImage = async (req, res) => {
+  const imageContent = Buffer.from(req.files.image.data, "binary");
+  const imageName = req.files.image.name;
+  const imageType = req.files.image.mimetype;
+  const imageSize = req.files.image.size;
 
   try {
     // Call service
-    const result = await postService.upPost_Service(post, accessToken);
-
+    const result = await postService.uploadPostImage_Service(
+      imageName,
+      imageContent,
+      imageType,
+      imageSize
+    );
     // Return result
     const { status, success, message, content } = result;
     if (!success) {
@@ -32,7 +96,7 @@ const upPost = async (req, res) => {
       .status(STATUS_CODE.SERVER_ERROR)
       .send({ success: false, message: "Internal server error" });
   }
-};
+}; */
 
 const getPost = async (req, res) => {
   const { id } = req.params;
@@ -105,10 +169,7 @@ const getPostByUser = async (req, res) => {
   let { id } = req.params;
 
   if (id === "me") {
-    const accessToken = req
-      .header("Authorization")
-      .split(" ")[1]
-      .replace(/"/g, "");
+    const accessToken = getAccessToken(req);
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
     id = decoded.id;
   }
@@ -132,10 +193,34 @@ const getPostByUser = async (req, res) => {
   }
 };
 
+const deletePost = async (req, res) => {
+  const { id } = req.params;
+  const accessToken = getAccessToken(req);
+
+  try {
+    // Call service
+    const result = await postService.deletePost_Service(id, accessToken);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   upPost,
   getPost,
   loadAllPost,
   editPost,
   getPostByUser,
+  deletePost,
 };
