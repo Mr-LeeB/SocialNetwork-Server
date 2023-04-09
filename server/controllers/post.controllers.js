@@ -2,14 +2,9 @@ const STATUS_CODE = require("../util/SettingSystem");
 const postService = require("../services/post.service");
 const jwt = require("jsonwebtoken");
 
-// Function to get accessToken from header
-const getAccessToken = (req) => {
-  return req.header("Authorization").split(" ")[1].replace(/"/g, "");
-};
-
 const upPost = async (req, res) => {
-  // get accessToken from header
-  const accessToken = getAccessToken(req);
+  // get id user from req
+  const id = req.id;
 
   const { title, content } = req.body;
   const image = req.files?.image;
@@ -19,7 +14,7 @@ const upPost = async (req, res) => {
     const post = { title, content };
     try {
       // Call service
-      const result = await postService.upPost_Service(post, accessToken);
+      const result = await postService.upPost_Service(post, id);
 
       // Return result
       const { status, success, message, content } = result;
@@ -51,7 +46,7 @@ const upPost = async (req, res) => {
       );
       const imageLink = imageUpload.content;
       const post = { title, content, linkImage: imageLink };
-      const result = await postService.upPost_Service(post, accessToken);
+      const result = await postService.upPost_Service(post, id);
 
       // Return result
       const { status, success, message, content } = result;
@@ -142,13 +137,15 @@ const loadAllPost = async (req, res) => {
 
 const editPost = async (req, res) => {
   const { id } = req.params;
-  const { title, content, user } = req.body;
+  const { title, content } = req.body;
 
-  const post = { title, content, user };
+  const post = { title, content };
+
+  const userID = req.id;
 
   try {
     // Call service
-    const result = await postService.editPost_Service(id, post);
+    const result = await postService.editPost_Service(id, post, userID);
 
     // Return result
     const { status, success, message, content } = result;
@@ -169,9 +166,7 @@ const getPostByUser = async (req, res) => {
   let { id } = req.params;
 
   if (id === "me") {
-    const accessToken = getAccessToken(req);
-    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-    id = decoded.id;
+    id = req.id;
   }
 
   try {
@@ -195,11 +190,11 @@ const getPostByUser = async (req, res) => {
 
 const deletePost = async (req, res) => {
   const { id } = req.params;
-  const accessToken = getAccessToken(req);
+  const userID = req.id;
 
   try {
     // Call service
-    const result = await postService.deletePost_Service(id, accessToken);
+    const result = await postService.deletePost_Service(id, userID);
 
     // Return result
     const { status, success, message, content } = result;

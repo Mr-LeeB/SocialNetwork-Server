@@ -2,13 +2,9 @@ const express = require("express");
 const authRouter = express.Router();
 const authController = require("../controllers/auth.controllers");
 const authValidation = require("../middlewares/validations/auth.validation");
-const client = require("../config/google-config");
-
-authRouter.post(
-  "/checklogin",
-  authValidation.checkToken,
-  authController.checkLogin
-);
+const {
+  checkAuthentication,
+} = require("../middlewares/authentication/checkAuthentication");
 
 authRouter.post(
   "/login",
@@ -24,7 +20,7 @@ authRouter.get(
   authController.login_Google_Callback
 );
 
-authRouter.post("/logout", authValidation.checkToken, authController.logout);
+authRouter.post("/logout", checkAuthentication, authController.logout);
 
 authRouter.post(
   "/forgot",

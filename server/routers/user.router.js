@@ -2,6 +2,9 @@ const express = require("express");
 const userRouter = express.Router();
 const userController = require("../controllers/user.controllers");
 const userValidation = require("../middlewares/validations/user.validation");
+const {
+  checkAuthentication,
+} = require("../middlewares/authentication/checkAuthentication");
 
 userRouter.post(
   "/users",
@@ -9,8 +12,8 @@ userRouter.post(
   userController.registerUser
 );
 
-userRouter.get("/users/:id", userController.findUserByID);
+userRouter.get("/users/:id", checkAuthentication, userController.findUserByID);
 
-userRouter.put("/users/:id", userController.updateUser);
+userRouter.put("/users/:id", checkAuthentication, userController.updateUser);
 
 module.exports = userRouter;
