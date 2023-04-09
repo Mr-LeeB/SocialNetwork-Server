@@ -4,10 +4,10 @@ const PostSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
     },
     content: {
       type: String,
+      required: true,
     },
     url: {
       type: String,
@@ -22,11 +22,11 @@ const PostSchema = new mongoose.Schema(
       required: true,
     },
     likes: {
-      type: Array,
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
       default: [],
     },
     comments: {
-      type: Array,
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
     },
   },
@@ -58,8 +58,6 @@ PostSchema.statics = {
   },
 };
 
-const Post = mongoose.model("Post", PostSchema);
-
 module.exports = {
-  Post,
+  Post: mongoose.model("Post", PostSchema),
 };

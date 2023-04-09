@@ -4,22 +4,6 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 
-// const UserSchema = new mongoose.Schema({
-//     userName: {
-//         type: String,
-//         required: true,
-//         unique: true
-//     },
-//     passWord: {
-//         type: String,
-//         required: true
-//     },
-//     createAt: {
-//         type: Date,
-//         required: true
-//     }
-// });
-
 const UserSchema = new mongoose.Schema(
   {
     firstname: {
@@ -61,12 +45,24 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    like: {
-      type: Array,
+    posts: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
       default: [],
     },
-    comment: {
-      type: Array,
+    followers: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      default: [],
+    },
+    following: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      default: [],
+    },
+    likes: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
+      default: [],
+    },
+    comments: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
     },
   },
@@ -141,8 +137,6 @@ UserSchema.pre("updateOne", async function (next) {
   }
 });
 
-const User = mongoose.model("User", UserSchema);
-
 module.exports = {
-  User,
+  User: mongoose.model("User", UserSchema),
 };
