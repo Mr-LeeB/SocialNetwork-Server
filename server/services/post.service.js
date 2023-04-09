@@ -166,6 +166,34 @@ const getPostByUser_Service = async (id) => {
   }
 };
 
+const deletePost_Service = async (id, accessToken) => {
+  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+
+  //Find post
+  const post = await Post.GetPost(id);
+
+  //Check user
+  if (post.user.toString() !== decoded.id) {
+    return {
+      status: STATUS_CODE.BAD_REQUEST,
+      success: false,
+      message: "User not authorized",
+    };
+  }
+
+  try {
+    const result = await Post.DeletePost(id);
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "Post deleted successfully",
+      content: result,
+    };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -173,4 +201,5 @@ module.exports = {
   editPost_Service,
   getPostByUser_Service,
   uploadPostImage_Service,
+  deletePost_Service,
 };

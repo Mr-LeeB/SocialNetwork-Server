@@ -1,12 +1,14 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const postService = require("../services/post.service");
 
+// Function to get accessToken from header
+const getAccessToken = (req) => {
+  return req.header("Authorization").split(" ")[1].replace(/"/g, "");
+};
+
 const upPost = async (req, res) => {
   // get accessToken from header
-  const accessToken = req
-    .header("Authorization")
-    .split(" ")[1]
-    .replace(/"/g, "");
+  const accessToken = getAccessToken(req);
 
   const { title, content } = req.body;
   const image = req.files?.image;
@@ -166,10 +168,7 @@ const getPostByUser = async (req, res) => {
   const { id } = req.params;
 
   if (id === "me") {
-    const accessToken = req
-      .header("Authorization")
-      .split(" ")[1]
-      .replace(/"/g, "");
+    const accessToken = getAccessToken(req);
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
     id = decoded.id;
   }
@@ -193,10 +192,34 @@ const getPostByUser = async (req, res) => {
   }
 };
 
+const deletePost = async (req, res) => {
+  const { id } = req.params;
+  const accessToken = getAccessToken(req);
+
+  try {
+    // Call service
+    const result = await postService.deletePost_Service(id, accessToken);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   upPost,
   getPost,
   loadAllPost,
   editPost,
   getPostByUser,
+  deletePost,
 };
