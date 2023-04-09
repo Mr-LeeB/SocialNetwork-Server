@@ -43,7 +43,7 @@ const login_Service = async (user) => {
   const { email, password } = user;
 
   // Check for invalid user
-  const userFind = await User.checkEmail(email);
+  const userFind = await User.CheckEmail(email);
 
   if (!userFind) {
     return {
@@ -54,7 +54,7 @@ const login_Service = async (user) => {
   }
 
   // Check for invalid password
-  const validPassword = await userFind.checkPassword(password);
+  const validPassword = await userFind.CheckPassword(password);
   if (!validPassword) {
     return {
       status: STATUS_CODE.BAD_REQUEST,
@@ -65,7 +65,7 @@ const login_Service = async (user) => {
 
   // All good
   // Update secretKey to user
-  const accessToken = await userFind.setToken();
+  const accessToken = await userFind.SetToken();
 
   return {
     status: STATUS_CODE.SUCCESS,
@@ -154,7 +154,7 @@ const logout_Service = async (id) => {
 };
 
 const forgot_password_Service = async (email) => {
-  const user = await User.checkEmail(email);
+  const user = await User.CheckEmail(email);
 
   if (!user) {
     return {

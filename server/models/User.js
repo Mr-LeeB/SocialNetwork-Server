@@ -70,10 +70,10 @@ const UserSchema = new mongoose.Schema(
 );
 
 UserSchema.methods = {
-  checkPassword: async function (password) {
+  CheckPassword: async function (password) {
     return await argon2.verify(this.password, password);
   },
-  setToken: async function () {
+  SetToken: async function () {
     const accessToken = await promisify(jwt.sign)(
       { id: this._id },
       process.env.ACCESS_TOKEN_SECRET
@@ -82,15 +82,26 @@ UserSchema.methods = {
     await this.save();
     return accessToken;
   },
+  SaveLike: async function (like) {
+    this.likes.push(like);
+    return this.save();
+  },
+  RemoveLike: async function (likeID) {
+    this.likes.pull(likeID);
+    return this.save();
+  },
 };
 
 UserSchema.statics = {
-  checkEmail: async function (email) {
+  CheckEmail: async function (email) {
     const user = await this.findOne({ email: email });
     return user === null ? false : user;
   },
-  updateUser: async function (id, data) {
-    return this.updateOne({ _id: id }, { $set: data });
+  UpdateUser: async function (id, data) {
+    return this.findOneAndUpdate({ _id: id }, { $set: data });
+  },
+  GetUser: async function (id) {
+    return this.findById(id);
   },
 };
 

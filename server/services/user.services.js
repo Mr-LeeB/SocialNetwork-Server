@@ -5,7 +5,7 @@ const registerUser_Service = async (user) => {
   const { firstname, lastname, email, password } = user;
 
   // Check for existing user
-  const userFind = await User.checkEmail(email);
+  const userFind = await User.CheckEmail(email);
   if (userFind) {
     return {
       status: STATUS_CODE.CONFLICT,
@@ -53,7 +53,7 @@ const findUserByID_Service = async (userID) => {
 };
 
 const updateUser_Service = async (userID, user) => {
-  const userFind = await User.updateUser(userID, user);
+  const userFind = await User.UpdateUser(userID, user);
 
   if (!userFind) {
     return {

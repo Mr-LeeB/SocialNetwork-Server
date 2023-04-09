@@ -14,6 +14,6 @@ userRouter.post(
 
 userRouter.get("/users/:id", checkAuthentication, userController.findUserByID);
 
-userRouter.put("/users/:id", checkAuthentication, userController.updateUser);
+userRouter.put("/users/:id", checkAuthentication, userController.UpdateUser);
 
 module.exports = userRouter;
