@@ -1,6 +1,5 @@
 const STATUS_CODE = require("../util/SettingSystem");
 const postService = require("../services/post.service");
-const jwt = require("jsonwebtoken");
 
 const upPost = async (req, res) => {
   // get id user from req
@@ -268,5 +267,5 @@ module.exports = {
   getPostByUser,
   deletePost,
   handleLikePost,
-  handleSharePost
+  handleSharePost,
 };

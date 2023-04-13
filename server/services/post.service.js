@@ -3,7 +3,6 @@ const { Post } = require("../models/Post");
 const { User } = require("../models/User");
 const { Like } = require("../models/Like");
 const { Share } = require("../models/Share");
-const jwt = require("jsonwebtoken");
 const aws = require("aws-sdk");
 const configAWS = require("../config/config.json");
 
@@ -146,29 +145,29 @@ const getPostByUser_Service = async (callerID, ownerID) => {
     const user = postArr[0].user;
 
     // Thao tác trên mỗi post
-    postArr = await Promise.all(postArr.map(async (post) => {
-      post.user = undefined;
+    postArr = await Promise.all(
+      postArr.map(async (post) => {
+        post.user = undefined;
 
-      // thêm biến isLiked vào post
-      const postLike = await post.populate("likes");
-      const checkLiked = await postLike.likes.some(async (like) => {
-        return like?.user.toString() === callerID;
-      });
-      
-      // thêm biến isShared vào post
-      const postShare = await post.populate("shares");
-      const checkShared = await postShare.shares.some(async (share) => {
-        return share?.user.toString() === callerID;
-      });
+        // thêm biến isLiked vào post
+        const postLike = await post.populate("likes");
+        const checkLiked = await postLike.likes.some(async (like) => {
+          return like?.user.toString() === callerID;
+        });
 
+        // thêm biến isShared vào post
+        const postShare = await post.populate("shares");
+        const checkShared = await postShare.shares.some(async (share) => {
+          return share?.user.toString() === callerID;
+        });
 
-      post = post.toObject();
-      post.isLiked = checkLiked;
-      post.isShared = checkShared;
+        post = post.toObject();
+        post.isLiked = checkLiked;
+        post.isShared = checkShared;
 
-
-      return post;
-    }));
+        return post;
+      })
+    );
 
     const userInfo = {
       id: user._id,
@@ -268,7 +267,9 @@ const handleSharePost_Service = async (id, userID) => {
   const user = await User.GetUser(userID);
 
   //Check user shared
-  if (post.shares.filter((share) => share.user.toString() === userID).length > 0) {
+  if (
+    post.shares.filter((share) => share.user.toString() === userID).length > 0
+  ) {
     //Remove share
     const share = await Share.GetShareByPostAndUser(id, userID);
     await post.RemoveShare(share);
@@ -291,20 +292,20 @@ const handleSharePost_Service = async (id, userID) => {
     const share = await Share.SaveShare(userID, id);
     await post.SaveShare(share);
     await user.SaveShare(share);
-  }
 
-  try {
-    const result = await post.save();
-    return {
-      status: STATUS_CODE.SUCCESS,
-      success: true,
-      message: "Post shared successfully",
-      content: result,
-    };
-  } catch (error) {
-    return handleError(error, STATUS_CODE.SERVER_ERROR);
+    try {
+      const result = await post.save();
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: "Post shared successfully",
+        content: result,
+      };
+    } catch (error) {
+      return handleError(error, STATUS_CODE.SERVER_ERROR);
+    }
   }
-}
+};
 
 module.exports = {
   upPost_Service,
