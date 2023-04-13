@@ -61,6 +61,10 @@ const UserSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
       default: [],
     },
+    shares: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Share" }],
+      default: [],
+    },
     comments: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
@@ -88,6 +92,14 @@ UserSchema.methods = {
   },
   RemoveLike: async function (likeID) {
     this.likes.pull(likeID);
+    return this.save();
+  },
+  SaveShare: async function (share) {
+    this.shares.push(share);
+    return this.save();
+  },
+  RemoveShare: async function (shareID) {
+    this.shares.pull(shareID);
     return this.save();
   },
 };

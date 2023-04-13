@@ -2,6 +2,7 @@ const STATUS_CODE = require("../util/SettingSystem");
 const { Post } = require("../models/Post");
 const { User } = require("../models/User");
 const { Like } = require("../models/Like");
+const { Share } = require("../models/Share");
 const jwt = require("jsonwebtoken");
 const aws = require("aws-sdk");
 const configAWS = require("../config/config.json");
@@ -139,15 +140,35 @@ const editPost_Service = async (id, post, userID) => {
   }
 };
 
-const getPostByUser_Service = async (id) => {
+const getPostByUser_Service = async (callerID, ownerID) => {
   try {
-    const postArr = await Post.GetPostByUser(id);
+    let postArr = await Post.GetPostByUser(ownerID);
     const user = postArr[0].user;
 
-    //delete user from post
-    postArr.forEach((post) => {
+    // Thao tác trên mỗi post
+    postArr = await Promise.all(postArr.map(async (post) => {
       post.user = undefined;
-    });
+
+      // thêm biến isLiked vào post
+      const postLike = await post.populate("likes");
+      const checkLiked = await postLike.likes.some(async (like) => {
+        return like?.user.toString() === callerID;
+      });
+      
+      // thêm biến isShared vào post
+      const postShare = await post.populate("shares");
+      const checkShared = await postShare.shares.some(async (share) => {
+        return share?.user.toString() === callerID;
+      });
+
+
+      post = post.toObject();
+      post.isLiked = checkLiked;
+      post.isShared = checkShared;
+
+
+      return post;
+    }));
 
     const userInfo = {
       id: user._id,
@@ -197,7 +218,8 @@ const deletePost_Service = async (id, userID) => {
 
 const handleLikePost_Service = async (id, userID) => {
   //Find post
-  const post = await Post.GetPostPopulateLike(id);
+  let post = await Post.GetPost(id);
+  post = await post.populate("likes");
   const user = await User.GetUser(userID);
 
   //Check user liked
@@ -221,7 +243,7 @@ const handleLikePost_Service = async (id, userID) => {
     }
   } else {
     //Add like
-    const like = await Like.SaveLike(userID, id, "like");
+    const like = await Like.SaveLike(userID, id);
     await post.SaveLike(like);
     await user.SaveLike(like);
 
@@ -239,6 +261,51 @@ const handleLikePost_Service = async (id, userID) => {
   }
 };
 
+const handleSharePost_Service = async (id, userID) => {
+  //Find post
+  let post = await Post.GetPost(id);
+  post = await post.populate("shares");
+  const user = await User.GetUser(userID);
+
+  //Check user shared
+  if (post.shares.filter((share) => share.user.toString() === userID).length > 0) {
+    //Remove share
+    const share = await Share.GetShareByPostAndUser(id, userID);
+    await post.RemoveShare(share);
+    await user.RemoveShare(share);
+    await Share.DeleteShare(share._id);
+
+    try {
+      const result = await post.save();
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: "Post unshared successfully",
+        content: result,
+      };
+    } catch (error) {
+      return handleError(error, STATUS_CODE.SERVER_ERROR);
+    }
+  } else {
+    //Add share
+    const share = await Share.SaveShare(userID, id);
+    await post.SaveShare(share);
+    await user.SaveShare(share);
+  }
+
+  try {
+    const result = await post.save();
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "Post shared successfully",
+      content: result,
+    };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+}
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -248,4 +315,5 @@ module.exports = {
   uploadPostImage_Service,
   deletePost_Service,
   handleLikePost_Service,
+  handleSharePost_Service,
 };
