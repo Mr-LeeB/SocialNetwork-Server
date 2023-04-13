@@ -18,9 +18,20 @@ postRouter.get("/:id/posts", checkAuthentication, postController.getPostByUser);
 postRouter.get("/posts", checkAuthentication, postController.loadAllPost);
 postRouter.put("/posts/:id", checkAuthentication, postController.editPost);
 postRouter.delete("/posts/:id", checkAuthentication, postController.deletePost);
-postRouter.post("/posts/:id/like", checkAuthentication, postController.handleLikePost
+postRouter.post(
+  "/posts/:id/like",
+  checkAuthentication,
+  postController.handleLikePost
 );
-postRouter.post("/posts/:id/share", checkAuthentication, postController.handleSharePost
+postRouter.post(
+  "/posts/:id/share",
+  checkAuthentication,
+  postController.handleSharePost
+);
+postRouter.post(
+  "/posts/:id/save",
+  checkAuthentication,
+  postController.handleFavoritePost
 );
 
 module.exports = postRouter;

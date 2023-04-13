@@ -161,9 +161,17 @@ const getPostByUser_Service = async (callerID, ownerID) => {
           return share?.user.toString() === callerID;
         });
 
+        // thêm biến isSaved vào post
+        const userSave = await user.populate("favorites");
+        const checkSaved =
+          userSave.favorites.filter(
+            (postSaved) => postSaved._id.toString() === post._id.toString()
+          ).length > 0;
+
         post = post.toObject();
         post.isLiked = checkLiked;
         post.isShared = checkShared;
+        post.isSaved = checkSaved;
 
         return post;
       })
@@ -307,6 +315,49 @@ const handleSharePost_Service = async (id, userID) => {
   }
 };
 
+const handleFavoritePost_Service = async (id, userID) => {
+  //Find post
+  let post = await Post.GetPost(id);
+  let user = await User.GetUser(userID);
+  user = await user.populate("favorites");
+
+  //Check user shared
+  if (
+    user.favorites.filter((favorite) => favorite._id?.toString() === id)
+      .length > 0
+  ) {
+    //Remove favorite
+    await user.RemoveFavorite(post);
+
+    try {
+      const result = await user.save();
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: "Post unfavorited successfully",
+        content: result,
+      };
+    } catch (error) {
+      return handleError(error, STATUS_CODE.SERVER_ERROR);
+    }
+  } else {
+    //Add favorite
+    await user.SaveFavorite(post);
+
+    try {
+      const result = await user.save();
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: "Post favorited successfully",
+        content: result,
+      };
+    } catch (error) {
+      return handleError(error, STATUS_CODE.SERVER_ERROR);
+    }
+  }
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -317,4 +368,5 @@ module.exports = {
   deletePost_Service,
   handleLikePost_Service,
   handleSharePost_Service,
+  handleFavoritePost_Service,
 };

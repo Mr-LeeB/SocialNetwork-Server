@@ -69,6 +69,10 @@ const UserSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
     },
+    favorites: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+      default: [],
+    },
   },
   { timestamps: true }
 );
@@ -100,6 +104,14 @@ UserSchema.methods = {
   },
   RemoveShare: async function (shareID) {
     this.shares.pull(shareID);
+    return this.save();
+  },
+  SaveFavorite: async function (post) {
+    this.favorites.push(post);
+    return this.save();
+  },
+  RemoveFavorite: async function (postID) {
+    this.favorites.pull(postID);
     return this.save();
   },
 };
