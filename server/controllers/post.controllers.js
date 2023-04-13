@@ -163,15 +163,18 @@ const editPost = async (req, res) => {
 };
 
 const getPostByUser = async (req, res) => {
-  let { id } = req.params;
+  // Lấy bài viết của ownerID
+  let { id: ownerID } = req.params;
 
-  if (id === "me") {
-    id = req.id;
+  if (ownerID === "me") {
+    ownerID = req.id;
   }
 
+  let callerID = req.id;
+
   try {
-    // Call service
-    const result = await postService.getPostByUser_Service(id);
+    // Call service bằng id của user
+    const result = await postService.getPostByUser_Service(callerID, ownerID);
 
     // Return result
     const { status, success, message, content } = result;
@@ -234,6 +237,29 @@ const handleLikePost = async (req, res) => {
   }
 };
 
+const handleSharePost = async (req, res) => {
+  const { id } = req.params;
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.handleSharePost_Service(id, userID);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   upPost,
   getPost,
@@ -242,4 +268,5 @@ module.exports = {
   getPostByUser,
   deletePost,
   handleLikePost,
+  handleSharePost
 };

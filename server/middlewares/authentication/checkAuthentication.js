@@ -40,7 +40,6 @@ const checkAuthentication = async (req, res, next) => {
         message: "Have not logged in!",
       });
     }
-
     req.id = id;
   } catch (error) {
     return res.status(STATUS_CODE.BAD_REQUEST).send({

@@ -28,6 +28,10 @@ const PostSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
       default: [],
     },
+    shares: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Share" }],
+      default: [],
+    },
     comments: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
@@ -45,6 +49,14 @@ PostSchema.methods = {
     this.likes.pull(likeID);
     return this.save();
   },
+  SaveShare: async function (share) {
+    this.shares.push(share);
+    return this.save();
+  },
+  RemoveShare: async function (shareID) {
+    this.shares.pull(shareID);
+    return this.save();
+  },
 };
 
 PostSchema.statics = {
@@ -54,7 +66,7 @@ PostSchema.statics = {
   },
   // Get post by id
   GetPost: async function (id) {
-    return this.findById(id);
+    return this.findById(id)
   },
   // Get post by user id and sort by createdAt, the latest post will be on top
   GetPostByUser: async function (id) {
@@ -69,13 +81,7 @@ PostSchema.statics = {
   },
   DeletePost: async function (id) {
     return this.deleteOne({ _id: id });
-  },
-  GetPostPopulateLike: async function (id) {
-    return this.findById(id).populate("likes");
-  },
-  GetPostPopulateComment: async function (id) {
-    return this.findById(id).populate("comments");
-  },
+  }
 };
 
 module.exports = {

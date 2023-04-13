@@ -11,22 +11,19 @@ const LikeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
       required: true,
-    },
-    type: {
-      type: String,
-      enum: ["like", "heart", "smile", "sad", "angry"],
-      required: true,
-    },
+    }
   },
   { timestamps: true }
 );
 
 LikeSchema.statics = {
-  SaveLike: async function (userID, postID, type) {
+  GetLike: async function (id) {
+    return this.findById(id);
+  },
+  SaveLike: async function (userID, postID) {
     const newLike = new this({
       user: userID,
       post: postID,
-      type: type,
     });
     return newLike.save();
   },
