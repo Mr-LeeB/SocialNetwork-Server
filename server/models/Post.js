@@ -57,6 +57,14 @@ PostSchema.methods = {
     this.shares.pull(shareID);
     return this.save();
   },
+  SaveComment: async function (comment) {
+    this.comments.push(comment);
+    return this.save();
+  },
+  RemoveComment: async function (commentID) {
+    this.comments.pull(commentID);
+    return this.save();
+  },
 };
 
 PostSchema.statics = {
@@ -66,11 +74,16 @@ PostSchema.statics = {
   },
   // Get post by id
   GetPost: async function (id) {
-    return this.findById(id)
+    return this.findById(id);
   },
   // Get post by user id and sort by createdAt, the latest post will be on top
   GetPostByUser: async function (id) {
-    return this.find({ user: id }).sort({ createdAt: -1 }).populate("user");
+    return this.find({ user: id })
+      .sort({ createdAt: -1 })
+      .populate("user")
+      .populate("likes")
+      .populate("comments")
+      .populate("shares");
   },
   // Get all posts and sort by createdAt, the latest post will be on top
   GetPosts: async function () {
@@ -81,7 +94,7 @@ PostSchema.statics = {
   },
   DeletePost: async function (id) {
     return this.deleteOne({ _id: id });
-  }
+  },
 };
 
 module.exports = {

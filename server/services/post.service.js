@@ -5,6 +5,7 @@ const { Like } = require("../models/Like");
 const { Share } = require("../models/Share");
 const aws = require("aws-sdk");
 const configAWS = require("../config/config.json");
+const { Comment } = require("../models/Comment");
 
 const REGION = configAWS.REGION;
 const ACCESS_KEY = configAWS.AWS_ACCESS_KEY;
@@ -172,6 +173,45 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         post.isLiked = checkLiked;
         post.isShared = checkShared;
         post.isSaved = checkSaved;
+
+        // tìm thông tin user trong like
+        const likeArr = await post.likes.map(async (like) => {
+          const user = await User.GetUser(like.user);
+          like.user = {
+            id: user._id,
+            username: user.lastname + " " + user.firstname,
+            userImage: user.userImage,
+          };
+          return like;
+        });
+
+        post.likes = await Promise.all(likeArr);
+
+        // tìm thông tin user trong share
+        const shareArr = await post.shares.map(async (share) => {
+          const user = await User.GetUser(share.user);
+          share.user = {
+            id: user._id,
+            username: user.lastname + " " + user.firstname,
+            userImage: user.userImage,
+          };
+          return share;
+        });
+
+        post.shares = await Promise.all(shareArr);
+
+        // tìm thông tin user trong comment
+        const commentArr = await post.comments.map(async (comment) => {
+          const user = await User.GetUser(comment.user);
+          comment.user = {
+            id: user._id,
+            username: user.lastname + " " + user.firstname,
+            userImage: user.userImage,
+          };
+          return comment;
+        });
+
+        post.comments = await Promise.all(commentArr);
 
         return post;
       })
@@ -358,6 +398,36 @@ const handleFavoritePost_Service = async (id, userID) => {
   }
 };
 
+const commentPost_Service = async (id, userID, contentComment) => {
+  //Find post
+  let post = await Post.GetPost(id);
+  post = await post.populate("comments");
+  const user = await User.GetUser(userID);
+
+  const commentContent = {
+    user: userID,
+    content: contentComment,
+    post: id,
+  };
+
+  //Add comment
+  const comment = await Comment.SaveComment(commentContent);
+  await post.SaveComment(comment);
+  await user.SaveComment(comment);
+
+  try {
+    const result = await post.save();
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "Post commented successfully",
+      content: result,
+    };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -369,4 +439,5 @@ module.exports = {
   handleLikePost_Service,
   handleSharePost_Service,
   handleFavoritePost_Service,
+  commentPost_Service,
 };

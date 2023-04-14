@@ -282,6 +282,36 @@ const handleFavoritePost = async (req, res) => {
   }
 };
 
+const commentPost = async (req, res) => {
+  const { id } = req.params;
+
+  const { contentComment } = req.body;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.commentPost_Service(
+      id,
+      userID,
+      contentComment
+    );
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   upPost,
   getPost,
@@ -292,4 +322,5 @@ module.exports = {
   handleLikePost,
   handleSharePost,
   handleFavoritePost,
+  commentPost,
 };

@@ -16,6 +16,10 @@ const CommentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    listReply: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+      default: [],
+    },
   },
   { timestamps: true }
 );
@@ -24,6 +28,15 @@ CommentSchema.statics = {
   SaveComment: async function (comment) {
     const newComment = new this(comment);
     return newComment.save();
+  },
+  GetCommentByPost: async function (postID) {
+    return this.find({ post: postID }).populate("user");
+  },
+  GetCommentByUser: async function (userID) {
+    return this.find({ user: userID }).populate("post");
+  },
+  GetCommentByPostAndUser: async function (postID, userID) {
+    return this.findOne({ user: userID, post: postID });
   },
 };
 

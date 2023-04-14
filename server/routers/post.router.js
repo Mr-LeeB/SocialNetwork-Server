@@ -34,4 +34,10 @@ postRouter.post(
   postController.handleFavoritePost
 );
 
+postRouter.post(
+  "/posts/:id/comment",
+  checkAuthentication,
+  postController.commentPost
+);
+
 module.exports = postRouter;

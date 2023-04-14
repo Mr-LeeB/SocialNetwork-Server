@@ -114,6 +114,14 @@ UserSchema.methods = {
     this.favorites.pull(postID);
     return this.save();
   },
+  SaveComment: async function (comment) {
+    this.comments.push(comment);
+    return this.save();
+  },
+  RemoveComment: async function (commentID) {
+    this.comments.pull(commentID);
+    return this.save();
+  },
 };
 
 UserSchema.statics = {
