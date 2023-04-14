@@ -123,6 +123,63 @@ const verify_code = async (req, res) => {
   }
 };
 
+const jwt = require("jsonwebtoken");
+const { User } = require("../models/User");
+
+const checkLogin = async (req, res) => {
+  const accessToken = req
+    .header("Authorization")
+    .split(" ")[1]
+    .replace(/"/g, "");
+
+  if (!accessToken) {
+    return res.status(STATUS_CODE.NOT_FOUND).send({
+      authentication: false,
+      success: false,
+      message: "No token found!",
+    });
+  }
+
+  try {
+    const decoded = await jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    const { id } = decoded;
+
+    //Check user
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(STATUS_CODE.BAD_REQUEST).send({
+        authentication: false,
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.accessToken !== accessToken) {
+      return res.status(STATUS_CODE.UNAUTHORIZED).send({
+        authentication: false,
+        success: false,
+        message: "Have not logged in!",
+      });
+    }
+    req.id = id;
+  } catch (error) {
+    console.log(error);
+    return res.status(STATUS_CODE.BAD_REQUEST).send({
+      authentication: false,
+      success: false,
+      message: error.message,
+    });
+  }
+  return res.status(STATUS_CODE.SUCCESS).send({
+    authentication: true,
+    success: true,
+    message: "Logged in!",
+  });
+};
+
 module.exports = {
   login,
   logout,
@@ -130,4 +187,5 @@ module.exports = {
   login_Google_Callback,
   forgot_password,
   verify_code,
+  checkLogin,
 };

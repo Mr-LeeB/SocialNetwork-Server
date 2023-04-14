@@ -12,6 +12,8 @@ authRouter.post(
   authController.login
 );
 
+authRouter.post("/checklogin", checkAuthentication, authController.checkLogin);
+
 authRouter.get("/auth/google", authController.login_Google);
 
 authRouter.get(
