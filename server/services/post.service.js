@@ -200,14 +200,35 @@ const getPostByUser_Service = async (callerID, ownerID) => {
 
         post.shares = await Promise.all(shareArr);
 
-        // tìm thông tin user trong comment
+        // tìm thông tin user trong comment và trong list reply
         const commentArr = await post.comments.map(async (comment) => {
+          // check nếu comment là comment reply thì xóa comment đó đi
+          if (comment.isReply) {
+            return;
+          }
+
           const user = await User.GetUser(comment.user);
           comment.user = {
             id: user._id,
             username: user.lastname + " " + user.firstname,
             userImage: user.userImage,
           };
+
+          const replyArr = await comment.listReply.map(async (reply) => {
+            const commentReply = await Comment.GetCommentByID(reply);
+            reply = commentReply.toObject();
+            reply.user = undefined;
+            reply.user = {
+              id: commentReply.user._id,
+              username:
+                commentReply.user.lastname + " " + commentReply.user.firstname,
+              userImage: commentReply.user.userImage,
+            };
+            return reply;
+          });
+
+          comment.listReply = await Promise.all(replyArr);
+
           return comment;
         });
 

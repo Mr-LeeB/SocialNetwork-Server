@@ -20,6 +20,10 @@ const CommentSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
     },
+    isReply: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -28,6 +32,9 @@ CommentSchema.statics = {
   SaveComment: async function (comment) {
     const newComment = new this(comment);
     return newComment.save();
+  },
+  GetCommentByID: async function (commentID) {
+    return this.findById(commentID).populate("user");
   },
   GetCommentByPost: async function (postID) {
     return this.find({ post: postID }).populate("user");
