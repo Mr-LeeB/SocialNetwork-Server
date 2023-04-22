@@ -40,4 +40,10 @@ postRouter.post(
   postController.commentPost
 );
 
+postRouter.post(
+  "/posts/:id/comment/:idComment",
+  checkAuthentication,
+  postController.replyComment
+);
+
 module.exports = postRouter;

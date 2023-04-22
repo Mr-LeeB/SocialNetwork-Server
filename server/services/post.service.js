@@ -431,12 +431,47 @@ const commentPost_Service = async (id, userID, contentComment) => {
     post: id,
   };
 
-  //Add comment
-  const comment = await Comment.SaveComment(commentContent);
-  await post.SaveComment(comment);
-  await user.SaveComment(comment);
+  try {
+    //Add comment
+    const comment = await Comment.SaveComment(commentContent);
+    await post.SaveComment(comment);
+    await user.SaveComment(comment);
+
+    const result = await post.save();
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "Post commented successfully",
+      content: result,
+    };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
+const replyComment_Service = async (id, userID, contentComment, idComment) => {
+  //Find post
+  let post = await Post.GetPost(id);
+  post = await post.populate("comments");
+  const user = await User.GetUser(userID);
+
+  const commentContent = {
+    user: userID,
+    content: contentComment,
+    post: id,
+    isReply: true,
+  };
 
   try {
+    //Add comment
+    const comment = await Comment.SaveComment(commentContent);
+    await post.SaveComment(comment);
+    await user.SaveComment(comment);
+
+    // Add reply to comment
+    const commentReply = await Comment.GetComment(idComment);
+    await commentReply.ReplyComment(comment);
+
     const result = await post.save();
     return {
       status: STATUS_CODE.SUCCESS,
@@ -461,4 +496,5 @@ module.exports = {
   handleSharePost_Service,
   handleFavoritePost_Service,
   commentPost_Service,
+  replyComment_Service,
 };

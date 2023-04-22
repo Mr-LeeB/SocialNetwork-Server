@@ -33,6 +33,9 @@ CommentSchema.statics = {
     const newComment = new this(comment);
     return newComment.save();
   },
+  GetComment: async function (commentID) {
+    return this.findById(commentID);
+  },
   GetCommentByID: async function (commentID) {
     return this.findById(commentID).populate("user");
   },
@@ -44,6 +47,13 @@ CommentSchema.statics = {
   },
   GetCommentByPostAndUser: async function (postID, userID) {
     return this.findOne({ user: userID, post: postID });
+  },
+};
+
+CommentSchema.methods = {
+  ReplyComment: async function (comment) {
+    this.listReply.push(comment);
+    return this.save();
   },
 };
 
