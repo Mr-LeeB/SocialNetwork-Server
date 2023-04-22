@@ -36,6 +36,9 @@ CommentSchema.statics = {
   GetComment: async function (commentID) {
     return this.findById(commentID);
   },
+  GetComments: async function () {
+    return this.find();
+  },
   GetCommentByID: async function (commentID) {
     return this.findById(commentID).populate("user");
   },
@@ -56,6 +59,10 @@ CommentSchema.statics = {
 CommentSchema.methods = {
   ReplyComment: async function (comment) {
     this.listReply.push(comment);
+    return this.save();
+  },
+  RemoveReplyComment: async function (commentID) {
+    this.listReply.pull(commentID);
     return this.save();
   },
 };

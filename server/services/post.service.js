@@ -490,15 +490,31 @@ const deleteComment_Service = async (id, userID, idComment) => {
   post = await post.populate("comments");
   const user = await User.GetUser(userID);
 
-  //Find comment on post
-  const comment = post.comments.filter(
-    (comment) => comment._id.toString() === idComment
-  )[0];
-
   try {
+    //Find comment on post
+    const commentFind = post.comments.filter(
+      (comment) => comment._id.toString() === idComment
+    )[0];
+
+    // Find any comment if it has this comment on list reply
+    const comments = await Comment.GetComments();
+    const commentsReply = comments.filter(
+      (comment) => comment.listReply.indexOf(idComment) !== -1
+    );
+
+    // Remove comment on list reply
+    commentsReply.forEach(async (comment) => {
+      await comment.RemoveReplyComment(idComment);
+    });
+
+    // Remove any comment that exists on commentFind's list reply
+    commentFind.listReply.forEach(async (idComment) => {
+      await Comment.DeleteComment(idComment);
+    });
+
     //Remove comment
-    await post.RemoveComment(comment);
-    await user.RemoveComment(comment);
+    await post.RemoveComment(commentFind);
+    await user.RemoveComment(commentFind);
     await Comment.DeleteComment(idComment);
 
     const result = await post.save();
