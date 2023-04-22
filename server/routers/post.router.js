@@ -46,4 +46,10 @@ postRouter.post(
   postController.replyComment
 );
 
+postRouter.delete(
+  "/posts/:id/comment/:idComment",
+  checkAuthentication,
+  postController.deleteComment
+);
+
 module.exports = postRouter;

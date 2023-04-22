@@ -345,6 +345,36 @@ const replyComment = async (req, res) => {
   }
 };
 
+const deleteComment = async (req, res) => {
+  const { id } = req.params;
+
+  const { idComment } = req.params;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.deleteComment_Service(
+      id,
+      userID,
+      idComment
+    );
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   upPost,
   getPost,
@@ -357,4 +387,5 @@ module.exports = {
   handleFavoritePost,
   commentPost,
   replyComment,
+  deleteComment,
 };

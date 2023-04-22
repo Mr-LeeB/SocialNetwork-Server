@@ -484,6 +484,35 @@ const replyComment_Service = async (id, userID, contentComment, idComment) => {
   }
 };
 
+const deleteComment_Service = async (id, userID, idComment) => {
+  //Find post
+  let post = await Post.GetPost(id);
+  post = await post.populate("comments");
+  const user = await User.GetUser(userID);
+
+  //Find comment on post
+  const comment = post.comments.filter(
+    (comment) => comment._id.toString() === idComment
+  )[0];
+
+  try {
+    //Remove comment
+    await post.RemoveComment(comment);
+    await user.RemoveComment(comment);
+    await Comment.DeleteComment(idComment);
+
+    const result = await post.save();
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "Post commented successfully",
+      content: result,
+    };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -497,4 +526,5 @@ module.exports = {
   handleFavoritePost_Service,
   commentPost_Service,
   replyComment_Service,
+  deleteComment_Service,
 };

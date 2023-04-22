@@ -48,6 +48,9 @@ CommentSchema.statics = {
   GetCommentByPostAndUser: async function (postID, userID) {
     return this.findOne({ user: userID, post: postID });
   },
+  DeleteComment: async function (commentID) {
+    return this.findByIdAndDelete(commentID);
+  },
 };
 
 CommentSchema.methods = {
