@@ -375,6 +375,96 @@ const deleteComment = async (req, res) => {
   }
 };
 
+const handleLikePostShare = async (req, res) => {
+  const { idShare } = req.params;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.handleLikePostShare_Service(
+      userID,
+      idShare
+    );
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
+const commentPostShare = async (req, res) => {
+  const { idShare } = req.params;
+
+  const { contentComment } = req.body;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.commentPostShare_Service(
+      userID,
+      idShare,
+      contentComment
+    );
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
+const replyCommentPostShare = async (req, res) => {
+  const { idShare } = req.params;
+
+  const { idComment } = req.params;
+
+  const { contentComment } = req.body;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.replyCommentPostShare_Service(
+      userID,
+      idShare,
+      contentComment,
+      idComment
+    );
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   upPost,
   getPost,
@@ -388,4 +478,7 @@ module.exports = {
   commentPost,
   replyComment,
   deleteComment,
+  handleLikePostShare,
+  commentPostShare,
+  replyCommentPostShare,
 };

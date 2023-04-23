@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("./Share");
 
 const CommentSchema = new mongoose.Schema(
   {
@@ -10,7 +11,10 @@ const CommentSchema = new mongoose.Schema(
     post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
+    },
+    postShare: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Share",
     },
     content: {
       type: String,

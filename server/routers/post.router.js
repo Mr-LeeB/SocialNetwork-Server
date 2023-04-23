@@ -52,4 +52,22 @@ postRouter.delete(
   postController.deleteComment
 );
 
+postRouter.post(
+  "/postshare/:idShare/like",
+  checkAuthentication,
+  postController.handleLikePostShare
+);
+
+postRouter.post(
+  "/postshare/:idShare/comment",
+  checkAuthentication,
+  postController.commentPostShare
+);
+
+postRouter.post(
+  "/postshare/:idShare/comment/:idComment",
+  checkAuthentication,
+  postController.replyCommentPostShare
+);
+
 module.exports = postRouter;

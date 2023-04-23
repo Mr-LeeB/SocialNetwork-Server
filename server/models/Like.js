@@ -10,8 +10,13 @@ const LikeSchema = new mongoose.Schema(
     post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
-    }
+      default: null,
+    },
+    sharepost: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Share",
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -27,6 +32,13 @@ LikeSchema.statics = {
     });
     return newLike.save();
   },
+  SaveLikeSharePost: async function (userID, sharepostID) {
+    const newLike = new this({
+      user: userID,
+      sharepost: sharepostID,
+    });
+    return newLike.save();
+  },
   DeleteLike: async function (id) {
     return this.findByIdAndDelete(id);
   },
@@ -38,6 +50,9 @@ LikeSchema.statics = {
   },
   GetLikeByPostAndUser: async function (postID, userID) {
     return this.findOne({ user: userID, post: postID });
+  },
+  GetLikeBySharePostAndUser: async function (sharepostID, userID) {
+    return this.findOne({ user: userID, sharepost: sharepostID });
   },
 };
 
