@@ -21,6 +21,7 @@ const handleError = (error, statusCode) => {
 
 const upPost_Service = async (post, id) => {
   const { title, content, linkImage } = post;
+  const user = await User.GetUser(id);
 
   const newPost = {
     title,
@@ -31,6 +32,8 @@ const upPost_Service = async (post, id) => {
 
   try {
     const result = await Post.SavePost(newPost);
+    user.SavePost(result);
+
     return {
       status: STATUS_CODE.CREATED,
       success: true,
@@ -353,6 +356,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
 const deletePost_Service = async (id, userID) => {
   //Find post
   const post = await Post.GetPost(id);
+  const user = await User.GetUser(userID);
 
   //Check user
   if (post.user.toString() !== userID) {
@@ -388,6 +392,9 @@ const deletePost_Service = async (id, userID) => {
         }
       });
     });
+
+    // Remove post in user
+    await user.RemovePost(post);
 
     //Delete post
     const result = await Post.DeletePost(id);

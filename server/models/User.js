@@ -63,6 +63,10 @@ const UserSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
       default: [],
     },
+    posts: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+      default: [],
+    },
   },
   { timestamps: true }
 );
@@ -98,6 +102,14 @@ UserSchema.methods = {
   },
   GetShares: async function () {
     return this.populate("shares");
+  },
+  SavePost: async function (post) {
+    this.posts.push(post);
+    return this.save();
+  },
+  RemovePost: async function (postID) {
+    this.posts.pull(postID);
+    return this.save();
   },
 };
 
