@@ -310,7 +310,7 @@ const getPostShare_Service = async (id, callerID) => {
       message: "Post found",
       content: {
         userInfo,
-        share,
+        post: share,
       },
     };
   } catch (error) {
