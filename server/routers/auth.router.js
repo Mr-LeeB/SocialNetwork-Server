@@ -32,4 +32,6 @@ authRouter.post(
 
 authRouter.post("/verify", authController.verify_code);
 
+authRouter.get("/getUserID", checkAuthentication, authController.getUserID);
+
 module.exports = authRouter;

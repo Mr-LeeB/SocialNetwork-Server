@@ -180,6 +180,16 @@ const checkLogin = async (req, res) => {
   });
 };
 
+const getUserID = async (req, res) => {
+  const userID = req.id;
+
+  return res.status(STATUS_CODE.SUCCESS).send({
+    success: true,
+    message: "Get user ID successfully!",
+    content: userID,
+  });
+};
+
 module.exports = {
   login,
   logout,
@@ -188,4 +198,5 @@ module.exports = {
   forgot_password,
   verify_code,
   checkLogin,
+  getUserID,
 };

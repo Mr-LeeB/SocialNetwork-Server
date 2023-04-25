@@ -146,7 +146,12 @@ const editPost_Service = async (id, post, userID) => {
 const getPostByUser_Service = async (callerID, ownerID) => {
   try {
     let postArr = await Post.GetPostByUser(ownerID);
-    const user = postArr[0].user;
+    let user;
+    if (postArr.length === 0) {
+      user = await User.GetUser(ownerID);
+    } else {
+      user = postArr[0].user;
+    }
 
     // Thao tác trên mỗi post
     postArr = await Promise.all(

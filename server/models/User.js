@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema(
     },
     userImage: {
       type: String,
-      default: "user.png",
+      default: null,
     },
     verified: {
       type: String,
@@ -110,6 +110,9 @@ UserSchema.methods = {
   RemovePost: async function (postID) {
     this.posts.pull(postID);
     return this.save();
+  },
+  GetPost: async function () {
+    return this.populate("posts");
   },
 };
 
