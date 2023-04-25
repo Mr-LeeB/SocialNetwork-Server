@@ -221,10 +221,11 @@ const loadAllPost_Service = async (callerID) => {
     // Tìm và tạo post mới cho các bài share bởi tất cả user và thêm vào postArr
     let shareArr = postArr.filter((post) => post.isShared);
     shareArr = shareArr.map((post) => post.shares);
+    shareArr = shareArr.flat();
     const sharePostArr = await Promise.all(
       shareArr.map(async (share) => {
-        share = share[0];
         const post = await Post.GetPost(share.post);
+        const user = await User.GetUser(share.user.id);
         share = Share(share);
 
         // thêm biến isLiked vào post
@@ -291,6 +292,11 @@ const loadAllPost_Service = async (callerID) => {
           userImage: post.user.userImage,
         };
         share.shares = undefined;
+        share.owner = {
+          id: user._id,
+          username: user.lastname + " " + user.firstname,
+          userImage: user.userImage,
+        };
         share.postID = postID;
         share.createdAt = createdAt;
         share.updatedAt = updatedAt;
@@ -531,15 +537,25 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         const _id = share._id;
         const createdAt = share.createdAt;
         const updatedAt = share.updatedAt;
+        const postCreatedAt = post.createdAt;
+        const postUpdatedAt = post.updatedAt;
         const postID = post._id;
+        const owner = await User.GetUser(post.user);
 
         share = post.toObject();
         share._id = _id;
         share.postID = postID;
         share.user = undefined;
+        share.user = {
+          id: owner._id,
+          username: owner.lastname + " " + owner.firstname,
+          userImage: owner.userImage,
+        };
         share.shares = undefined;
         share.createdAt = createdAt;
         share.updatedAt = updatedAt;
+        share.postCreatedAt = postCreatedAt;
+        share.postUpdatedAt = postUpdatedAt;
         share.isLiked = checkLiked;
         share.PostShared = true;
         share.likes = await Promise.all(likeArr);
