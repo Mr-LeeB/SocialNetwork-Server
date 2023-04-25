@@ -14,6 +14,11 @@ postRouter.post(
 );
 /* postRouter.post("/posts/uploadImage", postController.uploadPostImage); */
 postRouter.get("/posts/:id", checkAuthentication, postController.getPost);
+postRouter.get(
+  "/postshares/:id",
+  checkAuthentication,
+  postController.getPostShare
+);
 postRouter.get("/:id/posts", checkAuthentication, postController.getPostByUser);
 postRouter.get("/posts", checkAuthentication, postController.loadAllPost);
 postRouter.put("/posts/:id", checkAuthentication, postController.editPost);

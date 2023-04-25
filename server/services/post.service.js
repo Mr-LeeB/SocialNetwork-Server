@@ -88,14 +88,230 @@ const uploadPostImage_Service = async (
   }
 };
 
-const getPost_Service = async (id) => {
+const getPost_Service = async (id, callerID) => {
   try {
-    const result = await Post.GetPost(id);
+    let post = await Post.GetPost(id);
+    const user = await User.GetUser(callerID);
+    // thêm biến isLiked vào post
+    const postLike = await post.populate("likes");
+    const checkLiked =
+      (await postLike.likes.filter((like) => like.user.toString() === callerID)
+        .length) > 0;
+
+    // thêm biến isShared vào post
+    const postShare = await post.populate("shares");
+    const checkShared =
+      (await postShare.shares.filter(
+        (share) => share.user.toString() === callerID
+      ).length) > 0;
+
+    // thêm biến isSaved vào post
+    const userSave = await user.populate("favorites");
+    const checkSaved =
+      userSave.favorites.filter(
+        (postSaved) => postSaved._id.toString() === post._id.toString()
+      ).length > 0;
+
+    post = post.toObject();
+    const userPost = post.user;
+    post.user = {
+      id: userPost._id,
+      username: userPost.lastname + " " + userPost.firstname,
+      userImage: userPost.userImage,
+    };
+    post.isLiked = checkLiked;
+    post.isShared = checkShared;
+    post.isSaved = checkSaved;
+
+    // tìm thông tin user trong like
+    const likeArr = await post.likes.map(async (like) => {
+      const user = await User.GetUser(like.user);
+      like.user = {
+        id: user._id,
+        username: user.lastname + " " + user.firstname,
+        userImage: user.userImage,
+      };
+      return like;
+    });
+
+    post.likes = await Promise.all(likeArr);
+
+    // tìm thông tin user trong share
+    const shareArr = await post.shares.map(async (share) => {
+      const user = await User.GetUser(share.user);
+      share.user = {
+        id: user._id,
+        username: user.lastname + " " + user.firstname,
+        userImage: user.userImage,
+      };
+      // Remove all fields except user
+      Object.keys(share).forEach((key) => {
+        if (
+          key !== "user" &&
+          key !== "_id" &&
+          key !== "post" &&
+          key !== "createdAt" &&
+          key !== "updatedAt"
+        ) {
+          delete share[key];
+        }
+      });
+
+      return share;
+    });
+
+    post.shares = await Promise.all(shareArr);
+
+    // tìm thông tin user trong comment và trong list reply
+    const commentArr = await post.comments.map(async (comment) => {
+      // check nếu comment là comment reply thì xóa comment đó đi
+      if (comment.isReply) {
+        return;
+      }
+
+      const user = await User.GetUser(comment.user);
+      comment.user = {
+        id: user._id,
+        username: user.lastname + " " + user.firstname,
+        userImage: user.userImage,
+      };
+
+      const replyArr = await comment.listReply.map(async (reply) => {
+        const commentReply = await Comment.GetCommentByID(reply);
+        reply = commentReply.toObject();
+        reply.user = {
+          id: commentReply.user._id,
+          username:
+            commentReply.user.lastname + " " + commentReply.user.firstname,
+          userImage: commentReply.user.userImage,
+        };
+        return reply;
+      });
+
+      comment.listReply = await Promise.all(replyArr);
+
+      return comment;
+    });
+
+    post.comments = await Promise.all(commentArr);
+
+    const userInfo = {
+      id: user._id,
+      username: user.lastname + " " + user.firstname,
+      userImage: user.userImage,
+    };
+
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
       message: "Post found",
-      content: result,
+      content: {
+        userInfo,
+        post,
+      },
+    };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
+const getPostShare_Service = async (id, callerID) => {
+  try {
+    let share = await Share.GetShare(id);
+    const post = await Post.GetPost(share.post);
+    const user = await User.GetUser(share.user.id);
+
+    // thêm biến isLiked vào post
+    const postLike = await share.populate("likes");
+    const checkLiked = await postLike.likes.some(async (like) => {
+      return like?.user.toString() === callerID;
+    });
+
+    // tìm thông tin user trong like
+    const likeArr = await postLike.likes.map(async (like) => {
+      const user = await User.GetUser(like.user);
+      like.user = {
+        id: user._id,
+        username: user.lastname + " " + user.firstname,
+        userImage: user.userImage,
+      };
+      return like;
+    });
+
+    // tìm thông tin user trong comment và trong list reply
+    const postComment = await share.populate("comments");
+    const commentArr = await postComment.comments.map(async (comment) => {
+      const commentPopulate = await Comment.GetCommentByID(comment);
+      comment = commentPopulate.toObject();
+      // check nếu comment là comment reply thì xóa comment đó đi
+      if (comment.isReply) {
+        return;
+      }
+
+      const user = await User.GetUser(comment.user);
+      comment.user = {
+        id: user._id,
+        username: user.lastname + " " + user.firstname,
+        userImage: user.userImage,
+      };
+
+      const replyArr = await comment.listReply.map(async (reply) => {
+        const commentReply = await Comment.GetCommentByID(reply);
+        reply = commentReply.toObject();
+        reply.user = {
+          id: commentReply.user._id,
+          username:
+            commentReply.user.lastname + " " + commentReply.user.firstname,
+          userImage: commentReply.user.userImage,
+        };
+        return reply;
+      });
+
+      comment.listReply = await Promise.all(replyArr);
+
+      return comment;
+    });
+
+    const _id = share._id;
+    const createdAt = share.createdAt;
+    const updatedAt = share.updatedAt;
+    const postID = post._id;
+
+    share = post.toObject();
+    share._id = _id;
+    share.owner = {
+      id: post.user._id,
+      username: post.user.lastname + " " + post.user.firstname,
+      userImage: post.user.userImage,
+    };
+    share.shares = undefined;
+    share.user = {
+      id: user._id,
+      username: user.lastname + " " + user.firstname,
+      userImage: user.userImage,
+    };
+    share.postID = postID;
+    share.createdAt = createdAt;
+    share.updatedAt = updatedAt;
+    share.isLiked = checkLiked;
+    share.PostShared = true;
+    share.likes = await Promise.all(likeArr);
+    share.comments = await Promise.all(commentArr);
+
+    const userInfo = {
+      id: user._id,
+      username: user.lastname + " " + user.firstname,
+      userImage: user.userImage,
+    };
+
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: "Post found",
+      content: {
+        userInfo,
+        share,
+      },
     };
   } catch (error) {
     return handleError(error, STATUS_CODE.SERVER_ERROR);
@@ -135,7 +351,7 @@ const loadAllPost_Service = async (callerID) => {
         const userInfo = post.user;
         post.user = {
           id: userInfo._id,
-          username: userInfo.lastname + " " + user.firstname,
+          username: userInfo.lastname + " " + userInfo.firstname,
           userImage: userInfo.userImage,
         };
         post.isLiked = checkLiked;
@@ -286,13 +502,13 @@ const loadAllPost_Service = async (callerID) => {
 
         share = post.toObject();
         share._id = _id;
-        share.user = {
+        share.owner = {
           id: post.user._id,
           username: post.user.lastname + " " + post.user.firstname,
           userImage: post.user.userImage,
         };
         share.shares = undefined;
-        share.owner = {
+        share.user = {
           id: user._id,
           username: user.lastname + " " + user.firstname,
           userImage: user.userImage,
@@ -1020,4 +1236,5 @@ module.exports = {
   handleLikePostShare_Service,
   commentPostShare_Service,
   replyCommentPostShare_Service,
+  getPostShare_Service,
 };

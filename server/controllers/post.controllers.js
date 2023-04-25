@@ -95,9 +95,35 @@ const upPost = async (req, res) => {
 const getPost = async (req, res) => {
   const { id } = req.params;
 
+  const userID = req.id;
+
   try {
     // Call service
-    const result = await postService.getPost_Service(id);
+    const result = await postService.getPost_Service(id, userID);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
+const getPostShare = async (req, res) => {
+  const { id } = req.params;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.getPostShare_Service(id, userID);
 
     // Return result
     const { status, success, message, content } = result;
@@ -483,4 +509,5 @@ module.exports = {
   handleLikePostShare,
   commentPostShare,
   replyCommentPostShare,
+  getPostShare,
 };

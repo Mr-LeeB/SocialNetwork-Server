@@ -47,7 +47,7 @@ ShareSchema.methods = {
 
 ShareSchema.statics = {
   GetShare: async function (id) {
-    return this.findById(id);
+    return this.findById(id).populate("user");
   },
   SaveShare: async function (userID, postID) {
     const newShare = new this({
