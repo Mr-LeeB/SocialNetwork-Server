@@ -115,9 +115,11 @@ const getPost = async (req, res) => {
 };
 
 const loadAllPost = async (req, res) => {
+  const id = req.id;
+
   try {
     // Call service
-    const result = await postService.loadAllPost_Service();
+    const result = await postService.loadAllPost_Service(id);
 
     // Return result
     const { status, success, message, content } = result;

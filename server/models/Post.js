@@ -74,7 +74,11 @@ PostSchema.statics = {
   },
   // Get post by id
   GetPost: async function (id) {
-    return this.findById(id);
+    return this.findById(id)
+      .populate("user")
+      .populate("likes")
+      .populate("comments")
+      .populate("shares");
   },
   // Get post by user id and sort by createdAt, the latest post will be on top
   GetPostByUser: async function (id) {
@@ -87,7 +91,12 @@ PostSchema.statics = {
   },
   // Get all posts and sort by createdAt, the latest post will be on top
   GetPosts: async function () {
-    return this.find().sort({ createdAt: -1 });
+    return this.find()
+      .sort({ createdAt: -1 })
+      .populate("user")
+      .populate("likes")
+      .populate("comments")
+      .populate("shares");
   },
   UpdatePost: async function (id, post) {
     return this.findOneAndUpdate({ _id: id }, { $set: post });
