@@ -498,6 +498,8 @@ const loadAllPost_Service = async (callerID) => {
         const _id = share._id;
         const createdAt = share.createdAt;
         const updatedAt = share.updatedAt;
+        const postCreatedAt = post.createdAt;
+        const postUpdatedAt = post.updatedAt;
         const postID = post._id;
 
         share = post.toObject();
@@ -516,6 +518,8 @@ const loadAllPost_Service = async (callerID) => {
         share.postID = postID;
         share.createdAt = createdAt;
         share.updatedAt = updatedAt;
+        share.postCreatedAt = postCreatedAt;
+        share.postUpdatedAt = postUpdatedAt;
         share.isLiked = checkLiked;
         share.PostShared = true;
         share.likes = await Promise.all(likeArr);
