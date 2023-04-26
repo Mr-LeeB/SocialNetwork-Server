@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+require("./Like");
+require("./Comment");
 
 const ShareSchema = new mongoose.Schema(
   {
@@ -11,25 +13,41 @@ const ShareSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
       required: true,
-    }
+    },
+    likes: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
+      default: [],
+    },
+    comments: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+      default: [],
+    },
   },
   { timestamps: true }
 );
 
 ShareSchema.methods = {
-    SaveShare: async function (share) {
-      this.shares.push(share);
-      return this.save();
-    },
-    DeleteShare: async function (shareID) {
-      this.shares.pull(shareID);
-      return this.save();
-    },
-  };
+  SaveLike: async function (like) {
+    this.likes.push(like);
+    return this.save();
+  },
+  RemoveLike: async function (likeID) {
+    this.likes.pull(likeID);
+    return this.save();
+  },
+  SaveComment: async function (comment) {
+    this.comments.push(comment);
+    return this.save();
+  },
+  RemoveComment: async function (commentID) {
+    this.comments.pull(commentID);
+    return this.save();
+  },
+};
 
 ShareSchema.statics = {
   GetShare: async function (id) {
-    return this.findById(id);
+    return this.findById(id).populate("user");
   },
   SaveShare: async function (userID, postID) {
     const newShare = new this({
@@ -53,5 +71,5 @@ ShareSchema.statics = {
 };
 
 module.exports = {
-    Share: mongoose.model("Share", ShareSchema),
+  Share: mongoose.model("Share", ShareSchema),
 };

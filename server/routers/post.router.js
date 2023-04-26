@@ -14,6 +14,11 @@ postRouter.post(
 );
 /* postRouter.post("/posts/uploadImage", postController.uploadPostImage); */
 postRouter.get("/posts/:id", checkAuthentication, postController.getPost);
+postRouter.get(
+  "/postshares/:id",
+  checkAuthentication,
+  postController.getPostShare
+);
 postRouter.get("/:id/posts", checkAuthentication, postController.getPostByUser);
 postRouter.get("/posts", checkAuthentication, postController.loadAllPost);
 postRouter.put("/posts/:id", checkAuthentication, postController.editPost);
@@ -38,6 +43,36 @@ postRouter.post(
   "/posts/:id/comment",
   checkAuthentication,
   postController.commentPost
+);
+
+postRouter.post(
+  "/posts/:id/comment/:idComment",
+  checkAuthentication,
+  postController.replyComment
+);
+
+postRouter.delete(
+  "/posts/:id/comment/:idComment",
+  checkAuthentication,
+  postController.deleteComment
+);
+
+postRouter.post(
+  "/postshare/:idShare/like",
+  checkAuthentication,
+  postController.handleLikePostShare
+);
+
+postRouter.post(
+  "/postshare/:idShare/comment",
+  checkAuthentication,
+  postController.commentPostShare
+);
+
+postRouter.post(
+  "/postshare/:idShare/comment/:idComment",
+  checkAuthentication,
+  postController.replyCommentPostShare
 );
 
 module.exports = postRouter;

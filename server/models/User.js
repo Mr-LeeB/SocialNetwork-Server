@@ -3,6 +3,8 @@ const argon2 = require("argon2");
 const crypto = require("crypto");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
+require("./Share");
+require("./Post");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -35,7 +37,7 @@ const UserSchema = new mongoose.Schema(
     },
     userImage: {
       type: String,
-      default: "user.png",
+      default: null,
     },
     verified: {
       type: String,
@@ -45,10 +47,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    posts: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
-      default: [],
-    },
     followers: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
       default: [],
@@ -57,16 +55,8 @@ const UserSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
       default: [],
     },
-    likes: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
-      default: [],
-    },
     shares: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Share" }],
-      default: [],
-    },
-    comments: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
     },
     favorites: {
@@ -90,14 +80,6 @@ UserSchema.methods = {
     await this.save();
     return accessToken;
   },
-  SaveLike: async function (like) {
-    this.likes.push(like);
-    return this.save();
-  },
-  RemoveLike: async function (likeID) {
-    this.likes.pull(likeID);
-    return this.save();
-  },
   SaveShare: async function (share) {
     this.shares.push(share);
     return this.save();
@@ -114,13 +96,8 @@ UserSchema.methods = {
     this.favorites.pull(postID);
     return this.save();
   },
-  SaveComment: async function (comment) {
-    this.comments.push(comment);
-    return this.save();
-  },
-  RemoveComment: async function (commentID) {
-    this.comments.pull(commentID);
-    return this.save();
+  GetShares: async function () {
+    return this.populate("shares");
   },
 };
 
@@ -134,6 +111,9 @@ UserSchema.statics = {
   },
   GetUser: async function (id) {
     return this.findById(id);
+  },
+  GetAllUsers: async function () {
+    return this.find();
   },
 };
 

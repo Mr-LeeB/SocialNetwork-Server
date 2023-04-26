@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("./Share");
 
 const CommentSchema = new mongoose.Schema(
   {
@@ -10,7 +11,10 @@ const CommentSchema = new mongoose.Schema(
     post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
+    },
+    postShare: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Share",
     },
     content: {
       type: String,
@@ -33,6 +37,12 @@ CommentSchema.statics = {
     const newComment = new this(comment);
     return newComment.save();
   },
+  GetComment: async function (commentID) {
+    return this.findById(commentID);
+  },
+  GetComments: async function () {
+    return this.find();
+  },
   GetCommentByID: async function (commentID) {
     return this.findById(commentID).populate("user");
   },
@@ -44,6 +54,20 @@ CommentSchema.statics = {
   },
   GetCommentByPostAndUser: async function (postID, userID) {
     return this.findOne({ user: userID, post: postID });
+  },
+  DeleteComment: async function (commentID) {
+    return this.findByIdAndDelete(commentID);
+  },
+};
+
+CommentSchema.methods = {
+  ReplyComment: async function (comment) {
+    this.listReply.push(comment);
+    return this.save();
+  },
+  RemoveReplyComment: async function (commentID) {
+    this.listReply.pull(commentID);
+    return this.save();
   },
 };
 
