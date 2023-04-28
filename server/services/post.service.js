@@ -797,6 +797,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       username: owner.lastname + " " + owner.firstname,
       userImage: owner.userImage,
       descriptions: owner.description,
+      firstname: owner.firstname,
+      lastname: owner.lastname,
     };
 
     return {

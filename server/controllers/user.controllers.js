@@ -54,9 +54,9 @@ const findUserByID = async (req, res) => {
 const UpdateUser = async (req, res) => {
   const { id } = req.params;
 
-  const { firstname, lastname, password } = req.body;
+  const { firstname, lastname, descriptions } = req.body;
 
-  const user = { firstname, lastname, password };
+  const user = { firstname, lastname, descriptions };
 
   try {
     // Call service
@@ -77,8 +77,35 @@ const UpdateUser = async (req, res) => {
   }
 };
 
+const Expertise = async (req, res) => {
+  const { id } = req.params;
+
+  const { expertise } = req.body;
+
+  const user = { expertise };
+
+  try {
+    // Call service
+    const result = await userService.expertise_Service(id, user);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.SERVER_ERROR)
+      .send({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   registerUser,
   findUserByID,
   UpdateUser,
+  Expertise,
 };

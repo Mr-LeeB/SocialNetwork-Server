@@ -52,8 +52,8 @@ const findUserByID_Service = async (userID) => {
   }
 };
 
-const updateUser_Service = async (userID, user) => {
-  const userFind = await User.UpdateUser(userID, user);
+const updateUser_Service = async (userID, userUpdate) => {
+  const userFind = await User.UpdateUser(userID, userUpdate);
 
   if (!userFind) {
     return {
@@ -62,6 +62,38 @@ const updateUser_Service = async (userID, user) => {
       message: "User does not exist!",
     };
   }
+
+  const user = await User.GetUser(userID);
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: "User updated successfully",
+    content: {
+      userInfo: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        descriptions: user.description,
+        username: user.lastname + " " + user.firstname,
+        userImage: user.userImage,
+      },
+    },
+  };
+};
+
+const expertise_Service = async (userID, expertise) => {
+  const user = await User.GetUser(userID);
+
+  if (!user) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: "User does not exist!",
+    };
+  }
+
+  await user.HandleDescription(expertise.expertise);
 
   return {
     status: STATUS_CODE.SUCCESS,
@@ -74,4 +106,5 @@ module.exports = {
   registerUser_Service,
   findUserByID_Service,
   updateUser_Service,
+  expertise_Service,
 };

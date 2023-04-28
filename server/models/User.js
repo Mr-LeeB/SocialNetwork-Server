@@ -103,6 +103,10 @@ UserSchema.methods = {
   GetShares: async function () {
     return this.populate("shares");
   },
+  HandleDescription: async function (description) {
+    this.description = description;
+    return this.save();
+  },
 };
 
 UserSchema.statics = {

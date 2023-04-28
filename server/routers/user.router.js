@@ -16,4 +16,10 @@ userRouter.get("/users/:id", checkAuthentication, userController.findUserByID);
 
 userRouter.put("/users/:id", checkAuthentication, userController.UpdateUser);
 
+userRouter.post(
+  "/users/:id/expertise",
+  checkAuthentication,
+  userController.Expertise
+);
+
 module.exports = userRouter;
