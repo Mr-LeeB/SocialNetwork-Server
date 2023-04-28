@@ -559,7 +559,10 @@ const loadAllPost_Service = async (callerID) => {
 const editPost_Service = async (id, post, userID) => {
   // check owner
   const postFind = await Post.GetPost(id);
-  if (postFind.user != userID) {
+
+  console.log(postFind.user._id, userID);
+
+  if (postFind.user._id != userID) {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
