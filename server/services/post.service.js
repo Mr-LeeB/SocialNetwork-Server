@@ -6,7 +6,6 @@ const { Share } = require("../models/Share");
 const aws = require("aws-sdk");
 const configAWS = require("../config/config.json");
 const { Comment } = require("../models/Comment");
-const { post } = require("../routers/post.router");
 
 const REGION = configAWS.REGION;
 const ACCESS_KEY = configAWS.AWS_ACCESS_KEY;
@@ -797,6 +796,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       id: owner._id,
       username: owner.lastname + " " + owner.firstname,
       userImage: owner.userImage,
+      descriptions: owner.description,
     };
 
     return {
