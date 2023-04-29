@@ -434,13 +434,12 @@ const loadAllPost_Service = async (callerID) => {
     );
 
     // Tìm và tạo post mới cho các bài share bởi tất cả user và thêm vào postArr
-    let shareArr = postArr.filter((post) => post.isShared);
-    shareArr = shareArr.map((post) => post.shares);
+    let shareArr = await Share.GetShares();
     shareArr = shareArr.flat();
     const sharePostArr = await Promise.all(
       shareArr.map(async (share) => {
         const post = await Post.GetPost(share.post);
-        const user = await User.GetUser(share.user.id);
+        const user = await User.GetUser(share.user._id);
         share = Share(share);
 
         // thêm biến isLiked vào post
