@@ -792,7 +792,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       return b.createdAt - a.createdAt;
     });
 
-    const userInfo = {
+    const ownerInfo = {
       id: owner._id,
       username: owner.lastname + " " + owner.firstname,
       userImage: owner.userImage,
@@ -801,12 +801,22 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       lastname: owner.lastname,
     };
 
+    const userInfo = {
+      id: user._id,
+      username: user.lastname + " " + user.firstname,
+      userImage: user.userImage,
+      descriptions: user.description,
+      firstname: user.firstname,
+      lastname: user.lastname,
+    }
+
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
       message: "Post found",
       content: {
         userInfo,
+        ownerInfo,
         postArr,
       },
     };
