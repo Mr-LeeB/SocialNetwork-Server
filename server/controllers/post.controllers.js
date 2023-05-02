@@ -1,5 +1,5 @@
-const STATUS_CODE = require("../util/SettingSystem");
-const postService = require("../services/post.service");
+const STATUS_CODE = require('../util/SettingSystem');
+const postService = require('../services/post.service');
 
 const upPost = async (req, res) => {
   // get id user from req
@@ -24,25 +24,18 @@ const upPost = async (req, res) => {
       }
     } catch (error) {
       console.log(error);
-      res
-        .status(STATUS_CODE.SERVER_ERROR)
-        .send({ success: false, message: "Internal server error" });
+      res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
     }
   }
   // If post have image
   else {
-    const imageContent = Buffer.from(req.files.image.data, "binary");
+    const imageContent = Buffer.from(req.files.image.data, 'binary');
     const imageName = req.files.image.name;
     const imageType = req.files.image.mimetype;
     const imageSize = req.files.image.size;
     try {
       // Call service
-      const imageUpload = await postService.uploadPostImage_Service(
-        imageName,
-        imageContent,
-        imageType,
-        imageSize
-      );
+      const imageUpload = await postService.uploadPostImage_Service(imageName, imageContent, imageType, imageSize);
       const imageLink = imageUpload.content;
       const post = { title, content, linkImage: imageLink };
       const result = await postService.upPost_Service(post, id);
@@ -56,9 +49,7 @@ const upPost = async (req, res) => {
       }
     } catch (error) {
       console.log(error);
-      res
-        .status(STATUS_CODE.SERVER_ERROR)
-        .send({ success: false, message: "Internal server error" });
+      res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
     }
   }
 };
@@ -110,9 +101,7 @@ const getPost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -134,9 +123,7 @@ const getPostShare = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -156,9 +143,7 @@ const loadAllPost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -183,9 +168,7 @@ const editPost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -193,7 +176,7 @@ const getPostByUser = async (req, res) => {
   // Lấy bài viết của ownerID
   let { id: ownerID } = req.params;
 
-  if (ownerID === "me") {
+  if (ownerID === 'me') {
     ownerID = req.id;
   }
 
@@ -212,9 +195,7 @@ const getPostByUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -235,9 +216,7 @@ const deletePost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -258,9 +237,7 @@ const handleLikePost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -281,9 +258,7 @@ const handleSharePost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -304,9 +279,7 @@ const handleFavoritePost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -319,11 +292,7 @@ const commentPost = async (req, res) => {
 
   try {
     // Call service
-    const result = await postService.commentPost_Service(
-      id,
-      userID,
-      contentComment
-    );
+    const result = await postService.commentPost_Service(id, userID, contentComment);
 
     // Return result
     const { status, success, message, content } = result;
@@ -334,9 +303,7 @@ const commentPost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -351,12 +318,7 @@ const replyComment = async (req, res) => {
 
   try {
     // Call service
-    const result = await postService.replyComment_Service(
-      id,
-      userID,
-      contentComment,
-      idComment
-    );
+    const result = await postService.replyComment_Service(id, userID, contentComment, idComment);
 
     // Return result
     const { status, success, message, content } = result;
@@ -367,9 +329,7 @@ const replyComment = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -382,11 +342,7 @@ const deleteComment = async (req, res) => {
 
   try {
     // Call service
-    const result = await postService.deleteComment_Service(
-      id,
-      userID,
-      idComment
-    );
+    const result = await postService.deleteComment_Service(id, userID, idComment);
 
     // Return result
     const { status, success, message, content } = result;
@@ -397,9 +353,7 @@ const deleteComment = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -410,10 +364,7 @@ const handleLikePostShare = async (req, res) => {
 
   try {
     // Call service
-    const result = await postService.handleLikePostShare_Service(
-      userID,
-      idShare
-    );
+    const result = await postService.handleLikePostShare_Service(userID, idShare);
 
     // Return result
     const { status, success, message, content } = result;
@@ -424,9 +375,7 @@ const handleLikePostShare = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -439,11 +388,7 @@ const commentPostShare = async (req, res) => {
 
   try {
     // Call service
-    const result = await postService.commentPostShare_Service(
-      userID,
-      idShare,
-      contentComment
-    );
+    const result = await postService.commentPostShare_Service(userID, idShare, contentComment);
 
     // Return result
     const { status, success, message, content } = result;
@@ -454,9 +399,7 @@ const commentPostShare = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -471,12 +414,7 @@ const replyCommentPostShare = async (req, res) => {
 
   try {
     // Call service
-    const result = await postService.replyCommentPostShare_Service(
-      userID,
-      idShare,
-      contentComment,
-      idComment
-    );
+    const result = await postService.replyCommentPostShare_Service(userID, idShare, contentComment, idComment);
 
     // Return result
     const { status, success, message, content } = result;
@@ -487,9 +425,51 @@ const replyCommentPostShare = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const handleViewPost = async (req, res) => {
+  const { postId } = req.params;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.handleViewPost_Service(postId, userID, res, req);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const handleViewPostShare = async (req, res) => {
+  const { postId } = req.params;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.handleViewPostShare_Service(postId, userID, res, req);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -510,4 +490,6 @@ module.exports = {
   commentPostShare,
   replyCommentPostShare,
   getPostShare,
+  handleViewPost,
+  handleViewPostShare,
 };

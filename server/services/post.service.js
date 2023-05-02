@@ -258,6 +258,7 @@ const getPostShare_Service = async (id, callerID) => {
     const createdAt = share.createdAt;
     const updatedAt = share.updatedAt;
     const postID = post._id;
+    const views = share.views;
 
     share = post.toObject();
     share._id = _id;
@@ -274,6 +275,7 @@ const getPostShare_Service = async (id, callerID) => {
     };
     share.postID = postID;
     share.createdAt = createdAt;
+    share.views = views;
     share.updatedAt = updatedAt;
     share.isLiked = checkLiked;
     share.PostShared = true;
@@ -466,6 +468,7 @@ const loadAllPost_Service = async (callerID) => {
         const postCreatedAt = post.createdAt;
         const postUpdatedAt = post.updatedAt;
         const postID = post._id;
+        const views = share.views;
 
         share = post.toObject();
         share._id = _id;
@@ -483,6 +486,7 @@ const loadAllPost_Service = async (callerID) => {
         share.postID = postID;
         share.createdAt = createdAt;
         share.updatedAt = updatedAt;
+        share.views = views;
         share.postCreatedAt = postCreatedAt;
         share.postUpdatedAt = postUpdatedAt;
         share.isLiked = checkLiked;
@@ -736,6 +740,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         const postUpdatedAt = post.updatedAt;
         const postID = post._id;
         const owner = await User.GetUser(post.user);
+        const views = share.views;
 
         share = post.toObject();
         share._id = _id;
@@ -751,6 +756,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         share.updatedAt = updatedAt;
         share.postCreatedAt = postCreatedAt;
         share.postUpdatedAt = postUpdatedAt;
+        share.views = views;
         share.isLiked = checkLiked;
         share.PostShared = true;
         share.likes = await Promise.all(likeArr);
@@ -1195,6 +1201,86 @@ const replyCommentPostShare_Service = async (userID, idShare, contentComment, id
   }
 };
 
+const handleViewPost_Service = async (id, userID, res, req) => {
+  //Find post
+  const post = await Post.GetPost(id);
+
+  if (!post) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'Post not found',
+      content: null,
+    };
+  }
+
+  let viewedPosts = req?.cookies?.viewedPosts || [];
+  if (viewedPosts.includes(post._id.toString())) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Post viewed successfully',
+      content: post,
+    };
+  }
+
+  //Add view
+  await post.IncreaseView();
+
+  //Add post to viewedPosts
+  viewedPosts.push(post._id);
+  res.cookie('viewedPosts', [...viewedPosts, post._id], {
+    maxAge: 30 * 24 * 60 * 60,
+  });
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Post viewed successfully',
+    content: post,
+  };
+};
+
+const handleViewPostShare_Service = async (id, userID, res, req) => {
+  //Find post share
+  const post = await Share.GetShare(id);
+
+  if (!post) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'Post not found',
+      content: null,
+    };
+  }
+
+  let viewedPosts = req?.cookies?.viewedPosts || [];
+  if (viewedPosts.includes(post._id.toString())) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Post viewed successfully',
+      content: post,
+    };
+  }
+
+  //Add view
+  await post.IncreaseView();
+
+  //Add post to viewedPosts
+  viewedPosts.push(post._id);
+  res.cookie('viewedPosts', [...viewedPosts, post._id], {
+    maxAge: 30 * 24 * 60 * 60,
+  });
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Post viewed successfully',
+    content: post,
+  };
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -1213,4 +1299,6 @@ module.exports = {
   commentPostShare_Service,
   replyCommentPostShare_Service,
   getPostShare_Service,
+  handleViewPost_Service,
+  handleViewPostShare_Service,
 };
