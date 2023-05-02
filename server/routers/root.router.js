@@ -10,4 +10,5 @@ router.use("/", authRouter);
 
 router.use("/", postRouter);
 
+
 module.exports = router;
