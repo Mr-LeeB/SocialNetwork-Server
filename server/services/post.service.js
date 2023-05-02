@@ -6,8 +6,8 @@ const { Share } = require('../models/Share');
 const aws = require('aws-sdk');
 const configAWS = require('../config/config.json');
 const { Comment } = require('../models/Comment');
-const axios = require("axios");
-const jsdom = require("jsdom");
+const axios = require('axios');
+const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 
 const REGION = configAWS.REGION;
@@ -576,7 +576,9 @@ const getPostByUser_Service = async (callerID, ownerID) => {
 
               const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
 
-              const description = dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content');
+              const description = dom2.window.document
+                .querySelector('meta[property="og:description"]')
+                ?.getAttribute('content');
 
               const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
