@@ -88,6 +88,36 @@ const uploadPostImage_Service = async (imageName, imageContent, imageType, image
 const getPost_Service = async (id, callerID) => {
   try {
     let post = await Post.GetPost(id);
+
+    // Nếu không có ảnh thì thêm link
+    let link = null;
+    if (!post.image) {
+      const dom1 = new JSDOM(post.content);
+      // lấy link đầu tiền trong post
+      const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+
+      if (firstLink) {
+        await axios.get(firstLink).then((res) => {
+          const dom2 = new JSDOM(res.data);
+
+          const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+
+          const description = dom2.window.document
+            .querySelector('meta[property="og:description"]')
+            ?.getAttribute('content');
+
+          const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+
+          link = {
+            title,
+            description,
+            image,
+            linkAddress: firstLink,
+          };
+        });
+      }
+    }
+
     const user = await User.GetUser(callerID);
     // thêm biến isLiked vào post
     const postLike = await post.populate('likes');
@@ -112,6 +142,7 @@ const getPost_Service = async (id, callerID) => {
     post.isLiked = checkLiked;
     post.isShared = checkShared;
     post.isSaved = checkSaved;
+    post.link = link;
 
     // tìm thông tin user trong like
     const likeArr = await post.likes.map(async (like) => {
@@ -204,6 +235,35 @@ const getPostShare_Service = async (id, callerID) => {
     const post = await Post.GetPost(share.post);
     const user = await User.GetUser(share.user.id);
 
+    // Nếu không có ảnh thì thêm link
+    let link = null;
+    if (!post.image) {
+      const dom1 = new JSDOM(post.content);
+      // lấy link đầu tiền trong post
+      const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+
+      if (firstLink) {
+        await axios.get(firstLink).then((res) => {
+          const dom2 = new JSDOM(res.data);
+
+          const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+
+          const description = dom2.window.document
+            .querySelector('meta[property="og:description"]')
+            ?.getAttribute('content');
+
+          const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+
+          link = {
+            title,
+            description,
+            image,
+            linkAddress: firstLink,
+          };
+        });
+      }
+    }
+
     // thêm biến isLiked vào post
     const postLike = await share.populate('likes');
     const checkLiked = await postLike.likes.some(async (like) => {
@@ -273,6 +333,7 @@ const getPostShare_Service = async (id, callerID) => {
       username: user.lastname + ' ' + user.firstname,
       userImage: user.userImage,
     };
+    share.link = link;
     share.postID = postID;
     share.createdAt = createdAt;
     share.views = views;
