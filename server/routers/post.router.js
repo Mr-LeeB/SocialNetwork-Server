@@ -75,4 +75,17 @@ postRouter.post(
   postController.replyCommentPostShare
 );
 
+postRouter.post(
+  "/posts/:postId/views",
+  checkAuthentication,
+  postController.handleViewPost
+)
+
+postRouter.post(
+  "/postshare/:postId/views",
+  checkAuthentication,
+  postController.handleViewPostShare
+)
+
+
 module.exports = postRouter;

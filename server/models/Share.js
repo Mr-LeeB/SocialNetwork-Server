@@ -1,29 +1,33 @@
-const mongoose = require("mongoose");
-require("./Like");
-require("./Comment");
+const mongoose = require('mongoose');
+require('./Like');
+require('./Comment');
 
 const ShareSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     post: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
+      ref: 'Post',
       required: true,
     },
     likes: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
       default: [],
     },
     comments: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
       default: [],
     },
+    views: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 ShareSchema.methods = {
@@ -43,14 +47,18 @@ ShareSchema.methods = {
     this.comments.pull(commentID);
     return this.save();
   },
+  IncreaseView: async function () {
+    this.views++;
+    return this.save();
+  },
 };
 
 ShareSchema.statics = {
   GetShare: async function (id) {
-    return this.findById(id).populate("user");
+    return this.findById(id).populate('user');
   },
   GetShares: async function () {
-    return this.find().populate("user");
+    return this.find().populate('user');
   },
   SaveShare: async function (userID, postID) {
     const newShare = new this({
@@ -63,10 +71,10 @@ ShareSchema.statics = {
     return this.findByIdAndDelete(id);
   },
   GetShareByPost: async function (postID) {
-    return this.find({ post: postID }).populate("user");
+    return this.find({ post: postID }).populate('user');
   },
   GetShareByUser: async function (userID) {
-    return this.find({ user: userID }).populate("post");
+    return this.find({ user: userID }).populate('post');
   },
   GetShareByPostAndUser: async function (postID, userID) {
     return this.findOne({ user: userID, post: postID });
@@ -74,5 +82,5 @@ ShareSchema.statics = {
 };
 
 module.exports = {
-  Share: mongoose.model("Share", ShareSchema),
+  Share: mongoose.model('Share', ShareSchema),
 };
