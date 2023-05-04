@@ -213,6 +213,9 @@ const getPost_Service = async (id, callerID) => {
       id: user._id,
       username: user.lastname + ' ' + user.firstname,
       userImage: user.userImage,
+      descriptions: user.description,
+      firstname: user.firstname,
+      lastname: user.lastname,
     };
 
     return {
@@ -347,6 +350,9 @@ const getPostShare_Service = async (id, callerID) => {
       id: user._id,
       username: user.lastname + ' ' + user.firstname,
       userImage: user.userImage,
+      descriptions: user.description,
+      firstname: user.firstname,
+      lastname: user.lastname,
     };
 
     return {
@@ -630,6 +636,9 @@ const loadAllPost_Service = async (callerID) => {
       id: user._id,
       username: user.lastname + ' ' + user.firstname,
       userImage: user.userImage,
+      descriptions: user.description,
+      firstname: user.firstname,
+      lastname: user.lastname,
     };
 
     return {
