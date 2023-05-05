@@ -371,12 +371,12 @@ const getPostShare_Service = async (id, callerID) => {
 
 const loadAllPost_Service = async (callerID) => {
   try {
-    let postArr = await Post.GetPosts();
+    let allPostArr = await Post.GetPosts();
     const user = await User.GetUser(callerID);
 
     // Thao tác trên mỗi post
-    postArr = await Promise.all(
-      postArr.map(async (post) => {
+    allPostArr = await Promise.all(
+      allPostArr.map(async (post) => {
         // Nếu không có ảnh thì thêm link
         let link = null;
         if (!post.image) {
@@ -625,10 +625,10 @@ const loadAllPost_Service = async (callerID) => {
       }),
     );
 
-    postArr = postArr.concat(sharePostArr);
+    allPostArr = allPostArr.concat(sharePostArr);
 
     // Sắp xếp các bài post theo thời gian gần nhất
-    postArr.sort((a, b) => {
+    allPostArr.sort((a, b) => {
       return b.createdAt - a.createdAt;
     });
 
@@ -647,7 +647,7 @@ const loadAllPost_Service = async (callerID) => {
       message: 'Post found',
       content: {
         userInfo,
-        postArr,
+        allPostArr,
       },
     };
   } catch (error) {
