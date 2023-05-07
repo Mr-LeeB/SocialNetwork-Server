@@ -1,0 +1,30 @@
+const STATUS_CODE = require('../util/SettingSystem');
+const messageService = require('../services/message.service');
+
+const createMessage = async (req, res) => {
+  const { message, image, conversationID } = req.body;
+
+  const sender = req.id;
+
+  const messageToSend = { message, image, conversationID, sender };
+
+  try {
+    // Call service
+    const result = await messageService.createMessage_Service(messageToSend);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+module.exports = {
+  createMessage,
+};

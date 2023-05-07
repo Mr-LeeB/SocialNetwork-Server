@@ -1,14 +1,28 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const userRouter = require("./user.router");
-const authRouter = require("./auth.router");
-const postRouter = require("./post.router");
+const userRouter = require('./user.router');
+const authRouter = require('./auth.router');
+const postRouter = require('./post.router');
+const conversationRouter = require('./conversation.router');
+const { pusherServer } = require('../config/pusher');
+const { checkAuthentication } = require('../middlewares/authentication/checkAuthentication');
 
-router.use("/", userRouter);
+router.use('/', userRouter);
 
-router.use("/", authRouter);
+router.use('/', authRouter);
 
-router.use("/", postRouter);
+router.use('/', postRouter);
 
+router.use('/', conversationRouter);
+
+router.use('/pusher/auth', checkAuthentication, (req, res) => {
+  const socketId = req.body.socket_id;
+  const channel = req.body.channel_name;
+  const presenceData = {
+    user_id: req.id,
+  };
+  const auth = pusherServer.authorizeChannel(socketId, channel, presenceData);
+  res.send(auth);
+});
 
 module.exports = router;
