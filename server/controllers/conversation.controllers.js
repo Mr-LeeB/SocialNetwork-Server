@@ -26,11 +26,11 @@ const createConversation = async (req, res) => {
 };
 
 const getConversationById = async (req, res) => {
-  const { id } = req.params;
+  const { conversationId } = req.params;
 
   try {
     // Call service
-    const result = await conversationService.getConversationById_Service(id);
+    const result = await conversationService.getConversationById_Service(conversationId);
 
     // Return result
     const { status, success, message, content } = result;
@@ -65,11 +65,11 @@ const getAllConversation = async (req, res) => {
 };
 
 const deleteConversation = async (req, res) => {
-  const { id } = req.params;
+  const { conversationId } = req.params;
 
   try {
     // Call service
-    const result = await conversationService.deleteConversation_Service(id);
+    const result = await conversationService.deleteConversation_Service(conversationId);
 
     // Return result
     const { status, success, message } = result;
@@ -85,12 +85,12 @@ const deleteConversation = async (req, res) => {
 };
 
 const seenConversation = async (req, res) => {
-  const { id } = req.params;
+  const { conversationId } = req.params;
   const userID = req.id;
 
   try {
     // Call service
-    const result = await conversationService.seenConversation_Service(id, userID);
+    const result = await conversationService.seenConversation_Service(conversationId, userID);
 
     // Return result
     const { status, success, message, content } = result;

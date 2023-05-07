@@ -33,10 +33,13 @@ MessageSchema.statics = {
     return newMessage.save().then((message) => message.populate('sender').populate('seen').execPopulate());
   },
   GetMessage: async function (messageID) {
-    return this.findById(messageID).populate('sender').populate('conversation');
+    return this.findById(messageID).populate('sender').populate('seen');
   },
-  GetMessages: async function () {
-    return this.find().populate('sender').populate('conversation');
+  GetMessages: async function (conversationID) {
+    return this.findMany({ conversation: conversationID })
+      .populate('sender')
+      .populate('seen')
+      .sort({ createAt: 'asc' });
   },
   UpdateMessage: async function (messageID, data) {
     return this.findByIdAndUpdate(messageID, data, { new: true }).populate('seen').populate('sender');

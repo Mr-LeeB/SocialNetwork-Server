@@ -25,6 +25,27 @@ const createMessage = async (req, res) => {
   }
 };
 
+const getAllMessage = async (req, res) => {
+  const { conversationId } = req.params;
+
+  try {
+    // Call service
+    const result = await messageService.getAllMessage_Service(conversationId);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createMessage,
+  getAllMessage,
 };

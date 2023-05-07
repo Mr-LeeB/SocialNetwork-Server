@@ -17,7 +17,7 @@ const createMessage_Service = async (message) => {
   const updatedConversation = await Conversation.UpdateConversation(conversationID, {
     $push: { messages: newMessage._id },
     lastMessageAt: newMessage.createAt,
-  })
+  });
 
   await pusherServer.trigger(conversationID, 'new-message', newMessage);
 
@@ -33,6 +33,20 @@ const createMessage_Service = async (message) => {
   });
 };
 
+const getAllMessage_Service = async (conversationID) => {
+  const messages = await Message.GetMessages(conversationID);
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Get all messages successfully',
+    content: {
+      messages,
+    },
+  };
+};
+
 module.exports = {
   createMessage_Service,
+  getAllMessage_Service,
 };

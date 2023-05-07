@@ -3,3 +3,5 @@ const { checkAuthentication } = require('../middlewares/authentication/checkAuth
 const messageController = require('../controllers/message.controllers');
 
 messageRouter.post('/messages', checkAuthentication, messageController.createMessage);
+
+messageRouter.get(':conversationId/messages/', checkAuthentication, messageController.getAllMessage);
