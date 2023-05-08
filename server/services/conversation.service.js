@@ -24,8 +24,8 @@ const createConversation_Service = async (conversation) => {
 
     // Update all connections with new conversation
     newConversation.users.forEach((user) => {
-      if (user.email) {
-        pusherServer.trigger(user.email, 'new-conversation', newConversation);
+      if (user._id) {
+        pusherServer.trigger(user._id, 'new-conversation', newConversation);
       }
     });
 
@@ -55,8 +55,8 @@ const createConversation_Service = async (conversation) => {
 
   // Update all connections with new conversation
   newConversation.users.forEach((user) => {
-    if (user.email) {
-      pusherServer.trigger(user.email, 'new-conversation', newConversation);
+    if (user._id) {
+      pusherServer.trigger(user._id, 'new-conversation', newConversation);
     }
   });
 
@@ -116,8 +116,8 @@ const deleteConversation_Service = async (conversationID) => {
   } else {
     // Update all connections with new conversation
     conversationFind.users.forEach((user) => {
-      if (user.email) {
-        pusherServer.trigger(user.email, 'delete-conversation', conversationID);
+      if (user._id) {
+        pusherServer.trigger(user._id, 'delete-conversation', conversationID);
       }
     });
 
@@ -147,7 +147,7 @@ const seenConversation_Service = async (conversationID, userID) => {
   const updatedMessage = await Message.UpdateMessage(lastMessage._id, { $addToSet: { seen: userID } });
 
   // Update all connections with new conversation
-  await pusherServer.trigger(user.email, 'conversation-update', {
+  await pusherServer.trigger(user._id, 'conversation-update', {
     id: conversationID,
     messages: [updatedMessage],
   });

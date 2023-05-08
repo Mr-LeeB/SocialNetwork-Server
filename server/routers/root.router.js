@@ -18,7 +18,7 @@ router.use('/', conversationRouter);
 
 router.use('/', messageRouter);
 
-router.use('/pusher/auth', checkAuthentication, (req, res) => {
+router.post('/pusher/auth', checkAuthentication, (req, res) => {
   const socketId = req.body.socket_id;
   const channel = req.body.channel_name;
   const presenceData = {

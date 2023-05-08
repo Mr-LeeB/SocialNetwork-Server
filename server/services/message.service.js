@@ -24,8 +24,8 @@ const createMessage_Service = async (message) => {
   const lastMessage = updatedConversation.messages[updatedConversation.messages.length - 1];
 
   updatedConversation.users.forEach((user) => {
-    if (user.email) {
-      pusherServer.trigger(user.email, 'conversation-update', {
+    if (user._id) {
+      pusherServer.trigger(user._id, 'conversation-update', {
         id: conversationID,
         messages: [lastMessage],
       });
