@@ -237,6 +237,7 @@ const getPostShare_Service = async (id, callerID) => {
     let share = await Share.GetShare(id);
     const post = await Post.GetPost(share.post);
     const user = await User.GetUser(share.user.id);
+    const userCaller = await User.GetUser(callerID);
 
     // Nếu không có ảnh thì thêm link
     let link = null;
@@ -347,12 +348,12 @@ const getPostShare_Service = async (id, callerID) => {
     share.comments = await Promise.all(commentArr);
 
     const userInfo = {
-      id: user._id,
-      username: user.lastname + ' ' + user.firstname,
-      userImage: user.userImage,
-      descriptions: user.description,
-      firstname: user.firstname,
-      lastname: user.lastname,
+      id: userCaller._id,
+      username: userCaller.lastname + ' ' + userCaller.firstname,
+      userImage: userCaller.userImage,
+      descriptions: userCaller.description,
+      firstname: userCaller.firstname,
+      lastname: userCaller.lastname,
     };
 
     return {
@@ -371,12 +372,12 @@ const getPostShare_Service = async (id, callerID) => {
 
 const loadAllPost_Service = async (callerID) => {
   try {
-    let allPostArr = await Post.GetPosts();
+    let postArr = await Post.GetPosts();
     const user = await User.GetUser(callerID);
 
     // Thao tác trên mỗi post
-    allPostArr = await Promise.all(
-      allPostArr.map(async (post) => {
+    postArr = await Promise.all(
+      postArr.map(async (post) => {
         // Nếu không có ảnh thì thêm link
         let link = null;
         if (!post.image) {
@@ -431,70 +432,70 @@ const loadAllPost_Service = async (callerID) => {
         post.isSaved = checkSaved;
         post.link = link;
 
-        // tìm thông tin user trong like
-        const likeArr = await post.likes.map(async (like) => {
-          const user = await User.GetUser(like.user);
-          like.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
-          return like;
-        });
+        // // tìm thông tin user trong like
+        // const likeArr = await post.likes.map(async (like) => {
+        //   const user = await User.GetUser(like.user);
+        //   like.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
+        //   return like;
+        // });
 
-        post.likes = await Promise.all(likeArr);
+        // post.likes = await Promise.all(likeArr);
 
-        // tìm thông tin user trong share
-        const shareArr = await post.shares.map(async (share) => {
-          const user = await User.GetUser(share.user);
-          share.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
-          // Remove all fields except user
-          Object.keys(share).forEach((key) => {
-            if (key !== 'user' && key !== '_id' && key !== 'post' && key !== 'createdAt' && key !== 'updatedAt') {
-              delete share[key];
-            }
-          });
+        // // tìm thông tin user trong share
+        // const shareArr = await post.shares.map(async (share) => {
+        //   const user = await User.GetUser(share.user);
+        //   share.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
+        //   // Remove all fields except user
+        //   Object.keys(share).forEach((key) => {
+        //     if (key !== 'user' && key !== '_id' && key !== 'post' && key !== 'createdAt' && key !== 'updatedAt') {
+        //       delete share[key];
+        //     }
+        //   });
 
-          return share;
-        });
+        //   return share;
+        // });
 
-        post.shares = await Promise.all(shareArr);
+        // post.shares = await Promise.all(shareArr);
 
-        // tìm thông tin user trong comment và trong list reply
-        const commentArr = await post.comments.map(async (comment) => {
-          // check nếu comment là comment reply thì xóa comment đó đi
-          if (comment.isReply) {
-            return;
-          }
+        // // tìm thông tin user trong comment và trong list reply
+        // const commentArr = await post.comments.map(async (comment) => {
+        //   // check nếu comment là comment reply thì xóa comment đó đi
+        //   if (comment.isReply) {
+        //     return;
+        //   }
 
-          const user = await User.GetUser(comment.user);
-          comment.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
+        //   const user = await User.GetUser(comment.user);
+        //   comment.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
 
-          const replyArr = await comment.listReply.map(async (reply) => {
-            const commentReply = await Comment.GetCommentByID(reply);
-            reply = commentReply.toObject();
-            reply.user = {
-              id: commentReply.user._id,
-              username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
-              userImage: commentReply.user.userImage,
-            };
-            return reply;
-          });
+        //   const replyArr = await comment.listReply.map(async (reply) => {
+        //     const commentReply = await Comment.GetCommentByID(reply);
+        //     reply = commentReply.toObject();
+        //     reply.user = {
+        //       id: commentReply.user._id,
+        //       username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
+        //       userImage: commentReply.user.userImage,
+        //     };
+        //     return reply;
+        //   });
 
-          comment.listReply = await Promise.all(replyArr);
+        //   comment.listReply = await Promise.all(replyArr);
 
-          return comment;
-        });
+        //   return comment;
+        // });
 
-        post.comments = await Promise.all(commentArr);
+        // post.comments = await Promise.all(commentArr);
 
         return post;
       }),
@@ -544,49 +545,49 @@ const loadAllPost_Service = async (callerID) => {
           return like?.user.toString() === callerID;
         });
 
-        // tìm thông tin user trong like
-        const likeArr = await postLike.likes.map(async (like) => {
-          const user = await User.GetUser(like.user);
-          like.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
-          return like;
-        });
+        // // tìm thông tin user trong like
+        // const likeArr = await postLike.likes.map(async (like) => {
+        //   const user = await User.GetUser(like.user);
+        //   like.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
+        //   return like;
+        // });
 
-        // tìm thông tin user trong comment và trong list reply
-        const postComment = await share.populate('comments');
-        const commentArr = await postComment.comments.map(async (comment) => {
-          const commentPopulate = await Comment.GetCommentByID(comment);
-          comment = commentPopulate.toObject();
-          // check nếu comment là comment reply thì xóa comment đó đi
-          if (comment.isReply) {
-            return;
-          }
+        // // tìm thông tin user trong comment và trong list reply
+        // const postComment = await share.populate('comments');
+        // const commentArr = await postComment.comments.map(async (comment) => {
+        //   const commentPopulate = await Comment.GetCommentByID(comment);
+        //   comment = commentPopulate.toObject();
+        //   // check nếu comment là comment reply thì xóa comment đó đi
+        //   if (comment.isReply) {
+        //     return;
+        //   }
 
-          const user = await User.GetUser(comment.user);
-          comment.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
+        //   const user = await User.GetUser(comment.user);
+        //   comment.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
 
-          const replyArr = await comment.listReply.map(async (reply) => {
-            const commentReply = await Comment.GetCommentByID(reply);
-            reply = commentReply.toObject();
-            reply.user = {
-              id: commentReply.user._id,
-              username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
-              userImage: commentReply.user.userImage,
-            };
-            return reply;
-          });
+        //   const replyArr = await comment.listReply.map(async (reply) => {
+        //     const commentReply = await Comment.GetCommentByID(reply);
+        //     reply = commentReply.toObject();
+        //     reply.user = {
+        //       id: commentReply.user._id,
+        //       username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
+        //       userImage: commentReply.user.userImage,
+        //     };
+        //     return reply;
+        //   });
 
-          comment.listReply = await Promise.all(replyArr);
+        //   comment.listReply = await Promise.all(replyArr);
 
-          return comment;
-        });
+        //   return comment;
+        // });
 
         const _id = share._id;
         const createdAt = share.createdAt;
@@ -595,6 +596,8 @@ const loadAllPost_Service = async (callerID) => {
         const postUpdatedAt = post.updatedAt;
         const postID = post._id;
         const views = share.views;
+        const likes = share.likes;
+        const comments = share.comments;
 
         share = post.toObject();
         share._id = _id;
@@ -618,17 +621,19 @@ const loadAllPost_Service = async (callerID) => {
         share.postUpdatedAt = postUpdatedAt;
         share.isLiked = checkLiked;
         share.PostShared = true;
-        share.likes = await Promise.all(likeArr);
-        share.comments = await Promise.all(commentArr);
+        // share.likes = await Promise.all(likeArr);
+        // share.comments = await Promise.all(commentArr);
+        share.likes = likes;
+        share.comments = comments;
 
         return share;
       }),
     );
 
-    allPostArr = allPostArr.concat(sharePostArr);
+    postArr = postArr.concat(sharePostArr);
 
     // Sắp xếp các bài post theo thời gian gần nhất
-    allPostArr.sort((a, b) => {
+    postArr.sort((a, b) => {
       return b.createdAt - a.createdAt;
     });
 
@@ -647,7 +652,7 @@ const loadAllPost_Service = async (callerID) => {
       message: 'Post found',
       content: {
         userInfo,
-        allPostArr,
+        postArr,
       },
     };
   } catch (error) {
@@ -741,70 +746,70 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         post.isSaved = checkSaved;
         post.link = link;
 
-        // tìm thông tin user trong like
-        const likeArr = await post.likes.map(async (like) => {
-          const user = await User.GetUser(like.user);
-          like.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
-          return like;
-        });
+        // // tìm thông tin user trong like
+        // const likeArr = await post.likes.map(async (like) => {
+        //   const user = await User.GetUser(like.user);
+        //   like.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
+        //   return like;
+        // });
 
-        post.likes = await Promise.all(likeArr);
+        // post.likes = await Promise.all(likeArr);
 
-        // tìm thông tin user trong share
-        const shareArr = await post.shares.map(async (share) => {
-          const user = await User.GetUser(share.user);
-          share.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
-          // Remove all fields except user
-          Object.keys(share).forEach((key) => {
-            if (key !== 'user' && key !== '_id' && key !== 'post' && key !== 'createdAt' && key !== 'updatedAt') {
-              delete share[key];
-            }
-          });
+        // // tìm thông tin user trong share
+        // const shareArr = await post.shares.map(async (share) => {
+        //   const user = await User.GetUser(share.user);
+        //   share.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
+        //   // Remove all fields except user
+        //   Object.keys(share).forEach((key) => {
+        //     if (key !== 'user' && key !== '_id' && key !== 'post' && key !== 'createdAt' && key !== 'updatedAt') {
+        //       delete share[key];
+        //     }
+        //   });
 
-          return share;
-        });
+        //   return share;
+        // });
 
-        post.shares = await Promise.all(shareArr);
+        // post.shares = await Promise.all(shareArr);
 
-        // tìm thông tin user trong comment và trong list reply
-        const commentArr = await post.comments.map(async (comment) => {
-          // check nếu comment là comment reply thì xóa comment đó đi
-          if (comment.isReply) {
-            return;
-          }
+        // // tìm thông tin user trong comment và trong list reply
+        // const commentArr = await post.comments.map(async (comment) => {
+        //   // check nếu comment là comment reply thì xóa comment đó đi
+        //   if (comment.isReply) {
+        //     return;
+        //   }
 
-          const user = await User.GetUser(comment.user);
-          comment.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
+        //   const user = await User.GetUser(comment.user);
+        //   comment.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
 
-          const replyArr = await comment.listReply.map(async (reply) => {
-            const commentReply = await Comment.GetCommentByID(reply);
-            reply = commentReply.toObject();
-            reply.user = {
-              id: commentReply.user._id,
-              username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
-              userImage: commentReply.user.userImage,
-            };
-            return reply;
-          });
+        //   const replyArr = await comment.listReply.map(async (reply) => {
+        //     const commentReply = await Comment.GetCommentByID(reply);
+        //     reply = commentReply.toObject();
+        //     reply.user = {
+        //       id: commentReply.user._id,
+        //       username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
+        //       userImage: commentReply.user.userImage,
+        //     };
+        //     return reply;
+        //   });
 
-          comment.listReply = await Promise.all(replyArr);
+        //   comment.listReply = await Promise.all(replyArr);
 
-          return comment;
-        });
+        //   return comment;
+        // });
 
-        post.comments = await Promise.all(commentArr);
+        // post.comments = await Promise.all(commentArr);
 
         return post;
       }),
@@ -850,49 +855,49 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         const postLike = await share.populate('likes');
         const checkLiked = (await postLike.likes.filter((like) => like.user.toString() === callerID).length) > 0;
 
-        // tìm thông tin user trong like
-        const likeArr = await postLike.likes.map(async (like) => {
-          const user = await User.GetUser(like.user);
-          like.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
-          return like;
-        });
+        // // tìm thông tin user trong like
+        // const likeArr = await postLike.likes.map(async (like) => {
+        //   const user = await User.GetUser(like.user);
+        //   like.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
+        //   return like;
+        // });
 
-        // tìm thông tin user trong comment và trong list reply
-        const postComment = await share.populate('comments');
-        const commentArr = await postComment.comments.map(async (comment) => {
-          const commentPopulate = await Comment.GetCommentByID(comment);
-          comment = commentPopulate.toObject();
-          // check nếu comment là comment reply thì xóa comment đó đi
-          if (comment.isReply) {
-            return;
-          }
+        // // tìm thông tin user trong comment và trong list reply
+        // const postComment = await share.populate('comments');
+        // const commentArr = await postComment.comments.map(async (comment) => {
+        //   const commentPopulate = await Comment.GetCommentByID(comment);
+        //   comment = commentPopulate.toObject();
+        //   // check nếu comment là comment reply thì xóa comment đó đi
+        //   if (comment.isReply) {
+        //     return;
+        //   }
 
-          const user = await User.GetUser(comment.user);
-          comment.user = {
-            id: user._id,
-            username: user.lastname + ' ' + user.firstname,
-            userImage: user.userImage,
-          };
+        //   const user = await User.GetUser(comment.user);
+        //   comment.user = {
+        //     id: user._id,
+        //     username: user.lastname + ' ' + user.firstname,
+        //     userImage: user.userImage,
+        //   };
 
-          const replyArr = await comment.listReply.map(async (reply) => {
-            const commentReply = await Comment.GetCommentByID(reply);
-            reply = commentReply.toObject();
-            reply.user = {
-              id: commentReply.user._id,
-              username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
-              userImage: commentReply.user.userImage,
-            };
-            return reply;
-          });
+        //   const replyArr = await comment.listReply.map(async (reply) => {
+        //     const commentReply = await Comment.GetCommentByID(reply);
+        //     reply = commentReply.toObject();
+        //     reply.user = {
+        //       id: commentReply.user._id,
+        //       username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
+        //       userImage: commentReply.user.userImage,
+        //     };
+        //     return reply;
+        //   });
 
-          comment.listReply = await Promise.all(replyArr);
+        //   comment.listReply = await Promise.all(replyArr);
 
-          return comment;
-        });
+        //   return comment;
+        // });
 
         const _id = share._id;
         const createdAt = share.createdAt;
@@ -902,6 +907,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         const postID = post._id;
         const owner = await User.GetUser(post.user);
         const views = share.views;
+        const likes = share.likes;
+        const comments = share.comments;
 
         share = post.toObject();
         share._id = _id;
@@ -921,8 +928,10 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         share.views = views;
         share.isLiked = checkLiked;
         share.PostShared = true;
-        share.likes = await Promise.all(likeArr);
-        share.comments = await Promise.all(commentArr);
+        // share.likes = await Promise.all(likeArr);
+        // share.comments = await Promise.all(commentArr);
+        share.likes = likes;
+        share.comments = comments;
 
         return share;
       }),
