@@ -17,7 +17,6 @@ const ConversationSchema = new mongoose.Schema({
   },
   messages: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
-    default: [],
   },
   users: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -28,7 +27,7 @@ const ConversationSchema = new mongoose.Schema({
 ConversationSchema.statics = {
   CreateConversation: async function (conversation) {
     const newConversation = new this(conversation);
-    return newConversation.save().then((conversation) => conversation.populate('users').execPopulate());
+    return newConversation.save();
   },
   GetConversation: async function (conversationID) {
     return this.findById(conversationID)
@@ -39,13 +38,14 @@ ConversationSchema.statics = {
       });
   },
   GetConversations: async function (userID) {
-    return this.findMany({ users: userID })
+    return this.find({ users: userID })
       .populate('users')
       .populate({
         path: 'messages',
         populate: [{ path: 'sender' }, { path: 'seen' }],
       })
-      .sort({ lastMessageAt: 'desc' });
+      .sort({ lastMessageAt: 'desc' })
+      .exec();
   },
   GetConversationByUser: async function (userID) {
     return this.find({ users: userID })
@@ -56,7 +56,7 @@ ConversationSchema.statics = {
       });
   },
   GetConversationByUsers: async function (userID1, userID2) {
-    return this.findMany({ users: { $all: [userID1, userID2] } })
+    return this.find({ users: { $all: [userID1, userID2] } })
       .populate('users')
       .populate({
         path: 'messages',

@@ -1,5 +1,5 @@
-const userService = require("../services/user.services");
-const STATUS_CODE = require("../util/SettingSystem");
+const userService = require('../services/user.services');
+const STATUS_CODE = require('../util/SettingSystem');
 
 // @route POST api/users
 // @desc Register user
@@ -23,9 +23,7 @@ const registerUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -45,9 +43,7 @@ const findUserByID = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -71,9 +67,7 @@ const UpdateUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -97,9 +91,27 @@ const Expertise = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const getFollowed = async (req, res) => {
+  const id = req.id;
+
+  try {
+    // Call service
+    const result = await userService.getFollowed_Service(id);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -108,4 +120,5 @@ module.exports = {
   findUserByID,
   UpdateUser,
   Expertise,
+  getFollowed,
 };

@@ -2,7 +2,9 @@ const STATUS_CODE = require('../util/SettingSystem');
 const conversationService = require('../services/conversation.service');
 
 const createConversation = async (req, res) => {
-  const { name, isGroup, users } = req.body;
+  const { name, isGroup } = req.body;
+
+  const users = req.body['users[]'];
 
   const userID = req.id;
 

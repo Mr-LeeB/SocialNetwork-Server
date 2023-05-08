@@ -25,7 +25,9 @@ const createMessage_Service = async (message) => {
 
   updatedConversation.users.forEach((user) => {
     if (user._id) {
-      pusherServer.trigger(user._id, 'conversation-update', {
+      let channel_name = user._id;
+      channel_name = channel_name.toString();
+      pusherServer.trigger(channel_name, 'conversation-update', {
         id: conversationID,
         messages: [lastMessage],
       });

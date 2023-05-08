@@ -7,7 +7,7 @@ const { User } = require('../models/User');
 const createConversation_Service = async (conversation) => {
   const { name, isGroup, users, userID } = conversation;
 
-  if (isGroup && (users.length < 2 || !users || !name)) {
+  if (isGroup === true && (users.length < 2 || !users || !name)) {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
@@ -22,10 +22,14 @@ const createConversation_Service = async (conversation) => {
       users: [...users, userID],
     });
 
+    newConversation.populate('users').execPopulate();
+
     // Update all connections with new conversation
     newConversation.users.forEach((user) => {
       if (user._id) {
-        pusherServer.trigger(user._id, 'new-conversation', newConversation);
+        let channel_name = user._id;
+        channel_name = channel_name.toString();
+        pusherServer.trigger(channel_name, 'new-conversation', newConversation);
       }
     });
 
@@ -43,9 +47,12 @@ const createConversation_Service = async (conversation) => {
 
   if (existingConversation.length > 0) {
     return {
-      status: STATUS_CODE.BAD_REQUEST,
-      success: false,
+      status: STATUS_CODE.CREATED,
+      success: true,
       message: 'Conversation already exists',
+      content: {
+        conversation: existingConversation[0],
+      },
     };
   }
 
@@ -56,7 +63,9 @@ const createConversation_Service = async (conversation) => {
   // Update all connections with new conversation
   newConversation.users.forEach((user) => {
     if (user._id) {
-      pusherServer.trigger(user._id, 'new-conversation', newConversation);
+      let channel_name = user._id;
+      channel_name = channel_name.toString();
+      pusherServer.trigger(channel_name, 'new-conversation', newConversation);
     }
   });
 
@@ -99,7 +108,7 @@ const getAllConversation_Service = async (userID) => {
     success: true,
     message: 'Get all conversations successfully',
     content: {
-      conversations,
+      conversations: conversations,
     },
   };
 };
@@ -117,7 +126,9 @@ const deleteConversation_Service = async (conversationID) => {
     // Update all connections with new conversation
     conversationFind.users.forEach((user) => {
       if (user._id) {
-        pusherServer.trigger(user._id, 'delete-conversation', conversationID);
+        let channel_name = user._id;
+        channel_name = channel_name.toString();
+        pusherServer.trigger(channel_name, 'conversation-remove', conversationID);
       }
     });
 
@@ -147,7 +158,9 @@ const seenConversation_Service = async (conversationID, userID) => {
   const updatedMessage = await Message.UpdateMessage(lastMessage._id, { $addToSet: { seen: userID } });
 
   // Update all connections with new conversation
-  await pusherServer.trigger(user._id, 'conversation-update', {
+  let channel_name = user._id;
+  channel_name = channel_name.toString();
+  await pusherServer.trigger(channel_name, 'conversation-update', {
     id: conversationID,
     messages: [updatedMessage],
   });
