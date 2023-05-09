@@ -11,7 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "argon2": "^0.30.3",
-    "aws-sdk": "^2.1352.0",
     "axios": "^1.4.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",

@@ -54,35 +54,6 @@ const upPost = async (req, res) => {
   }
 };
 
-/* const uploadPostImage = async (req, res) => {
-  const imageContent = Buffer.from(req.files.image.data, "binary");
-  const imageName = req.files.image.name;
-  const imageType = req.files.image.mimetype;
-  const imageSize = req.files.image.size;
-
-  try {
-    // Call service
-    const result = await postService.uploadPostImage_Service(
-      imageName,
-      imageContent,
-      imageType,
-      imageSize
-    );
-    // Return result
-    const { status, success, message, content } = result;
-    if (!success) {
-      return res.status(status).send({ success, message });
-    } else {
-      return res.status(status).send({ success, message, content });
-    }
-  } catch (error) {
-    console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
-  }
-}; */
-
 const getPost = async (req, res) => {
   const { id } = req.params;
 
