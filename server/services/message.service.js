@@ -19,7 +19,7 @@ const createMessage_Service = async (message) => {
 
   const updatedConversation = await Conversation.UpdateConversation(conversationID, {
     $push: { messages: newMessage._id },
-    lastMessageAt: newMessage.createAt,
+    lastMessageAt: newMessage.createdAt,
   });
 
   await pusherServer.trigger(conversationID, 'new-message', newMessage);

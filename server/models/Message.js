@@ -30,16 +30,13 @@ const MessageSchema = new mongoose.Schema({
 MessageSchema.statics = {
   CreateMessage: async function (message) {
     const newMessage = new this(message);
-    return newMessage.save()
+    return newMessage.save();
   },
   GetMessage: async function (messageID) {
     return this.findById(messageID).populate('sender').populate('seen');
   },
   GetMessages: async function (conversationID) {
-    return this.find({ conversation: conversationID })
-      .populate('sender')
-      .populate('seen')
-      .sort({ createAt: 'asc' });
+    return this.find({ conversation: conversationID }).populate('sender').populate('seen').sort({ createdAt: 'asc' });
   },
   UpdateMessage: async function (messageID, data) {
     return this.findByIdAndUpdate(messageID, data, { new: true }).populate('seen').populate('sender');
