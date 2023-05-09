@@ -14,6 +14,8 @@ const createMessage_Service = async (message) => {
     seen: [sender],
   });
 
+  await newMessage.populate('sender').populate('seen');
+
   const updatedConversation = await Conversation.UpdateConversation(conversationID, {
     $push: { messages: newMessage._id },
     lastMessageAt: newMessage.createAt,
@@ -33,6 +35,15 @@ const createMessage_Service = async (message) => {
       });
     }
   });
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Create message successfully',
+    content: {
+      message: newMessage,
+    },
+  };
 };
 
 const getAllMessage_Service = async (conversationID) => {

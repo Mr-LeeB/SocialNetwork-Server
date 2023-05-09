@@ -44,8 +44,7 @@ ConversationSchema.statics = {
         path: 'messages',
         populate: [{ path: 'sender' }, { path: 'seen' }],
       })
-      .sort({ lastMessageAt: 'desc' })
-      .exec();
+      .sort({ lastMessageAt: 'desc' });
   },
   GetConversationByUser: async function (userID) {
     return this.find({ users: userID })

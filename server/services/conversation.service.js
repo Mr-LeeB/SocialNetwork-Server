@@ -22,7 +22,7 @@ const createConversation_Service = async (conversation) => {
       users: [...users, userID],
     });
 
-    newConversation.populate('users').execPopulate();
+    await newConversation.populate('users');
 
     // Update all connections with new conversation
     newConversation.users.forEach((user) => {
@@ -34,7 +34,7 @@ const createConversation_Service = async (conversation) => {
     });
 
     return {
-      status: STATUS_CODE.CREATED,
+      status: STATUS_CODE.SUCCESS,
       success: true,
       message: 'Conversation created successfully',
       content: {
@@ -47,7 +47,7 @@ const createConversation_Service = async (conversation) => {
 
   if (existingConversation.length > 0) {
     return {
-      status: STATUS_CODE.CREATED,
+      status: STATUS_CODE.SUCCESS,
       success: true,
       message: 'Conversation already exists',
       content: {
@@ -60,6 +60,8 @@ const createConversation_Service = async (conversation) => {
     users: [userID, users[0]],
   });
 
+  await newConversation.populate('users');
+
   // Update all connections with new conversation
   newConversation.users.forEach((user) => {
     if (user._id) {
@@ -70,7 +72,7 @@ const createConversation_Service = async (conversation) => {
   });
 
   return {
-    status: STATUS_CODE.CREATED,
+    status: STATUS_CODE.SUCCESS,
     success: true,
     message: 'Conversation created successfully',
     content: {
