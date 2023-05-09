@@ -14,7 +14,8 @@ const createMessage_Service = async (message) => {
     seen: [sender],
   });
 
-  await newMessage.populate('sender').populate('seen');
+  await newMessage.populate('sender');
+  await newMessage.populate('seen');
 
   const updatedConversation = await Conversation.UpdateConversation(conversationID, {
     $push: { messages: newMessage._id },

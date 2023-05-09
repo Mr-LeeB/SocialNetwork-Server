@@ -7,7 +7,7 @@ const MessageSchema = new mongoose.Schema({
   image: {
     type: String,
   },
-  createAt: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },

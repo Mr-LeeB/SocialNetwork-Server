@@ -138,13 +138,16 @@ const deleteConversation_Service = async (conversationID) => {
       status: STATUS_CODE.SUCCESS,
       success: true,
       message: 'Conversation deleted successfully',
+      content: {
+        conversation: conversationFind,
+      },
     };
   }
 };
 
 const seenConversation_Service = async (conversationID, userID) => {
   const conversationFind = await Conversation.GetConversation(conversationID);
-  const user = User.GetUser(userID);
+  const user = await User.GetUser(userID);
 
   if (!conversationFind) {
     return {
@@ -155,6 +158,17 @@ const seenConversation_Service = async (conversationID, userID) => {
   }
 
   const lastMessage = conversationFind.messages[conversationFind.messages.length - 1];
+
+  if (!lastMessage) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Conversation seen successfully',
+      content: {
+        conversation: conversationFind,
+      },
+    };
+  }
 
   // Update the last message seen
   const updatedMessage = await Message.UpdateMessage(lastMessage._id, { $addToSet: { seen: userID } });
@@ -170,9 +184,12 @@ const seenConversation_Service = async (conversationID, userID) => {
   // if user has already seen the message
   if (lastMessage.seen.indexOf(userID) !== -1) {
     return {
-      status: STATUS_CODE.BAD_REQUEST,
-      success: false,
-      message: 'User has already seen the message',
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Conversation seen successfully',
+      content: {
+        conversation: conversationFind,
+      },
     };
   }
 
@@ -183,6 +200,9 @@ const seenConversation_Service = async (conversationID, userID) => {
     status: STATUS_CODE.SUCCESS,
     success: true,
     message: 'Conversation seen successfully',
+    content: {
+      conversation: conversationFind,
+    },
   };
 };
 

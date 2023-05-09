@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ConversationSchema = new mongoose.Schema({
-  createAt: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },

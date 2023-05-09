@@ -2,11 +2,11 @@ const STATUS_CODE = require('../util/SettingSystem');
 const messageService = require('../services/message.service');
 
 const createMessage = async (req, res) => {
-  const { message, image, conversationID } = req.body;
+  const { body, image, conversationID } = req.body;
 
   const sender = req.id;
 
-  const messageToSend = { message, image, conversationID, sender };
+  const messageToSend = { body, image, conversationID, sender };
 
   try {
     // Call service

@@ -4,6 +4,6 @@ const messageController = require('../controllers/message.controllers');
 
 messageRouter.post('/messages', checkAuthentication, messageController.createMessage);
 
-messageRouter.get(':conversationId/messages/', checkAuthentication, messageController.getAllMessage);
+messageRouter.get('/:conversationId/messages/', checkAuthentication, messageController.getAllMessage);
 
 module.exports = messageRouter;
