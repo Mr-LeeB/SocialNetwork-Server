@@ -376,11 +376,11 @@ const loadAllPost_Service = async (callerID) => {
           userSave.favorites.filter((postSaved) => postSaved._id.toString() === post._id.toString()).length > 0;
 
         post = post.toObject();
-        const userInfo = post.user;
+        const user = post.user;
         post.user = {
-          id: userInfo._id,
-          username: userInfo.lastname + ' ' + userInfo.firstname,
-          userImage: userInfo.userImage,
+          id: user._id,
+          username: user.lastname + ' ' + user.firstname,
+          userImage: user.userImage,
         };
         post.isLiked = checkLiked;
         post.isShared = checkShared;
