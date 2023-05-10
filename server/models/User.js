@@ -124,7 +124,7 @@ UserSchema.statics = {
     return this.find();
   },
   GetFollowers: async function (id) {
-    return this.findById(id).populate('followers');
+    return this.findById(id).populate('followers').populate('following');
   },
 };
 

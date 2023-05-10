@@ -1,5 +1,6 @@
 const { User } = require('../models/User');
 const STATUS_CODE = require('../util/SettingSystem');
+const _ = require('lodash');
 
 const registerUser_Service = async (user) => {
   const { firstname, lastname, email, password } = user;
@@ -107,11 +108,13 @@ const getFollowed_Service = async (userID) => {
 
   const followers = [...user.followers];
 
-  if (!followers) {
+  const following = [...user.following];
+
+  if (!followers || !following) {
     return {
       status: STATUS_CODE.NOT_FOUND,
       success: false,
-      message: 'User does not follow anyone!',
+      message: 'User does not follow anyone or have any followers!',
     };
   }
 
@@ -127,6 +130,20 @@ const getFollowed_Service = async (userID) => {
     follower.__v = undefined;
   });
 
+  following.forEach((follow) => {
+    follow.password = undefined;
+    follow.accessToken = undefined;
+    follow.followers = undefined;
+    follow.following = undefined;
+    follow.shares = undefined;
+    follow.favorites = undefined;
+    follow.description = undefined;
+    follow.__v = undefined;
+  });
+
+  // Combine followers and following into one array and remove duplicate users
+  const followersAndFollowing = _.unionBy(followers, following, 'email');
+
   const userInfo = {
     id: user._id,
     firstname: user.firstname,
@@ -141,7 +158,7 @@ const getFollowed_Service = async (userID) => {
     message: 'Get all followers successfully',
     content: {
       userInfo,
-      followers,
+      followers: followersAndFollowing,
     },
   };
 };
