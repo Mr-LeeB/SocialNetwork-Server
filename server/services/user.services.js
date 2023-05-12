@@ -72,7 +72,7 @@ const updateUser_Service = async (userID, userUpdate) => {
     success: true,
     message: 'User updated successfully',
     content: {
-      userInfo: {
+      ownerInfo: {
         id: user._id,
         firstname: user.firstname,
         lastname: user.lastname,
@@ -101,6 +101,16 @@ const expertise_Service = async (userID, expertise) => {
     status: STATUS_CODE.SUCCESS,
     success: true,
     message: 'User updated successfully',
+    content: {
+      ownerInfo: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        descriptions: user.description,
+        username: user.lastname + ' ' + user.firstname,
+        userImage: user.userImage,
+      },
+    },
   };
 };
 
