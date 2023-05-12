@@ -20,6 +20,7 @@ const registerUser_Service = async (user) => {
     lastname,
     email,
     password,
+    username: lastname + ' ' + firstname,
   });
   await newUser.save();
 
