@@ -5,52 +5,24 @@ const upPost = async (req, res) => {
   // get id user from req
   const id = req.id;
 
-  const { title, content } = req.body;
-  const image = req.files?.image;
+  const { title, content, linkImage } = req.body;
+  // const image = req.files?.image;
 
-  // Check if post have image
-  if (!image) {
-    const post = { title, content };
-    try {
-      // Call service
-      const result = await postService.upPost_Service(post, id);
+  const post = { title, content, linkImage };
+  try {
+    // Call service
+    const result = await postService.upPost_Service(post, id);
 
-      // Return result
-      const { status, success, message, content } = result;
-      if (!success) {
-        return res.status(status).send({ success, message });
-      } else {
-        return res.status(status).send({ success, message, content });
-      }
-    } catch (error) {
-      console.log(error);
-      res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
     }
-  }
-  // If post have image
-  else {
-    const imageContent = Buffer.from(req.files.image.data, 'binary');
-    const imageName = req.files.image.name;
-    const imageType = req.files.image.mimetype;
-    const imageSize = req.files.image.size;
-    try {
-      // Call service
-      const imageUpload = await postService.uploadPostImage_Service(imageName, imageContent, imageType, imageSize);
-      const imageLink = imageUpload.content;
-      const post = { title, content, linkImage: imageLink };
-      const result = await postService.upPost_Service(post, id);
-
-      // Return result
-      const { status, success, message, content } = result;
-      if (!success) {
-        return res.status(status).send({ success, message });
-      } else {
-        return res.status(status).send({ success, message, content });
-      }
-    } catch (error) {
-      console.log(error);
-      res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
-    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
