@@ -14,7 +14,7 @@ const newMessage = async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        res 
+        res
             .status(STATUS_CODE.SERVER_ERROR)
             .send({ success: false, message: "Internal server error" });
     }
