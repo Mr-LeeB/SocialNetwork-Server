@@ -12,7 +12,6 @@ postRouter.post(
   postValidation.post_checkEmpty,
   postController.upPost
 );
-/* postRouter.post("/posts/uploadImage", postController.uploadPostImage); */
 postRouter.get("/posts/:id", checkAuthentication, postController.getPost);
 postRouter.get(
   "/postshares/:id",
@@ -74,5 +73,18 @@ postRouter.post(
   checkAuthentication,
   postController.replyCommentPostShare
 );
+
+postRouter.post(
+  "/posts/:postId/views",
+  checkAuthentication,
+  postController.handleViewPost
+)
+
+postRouter.post(
+  "/postshare/:postId/views",
+  checkAuthentication,
+  postController.handleViewPostShare
+)
+
 
 module.exports = postRouter;

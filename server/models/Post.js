@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-require("./Like");
-require("./Comment");
-require("./User");
+const mongoose = require('mongoose');
+require('./Like');
+require('./Comment');
+require('./User');
 
 const PostSchema = new mongoose.Schema(
   {
@@ -17,27 +17,31 @@ const PostSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["TO LEARN", "LEARNING", "LEARNED"],
+      enum: ['TO LEARN', 'LEARNING', 'LEARNED'],
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     likes: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
       default: [],
     },
     shares: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Share" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Share' }],
       default: [],
     },
     comments: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
       default: [],
     },
+    views: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 PostSchema.methods = {
@@ -65,6 +69,10 @@ PostSchema.methods = {
     this.comments.pull(commentID);
     return this.save();
   },
+  IncreaseView: async function () {
+    this.views++;
+    return this.save();
+  },
 };
 
 PostSchema.statics = {
@@ -74,29 +82,25 @@ PostSchema.statics = {
   },
   // Get post by id
   GetPost: async function (id) {
-    return this.findById(id)
-      .populate("user")
-      .populate("likes")
-      .populate("comments")
-      .populate("shares");
+    return this.findById(id).populate('user').populate('likes').populate('comments').populate('shares');
   },
   // Get post by user id and sort by createdAt, the latest post will be on top
   GetPostByUser: async function (id) {
     return this.find({ user: id })
       .sort({ createdAt: -1 })
-      .populate("user")
-      .populate("likes")
-      .populate("comments")
-      .populate("shares");
+      .populate('user')
+      .populate('likes')
+      .populate('comments')
+      .populate('shares');
   },
   // Get all posts and sort by createdAt, the latest post will be on top
   GetPosts: async function () {
     return this.find()
       .sort({ createdAt: -1 })
-      .populate("user")
-      .populate("likes")
-      .populate("comments")
-      .populate("shares");
+      .populate('user')
+      .populate('likes')
+      .populate('comments')
+      .populate('shares');
   },
   UpdatePost: async function (id, post) {
     return this.findOneAndUpdate({ _id: id }, { $set: post });
@@ -107,5 +111,5 @@ PostSchema.statics = {
 };
 
 module.exports = {
-  Post: mongoose.model("Post", PostSchema),
+  Post: mongoose.model('Post', PostSchema),
 };

@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
-const argon2 = require("argon2");
-const crypto = require("crypto");
-const { promisify } = require("util");
-const jwt = require("jsonwebtoken");
-require("./Share");
-require("./Post");
+const mongoose = require('mongoose');
+const argon2 = require('argon2');
+const crypto = require('crypto');
+const { promisify } = require('util');
+const jwt = require('jsonwebtoken');
+require('./Share');
+require('./Post');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -43,28 +43,32 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: false,
     },
+    description: {
+      type: [{ type: String }],
+      default: null,
+    },
     accessToken: {
       type: String,
       default: null,
     },
     followers: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
     following: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
     shares: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Share" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Share' }],
       default: [],
     },
     favorites: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 UserSchema.methods = {
@@ -72,10 +76,7 @@ UserSchema.methods = {
     return await argon2.verify(this.password, password);
   },
   SetToken: async function () {
-    const accessToken = await promisify(jwt.sign)(
-      { id: this._id },
-      process.env.ACCESS_TOKEN_SECRET
-    );
+    const accessToken = await promisify(jwt.sign)({ id: this._id }, process.env.ACCESS_TOKEN_SECRET);
     this.accessToken = accessToken;
     await this.save();
     return accessToken;
@@ -97,7 +98,14 @@ UserSchema.methods = {
     return this.save();
   },
   GetShares: async function () {
-    return this.populate("shares");
+    return this.populate('shares');
+  },
+  HandleDescription: async function (description) {
+    this.description = description;
+    return this.save();
+  },
+  GetFollowers: async function () {
+    return this.populate('followers');
   },
 };
 
@@ -115,11 +123,14 @@ UserSchema.statics = {
   GetAllUsers: async function () {
     return this.find();
   },
+  GetFollowers: async function (id) {
+    return this.findById(id).populate('followers').populate('following');
+  },
 };
 
-UserSchema.pre("save", async function (next) {
+UserSchema.pre('save', async function (next) {
   const user = this;
-  if (!user.isModified("password")) return next();
+  if (!user.isModified('password')) return next();
 
   const salt = crypto.randomBytes(32);
   const hash = await argon2.hash(user.password, salt);
@@ -127,13 +138,10 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
-UserSchema.pre("save", async function (next) {
-  if (this.isNew || this.isModified("password")) {
+UserSchema.pre('save', async function (next) {
+  if (this.isNew || this.isModified('password')) {
     // Generate a new access token
-    const accessToken = await promisify(jwt.sign)(
-      { id: this._id },
-      process.env.ACCESS_TOKEN_SECRET
-    );
+    const accessToken = await promisify(jwt.sign)({ id: this._id }, process.env.ACCESS_TOKEN_SECRET);
 
     // Save the access token to the user document
     this.accessToken = accessToken;
@@ -142,14 +150,11 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
-UserSchema.pre("updateOne", async function (next) {
+UserSchema.pre('updateOne', async function (next) {
   if (this.getUpdate().$set.password) {
     try {
       const salt = crypto.randomBytes(32);
-      const hashedPassword = await argon2.hash(
-        this.getUpdate().$set.password,
-        salt
-      );
+      const hashedPassword = await argon2.hash(this.getUpdate().$set.password, salt);
       this.getUpdate().$set.password = hashedPassword;
       next();
     } catch (error) {
@@ -161,5 +166,5 @@ UserSchema.pre("updateOne", async function (next) {
 });
 
 module.exports = {
-  User: mongoose.model("User", UserSchema),
+  User: mongoose.model('User', UserSchema),
 };

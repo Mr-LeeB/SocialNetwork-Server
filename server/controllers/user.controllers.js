@@ -1,5 +1,5 @@
-const userService = require("../services/user.services");
-const STATUS_CODE = require("../util/SettingSystem");
+const userService = require('../services/user.services');
+const STATUS_CODE = require('../util/SettingSystem');
 
 // @route POST api/users
 // @desc Register user
@@ -23,9 +23,7 @@ const registerUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -45,18 +43,16 @@ const findUserByID = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
 const UpdateUser = async (req, res) => {
   const { id } = req.params;
 
-  const { firstname, lastname, password } = req.body;
+  const { firstname, lastname, description } = req.body;
 
-  const user = { firstname, lastname, password };
+  const user = { firstname, lastname, description };
 
   try {
     // Call service
@@ -71,9 +67,51 @@ const UpdateUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const Expertise = async (req, res) => {
+  const { id } = req.params;
+
+  const { expertise } = req.body;
+
+  const user = { expertise };
+
+  try {
+    // Call service
+    const result = await userService.expertise_Service(id, user);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const getFollowed = async (req, res) => {
+  const id = req.id;
+
+  try {
+    // Call service
+    const result = await userService.getFollowed_Service(id);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -81,4 +119,6 @@ module.exports = {
   registerUser,
   findUserByID,
   UpdateUser,
+  Expertise,
+  getFollowed,
 };
