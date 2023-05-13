@@ -55,7 +55,7 @@ ConversationSchema.statics = {
       });
   },
   GetConversationByUsers: async function (userID1, userID2) {
-    return this.find({ users: { $all: [userID1, userID2] } })
+    return this.find({ users: { $size: 2, $all: [userID1, userID2] } })
       .populate('users')
       .populate({
         path: 'messages',
