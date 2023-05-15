@@ -77,7 +77,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         firstname: user.firstname,
         lastname: user.lastname,
         descriptions: user.description,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       },
     },
@@ -107,7 +107,7 @@ const expertise_Service = async (userID, expertise) => {
         firstname: user.firstname,
         lastname: user.lastname,
         descriptions: user.description,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       },
     },
@@ -159,7 +159,7 @@ const getFollowed_Service = async (userID) => {
     id: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
-    username: user.lastname + ' ' + user.firstname,
+    username: user.username,
     userImage: user.userImage,
   };
 

@@ -1,6 +1,6 @@
-const STATUS_CODE = require("../util/SettingSystem");
-const authService = require("../services/auth.service");
-const client = require("../config/google-config");
+const STATUS_CODE = require('../util/SettingSystem');
+const authService = require('../services/auth.service');
+const client = require('../config/google-config');
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -20,19 +20,14 @@ const login = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
 const login_Google = async (req, res) => {
   const authUrl = client.generateAuthUrl({
-    access_type: "offline",
-    scope: [
-      "https://www.googleapis.com/auth/userinfo.email",
-      "https://www.googleapis.com/auth/userinfo.profile",
-    ],
+    access_type: 'offline',
+    scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
   });
   res.redirect(authUrl);
 };
@@ -51,9 +46,25 @@ const login_Google_Callback = async (req, res) => {
     return res.status(status).send({ success, message, content });
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const login_GoogleV2 = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const result = await authService.login_GoogleV2_Service(token);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    }
+    return res.status(status).send({ success, message, content });
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -73,9 +84,7 @@ const logout = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -95,9 +104,7 @@ const forgot_password = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -117,34 +124,26 @@ const verify_code = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(STATUS_CODE.SERVER_ERROR)
-      .send({ success: false, message: "Internal server error" });
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
 };
 
-const jwt = require("jsonwebtoken");
-const { User } = require("../models/User");
+const jwt = require('jsonwebtoken');
+const { User } = require('../models/User');
 
 const checkLogin = async (req, res) => {
-  const accessToken = req
-    .header("Authorization")
-    .split(" ")[1]
-    .replace(/"/g, "");
+  const accessToken = req.header('Authorization').split(' ')[1].replace(/"/g, '');
 
   if (!accessToken) {
     return res.status(STATUS_CODE.NOT_FOUND).send({
       authentication: false,
       success: false,
-      message: "No token found!",
+      message: 'No token found!',
     });
   }
 
   try {
-    const decoded = await jwt.verify(
-      accessToken,
-      process.env.ACCESS_TOKEN_SECRET
-    );
+    const decoded = await jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
     const { id } = decoded;
 
     //Check user
@@ -153,7 +152,7 @@ const checkLogin = async (req, res) => {
       return res.status(STATUS_CODE.BAD_REQUEST).send({
         authentication: false,
         success: false,
-        message: "User not found",
+        message: 'User not found',
       });
     }
 
@@ -161,7 +160,7 @@ const checkLogin = async (req, res) => {
       return res.status(STATUS_CODE.UNAUTHORIZED).send({
         authentication: false,
         success: false,
-        message: "Have not logged in!",
+        message: 'Have not logged in!',
       });
     }
     req.id = id;
@@ -176,7 +175,7 @@ const checkLogin = async (req, res) => {
   return res.status(STATUS_CODE.SUCCESS).send({
     authentication: true,
     success: true,
-    message: "Logged in!",
+    message: 'Logged in!',
   });
 };
 
@@ -185,7 +184,7 @@ const getUserID = async (req, res) => {
 
   return res.status(STATUS_CODE.SUCCESS).send({
     success: true,
-    message: "Get user ID successfully!",
+    message: 'Get user ID successfully!',
     content: userID,
   });
 };
@@ -199,4 +198,5 @@ module.exports = {
   verify_code,
   checkLogin,
   getUserID,
+  login_GoogleV2,
 };

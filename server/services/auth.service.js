@@ -1,9 +1,10 @@
-const jwt = require("jsonwebtoken");
-const { User } = require("../models/User");
-const STATUS_CODE = require("../util/SettingSystem");
-const client = require("../config/google-config");
-const transporter = require("../config/email-config");
-const crypto = require("crypto");
+const jwt = require('jsonwebtoken');
+const { User } = require('../models/User');
+const STATUS_CODE = require('../util/SettingSystem');
+const client = require('../config/google-config');
+const transporter = require('../config/email-config');
+const crypto = require('crypto');
+const { default: axios } = require('axios');
 
 const cache = {
   get: (key) => cache[key],
@@ -12,7 +13,7 @@ const cache = {
 };
 
 const generateCode = (email) => {
-  const code = crypto.randomBytes(3).toString("hex");
+  const code = crypto.randomBytes(3).toString('hex');
   const timestamp = Date.now();
   const expires = timestamp + 30 * 60 * 1000; // 30 minutes in milliseconds
   return {
@@ -31,7 +32,7 @@ const storeCache = (email) => {
 };
 
 const fetchUserProfile = async (accessToken) => {
-  const url = "https://www.googleapis.com/oauth2/v3/userinfo";
+  const url = 'https://www.googleapis.com/oauth2/v3/userinfo';
   const { data } = await client.request({
     url,
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -49,7 +50,7 @@ const login_Service = async (user) => {
     return {
       status: STATUS_CODE.NOT_FOUND,
       success: false,
-      message: "Email does not exist!",
+      message: 'Email does not exist!',
     };
   }
 
@@ -59,7 +60,7 @@ const login_Service = async (user) => {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
-      message: "Invalid password!",
+      message: 'Invalid password!',
     };
   }
 
@@ -70,7 +71,7 @@ const login_Service = async (user) => {
   return {
     status: STATUS_CODE.SUCCESS,
     success: true,
-    message: "User login successfully",
+    message: 'User login successfully',
     content: {
       accessToken,
     },
@@ -100,7 +101,7 @@ const login_Google_Callback_Service = async (code) => {
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
-      message: "User login successfully",
+      message: 'User login successfully',
       content: {
         accessToken: newUser.accessToken,
       },
@@ -108,16 +109,13 @@ const login_Google_Callback_Service = async (code) => {
   }
 
   // User exist
-  const accessToken = jwt.sign(
-    { id: userFind._id },
-    process.env.ACCESS_TOKEN_SECRET
-  );
+  const accessToken = jwt.sign({ id: userFind._id }, process.env.ACCESS_TOKEN_SECRET);
   await User.updateOne({ email: user.email }, { accessToken: accessToken });
 
   return {
     status: STATUS_CODE.SUCCESS,
     success: true,
-    message: "User login successfully",
+    message: 'User login successfully',
     content: {
       accessToken: accessToken,
     },
@@ -132,7 +130,7 @@ const logout_Service = async (id) => {
     return {
       status: STATUS_CODE.NOT_FOUND,
       success: false,
-      message: "User does not exist!",
+      message: 'User does not exist!',
     };
   }
 
@@ -140,7 +138,7 @@ const logout_Service = async (id) => {
     return {
       status: STATUS_CODE.UNAUTHORIZED,
       success: false,
-      message: "Have not logged in!",
+      message: 'Have not logged in!',
     };
   }
 
@@ -149,7 +147,7 @@ const logout_Service = async (id) => {
   return {
     status: STATUS_CODE.SUCCESS,
     success: true,
-    message: "User logout successfully",
+    message: 'User logout successfully',
   };
 };
 
@@ -160,7 +158,7 @@ const forgot_password_Service = async (email) => {
     return {
       status: STATUS_CODE.NOT_FOUND,
       success: false,
-      message: "Email does not exist!",
+      message: 'Email does not exist!',
     };
   }
 
@@ -173,7 +171,7 @@ const forgot_password_Service = async (email) => {
   return {
     status: STATUS_CODE.SUCCESS,
     success: true,
-    message: "Send email successfully",
+    message: 'Send email successfully',
   };
 };
 
@@ -185,7 +183,7 @@ const verify_code_Service = async (email, code) => {
     return {
       status: STATUS_CODE.NOT_FOUND,
       success: false,
-      message: "Code does not exist!",
+      message: 'Code does not exist!',
     };
   }
 
@@ -194,15 +192,59 @@ const verify_code_Service = async (email, code) => {
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
-      message: "Code is valid",
+      message: 'Code is valid',
     };
   } else {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
-      message: "Code is invalid",
+      message: 'Code is invalid',
     };
   }
+};
+
+const login_GoogleV2_Service = async (token) => {
+  const URL = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token=' + token;
+
+  // Get JSON data from Google API
+  const response = await axios.get(URL);
+  const user = await response.data;
+
+  // Check user exist
+  const userFind = await User.findOne({ email: user.email });
+
+  if (!userFind) {
+    const newUser = new User({
+      email: user.email,
+      firstname: user.given_name,
+      lastname: user.family_name,
+      userImage: user.picture,
+      verified: user.email_verified,
+      username: user.family_name + ' ' + user.given_name,
+    });
+    await newUser.save();
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'User login successfully',
+      content: {
+        accessToken: newUser.accessToken,
+      },
+    };
+  }
+
+  // User exist
+  const accessToken = jwt.sign({ id: userFind._id }, process.env.ACCESS_TOKEN_SECRET);
+  await User.updateOne({ email: user.email }, { accessToken: accessToken });
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'User login successfully',
+    content: {
+      accessToken: accessToken,
+    },
+  };
 };
 
 module.exports = {
@@ -211,4 +253,5 @@ module.exports = {
   logout_Service,
   forgot_password_Service,
   verify_code_Service,
+  login_GoogleV2_Service,
 };

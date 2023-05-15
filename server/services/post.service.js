@@ -91,7 +91,7 @@ const getPost_Service = async (id, callerID) => {
     const userPost = post.user;
     post.user = {
       id: userPost._id,
-      username: userPost.lastname + ' ' + userPost.firstname,
+      username: userPost.username,
       userImage: userPost.userImage,
     };
     post.isLiked = checkLiked;
@@ -104,7 +104,7 @@ const getPost_Service = async (id, callerID) => {
       const user = await User.GetUser(like.user);
       like.user = {
         id: user._id,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       };
       return like;
@@ -117,7 +117,7 @@ const getPost_Service = async (id, callerID) => {
       const user = await User.GetUser(share.user);
       share.user = {
         id: user._id,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       };
       // Remove all fields except user
@@ -142,7 +142,7 @@ const getPost_Service = async (id, callerID) => {
       const user = await User.GetUser(comment.user);
       comment.user = {
         id: user._id,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       };
 
@@ -151,7 +151,7 @@ const getPost_Service = async (id, callerID) => {
         reply = commentReply.toObject();
         reply.user = {
           id: commentReply.user._id,
-          username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
+          username: commentReply.username,
           userImage: commentReply.user.userImage,
         };
         return reply;
@@ -166,7 +166,7 @@ const getPost_Service = async (id, callerID) => {
 
     const userInfo = {
       id: user._id,
-      username: user.lastname + ' ' + user.firstname,
+      username: user.username,
       userImage: user.userImage,
       descriptions: user.description,
       firstname: user.firstname,
@@ -234,7 +234,7 @@ const getPostShare_Service = async (id, callerID) => {
       const user = await User.GetUser(like.user);
       like.user = {
         id: user._id,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       };
       return like;
@@ -253,7 +253,7 @@ const getPostShare_Service = async (id, callerID) => {
       const user = await User.GetUser(comment.user);
       comment.user = {
         id: user._id,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       };
 
@@ -262,7 +262,7 @@ const getPostShare_Service = async (id, callerID) => {
         reply = commentReply.toObject();
         reply.user = {
           id: commentReply.user._id,
-          username: commentReply.user.lastname + ' ' + commentReply.user.firstname,
+          username: commentReply.username,
           userImage: commentReply.user.userImage,
         };
         return reply;
@@ -283,13 +283,13 @@ const getPostShare_Service = async (id, callerID) => {
     share._id = _id;
     share.owner = {
       id: post.user._id,
-      username: post.user.lastname + ' ' + post.user.firstname,
+      username: post.username,
       userImage: post.user.userImage,
     };
     share.shares = undefined;
     share.user = {
       id: user._id,
-      username: user.lastname + ' ' + user.firstname,
+      username: user.username,
       userImage: user.userImage,
     };
     share.link = link;
@@ -304,7 +304,7 @@ const getPostShare_Service = async (id, callerID) => {
 
     const userInfo = {
       id: userCaller._id,
-      username: userCaller.lastname + ' ' + userCaller.firstname,
+      username: userCaller.username,
       userImage: userCaller.userImage,
       descriptions: userCaller.description,
       firstname: userCaller.firstname,
@@ -379,7 +379,7 @@ const loadAllPost_Service = async (callerID) => {
         const userInfo = post.user;
         post.user = {
           id: userInfo._id,
-          username: userInfo.lastname + ' ' + userInfo.firstname,
+          username: userInfo.username,
           userImage: userInfo.userImage,
         };
         post.isLiked = checkLiked;
@@ -558,13 +558,13 @@ const loadAllPost_Service = async (callerID) => {
         share._id = _id;
         share.owner = {
           id: post.user._id,
-          username: post.user.lastname + ' ' + post.user.firstname,
+          username: post.username,
           userImage: post.user.userImage,
         };
         share.shares = undefined;
         share.user = {
           id: user._id,
-          username: user.lastname + ' ' + user.firstname,
+          username: user.username,
           userImage: user.userImage,
         };
         share.postID = postID;
@@ -594,7 +594,7 @@ const loadAllPost_Service = async (callerID) => {
 
     const userInfo = {
       id: user._id,
-      username: user.lastname + ' ' + user.firstname,
+      username: user.username,
       userImage: user.userImage,
       descriptions: user.description,
       firstname: user.firstname,
@@ -871,7 +871,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         share.user = undefined;
         share.user = {
           id: owner._id,
-          username: owner.lastname + ' ' + owner.firstname,
+          username: owner.username,
           userImage: owner.userImage,
         };
         share.shares = undefined;
@@ -901,7 +901,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
 
     const ownerInfo = {
       id: owner._id,
-      username: owner.lastname + ' ' + owner.firstname,
+      username: owner.username,
       userImage: owner.userImage,
       descriptions: owner.description,
       firstname: owner.firstname,
@@ -910,7 +910,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
 
     const userInfo = {
       id: user._id,
-      username: user.lastname + ' ' + user.firstname,
+      username: user.username,
       userImage: user.userImage,
       descriptions: user.description,
       firstname: user.firstname,
