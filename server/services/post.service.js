@@ -151,7 +151,7 @@ const getPost_Service = async (id, callerID) => {
         reply = commentReply.toObject();
         reply.user = {
           id: commentReply.user._id,
-          username: commentReply.username,
+          username: commentReply.user.username,
           userImage: commentReply.user.userImage,
         };
         return reply;
@@ -262,7 +262,7 @@ const getPostShare_Service = async (id, callerID) => {
         reply = commentReply.toObject();
         reply.user = {
           id: commentReply.user._id,
-          username: commentReply.username,
+          username: commentReply.user.username,
           userImage: commentReply.user.userImage,
         };
         return reply;
