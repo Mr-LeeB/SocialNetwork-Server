@@ -283,7 +283,7 @@ const getPostShare_Service = async (id, callerID) => {
     share._id = _id;
     share.owner = {
       id: post.user._id,
-      username: post.username,
+      username: post.user.username,
       userImage: post.user.userImage,
     };
     share.shares = undefined;
@@ -558,7 +558,7 @@ const loadAllPost_Service = async (callerID) => {
         share._id = _id;
         share.owner = {
           id: post.user._id,
-          username: post.username,
+          username: post.user.username,
           userImage: post.user.userImage,
         };
         share.shares = undefined;
