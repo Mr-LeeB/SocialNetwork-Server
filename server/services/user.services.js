@@ -20,6 +20,7 @@ const registerUser_Service = async (user) => {
     lastname,
     email,
     password,
+    username: lastname + ' ' + firstname,
   });
   await newUser.save();
 
@@ -71,12 +72,12 @@ const updateUser_Service = async (userID, userUpdate) => {
     success: true,
     message: 'User updated successfully',
     content: {
-      userInfo: {
+      ownerInfo: {
         id: user._id,
         firstname: user.firstname,
         lastname: user.lastname,
         descriptions: user.description,
-        username: user.lastname + ' ' + user.firstname,
+        username: user.username,
         userImage: user.userImage,
       },
     },
@@ -100,6 +101,16 @@ const expertise_Service = async (userID, expertise) => {
     status: STATUS_CODE.SUCCESS,
     success: true,
     message: 'User updated successfully',
+    content: {
+      ownerInfo: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        descriptions: user.description,
+        username: user.username,
+        userImage: user.userImage,
+      },
+    },
   };
 };
 
@@ -148,7 +159,7 @@ const getFollowed_Service = async (userID) => {
     id: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
-    username: user.lastname + ' ' + user.firstname,
+    username: user.username,
     userImage: user.userImage,
   };
 
