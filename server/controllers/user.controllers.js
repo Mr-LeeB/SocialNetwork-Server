@@ -28,7 +28,11 @@ const registerUser = async (req, res) => {
 };
 
 const findUserByID = async (req, res) => {
-  const { id } = req.params;
+  let { id } = req.params;
+
+  if (id === 'me') {
+    id = req.id;
+  }
 
   try {
     // Call service
