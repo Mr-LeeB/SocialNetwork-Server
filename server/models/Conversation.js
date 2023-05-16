@@ -73,5 +73,5 @@ ConversationSchema.statics = {
 };
 
 module.exports = {
-    Conversation: mongoose.model("Conversation", ConversationSchema),
+  Conversation: mongoose.model('Conversation', ConversationSchema),
 };

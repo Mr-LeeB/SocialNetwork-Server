@@ -5,7 +5,6 @@ const connectDB = async () => {
     await mongoose
       .connect(
         `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ktjepad.mongodb.net/SocialNetwork`
-        // 'mongodb://127.0.0.1:27017/chat'
       )
       .then(() => {
         console.log("MongoDB connected");
