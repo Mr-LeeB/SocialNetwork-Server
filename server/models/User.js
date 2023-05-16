@@ -52,6 +52,10 @@ const UserSchema = new mongoose.Schema(
       type: [{ type: String }],
       default: null,
     },
+    contacts: {
+      type: [{}],
+      default: null,
+    },
     accessToken: {
       type: String,
       default: null,
