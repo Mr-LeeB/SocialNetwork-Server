@@ -36,6 +36,7 @@ const registerUser_Service = async (user) => {
 
 const findUserByID_Service = async (userID) => {
   const userFind = await User.GetUser(userID);
+  console.log(userFind);
   if (!userFind) {
     return {
       status: STATUS_CODE.NOT_FOUND,
@@ -48,7 +49,14 @@ const findUserByID_Service = async (userID) => {
       success: true,
       message: 'User found successfully',
       content: {
-        user: userFind,
+        userInfo: {
+          id: userFind._id,
+          firstname: userFind.firstname,
+          lastname: userFind.lastname,
+          descriptions: userFind.description,
+          username: userFind.username,
+          userImage: userFind.userImage,
+        },
       },
     };
   }
