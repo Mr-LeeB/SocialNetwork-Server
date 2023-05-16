@@ -276,6 +276,8 @@ const getPostShare_Service = async (id, callerID) => {
     const _id = share._id;
     const createdAt = share.createdAt;
     const updatedAt = share.updatedAt;
+    const postCreatedAt = post.createdAt;
+    const postUpdatedAt = post.updatedAt;
     const postID = post._id;
     const views = share.views;
 
@@ -293,6 +295,8 @@ const getPostShare_Service = async (id, callerID) => {
       userImage: user.userImage,
     };
     share.link = link;
+    share.postCreatedAt = postCreatedAt;
+    share.postUpdatedAt = postUpdatedAt;
     share.postID = postID;
     share.createdAt = createdAt;
     share.views = views;
