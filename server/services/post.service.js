@@ -55,11 +55,13 @@ const getPost_Service = async (id, callerID) => {
         await axios.get(firstLink).then((res) => {
           const dom2 = new JSDOM(res.data);
 
-          const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+          const title =
+            dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('title')?.textContent;
 
-          const description = dom2.window.document
-            .querySelector('meta[property="og:description"]')
-            ?.getAttribute('content');
+          const description =
+            dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
 
           const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
@@ -205,11 +207,13 @@ const getPostShare_Service = async (id, callerID) => {
         await axios.get(firstLink).then((res) => {
           const dom2 = new JSDOM(res.data);
 
-          const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+          const title =
+            dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('title')?.textContent;
 
-          const description = dom2.window.document
-            .querySelector('meta[property="og:description"]')
-            ?.getAttribute('content');
+          const description =
+            dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
 
           const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
@@ -348,11 +352,13 @@ const loadAllPost_Service = async (callerID) => {
             await axios.get(firstLink).then((res) => {
               const dom2 = new JSDOM(res.data);
 
-              const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+              const title =
+                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('title')?.textContent;
 
-              const description = dom2.window.document
-                .querySelector('meta[property="og:description"]')
-                ?.getAttribute('content');
+              const description =
+                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
 
               const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
@@ -480,11 +486,13 @@ const loadAllPost_Service = async (callerID) => {
             await axios.get(firstLink).then((res) => {
               const dom2 = new JSDOM(res.data);
 
-              const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+              const title =
+                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('title')?.textContent;
 
-              const description = dom2.window.document
-                .querySelector('meta[property="og:description"]')
-                ?.getAttribute('content');
+              const description =
+                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
 
               const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
@@ -668,11 +676,13 @@ const getPostByUser_Service = async (callerID, ownerID) => {
             await axios.get(firstLink).then((res) => {
               const dom2 = new JSDOM(res.data);
 
-              const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+              const title =
+                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('title')?.textContent;
 
-              const description = dom2.window.document
-                .querySelector('meta[property="og:description"]')
-                ?.getAttribute('content');
+              const description =
+                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
 
               const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
@@ -792,11 +802,13 @@ const getPostByUser_Service = async (callerID, ownerID) => {
             await axios.get(firstLink).then((res) => {
               const dom2 = new JSDOM(res.data);
 
-              const title = dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+              const title =
+                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('title')?.textContent;
 
-              const description = dom2.window.document
-                .querySelector('meta[property="og:description"]')
-                ?.getAttribute('content');
+              const description =
+                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
 
               const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
