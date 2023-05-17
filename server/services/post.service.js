@@ -171,6 +171,7 @@ const getPost_Service = async (id, callerID) => {
       username: user.username,
       userImage: user.userImage,
       descriptions: user.description,
+      contacts: user.contacts,
       firstname: user.firstname,
       lastname: user.lastname,
     };
@@ -315,6 +316,7 @@ const getPostShare_Service = async (id, callerID) => {
       username: userCaller.username,
       userImage: userCaller.userImage,
       descriptions: userCaller.description,
+      contacts: userCaller.contacts,
       firstname: userCaller.firstname,
       lastname: userCaller.lastname,
     };
@@ -609,6 +611,7 @@ const loadAllPost_Service = async (callerID) => {
       username: user.username,
       userImage: user.userImage,
       descriptions: user.description,
+      contacts: user.contacts,
       firstname: user.firstname,
       lastname: user.lastname,
     };
@@ -920,6 +923,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       username: owner.username,
       userImage: owner.userImage,
       descriptions: owner.description,
+      contacts: owner.contacts,
       firstname: owner.firstname,
       lastname: owner.lastname,
     };
@@ -929,6 +933,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       username: user.username,
       userImage: user.userImage,
       descriptions: user.description,
+      contacts: user.contacts,
       firstname: user.firstname,
       lastname: user.lastname,
     };

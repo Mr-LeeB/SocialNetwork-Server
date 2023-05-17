@@ -54,6 +54,7 @@ const findUserByID_Service = async (userID) => {
           firstname: userFind.firstname,
           lastname: userFind.lastname,
           descriptions: userFind.description,
+          contacts: userFind.contacts,
           username: userFind.username,
           userImage: userFind.userImage,
         },
@@ -63,6 +64,7 @@ const findUserByID_Service = async (userID) => {
 };
 
 const updateUser_Service = async (userID, userUpdate) => {
+  console.log(userUpdate);
   const userFind = await User.UpdateUser(userID, userUpdate);
 
   if (!userFind) {
@@ -85,6 +87,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         firstname: user.firstname,
         lastname: user.lastname,
         descriptions: user.description,
+        contacts: user.contacts,
         username: user.username,
         userImage: user.userImage,
       },
@@ -115,6 +118,7 @@ const expertise_Service = async (userID, expertise) => {
         firstname: user.firstname,
         lastname: user.lastname,
         descriptions: user.description,
+        contacts: user.contacts,
         username: user.username,
         userImage: user.userImage,
       },
@@ -167,6 +171,8 @@ const getFollowed_Service = async (userID) => {
     id: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
+    descriptions: user.description,
+    contacts: user.contacts,
     username: user.username,
     userImage: user.userImage,
   };
