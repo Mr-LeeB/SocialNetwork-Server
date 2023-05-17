@@ -60,12 +60,20 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    location: {
+      type: String,
+      default: null,
+    },
     followers: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
     following: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+      default: [],
+    },
+    posts: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
       default: [],
     },
     shares: {
@@ -115,6 +123,30 @@ UserSchema.methods = {
   },
   GetFollowers: async function () {
     return this.populate('followers');
+  },
+  SavePost: async function (post) {
+    this.posts.push(post);
+    return this.save();
+  },
+  RemovePost: async function (postID) {
+    this.posts.pull(postID);
+    return this.save();
+  },
+  SaveFollowing: async function (user) {
+    this.following.push(user);
+    return this.save();
+  },
+  RemoveFollowing: async function (userID) {
+    this.following.pull(userID);
+    return this.save();
+  },
+  SaveFollower: async function (user) {
+    this.followers.push(user);
+    return this.save();
+  },
+  RemoveFollower: async function (userID) {
+    this.followers.pull(userID);
+    return this.save();
   },
 };
 
