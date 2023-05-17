@@ -64,7 +64,6 @@ const findUserByID_Service = async (userID) => {
 };
 
 const updateUser_Service = async (userID, userUpdate) => {
-  console.log(userUpdate);
   const userFind = await User.UpdateUser(userID, userUpdate);
 
   if (!userFind) {
