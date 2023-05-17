@@ -36,7 +36,7 @@ const registerUser_Service = async (user) => {
 
 const findUserByID_Service = async (userID) => {
   const userFind = await User.GetUser(userID);
-  console.log(userFind);
+  
   if (!userFind) {
     return {
       status: STATUS_CODE.NOT_FOUND,

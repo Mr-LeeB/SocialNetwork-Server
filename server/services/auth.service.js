@@ -134,14 +134,6 @@ const logout_Service = async (id) => {
     };
   }
 
-  if (user.accessToken !== accessToken) {
-    return {
-      status: STATUS_CODE.UNAUTHORIZED,
-      success: false,
-      message: 'Have not logged in!',
-    };
-  }
-
   await User.updateOne({ _id: userID }, { accessToken: null });
 
   return {
