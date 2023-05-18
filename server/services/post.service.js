@@ -487,12 +487,20 @@ const loadAllPost_Service = async (callerID) => {
           id: post.user._id,
           username: post.user.username,
           userImage: post.user.userImage,
+          followers: post.user.followers,
+          following: post.user.following,
+          posts: post.user.posts,
+          isFollowing: post.user.followers.some((follower) => follower.toString() === callerID),
         };
         share.shares = undefined;
         share.user = {
           id: user._id,
           username: user.username,
           userImage: user.userImage,
+          followers: user.followers,
+          following: user.following,
+          posts: user.posts,
+          isFollowing: user.followers.some((follower) => follower.toString() === callerID),
         };
         share.postID = postID;
         share.createdAt = createdAt;
@@ -701,6 +709,10 @@ const getPostByUser_Service = async (callerID, ownerID) => {
           id: owner._id,
           username: owner.username,
           userImage: owner.userImage,
+          followers: owner.followers,
+          following: owner.following,
+          posts: owner.posts,
+          isFollowing: owner.followers.some((follower) => follower.toString() === callerID),
         };
         share.shares = undefined;
         share.link = link;
