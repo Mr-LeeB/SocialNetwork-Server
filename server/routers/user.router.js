@@ -14,4 +14,6 @@ userRouter.post('/users/:id/expertise', checkAuthentication, userController.Expe
 
 userRouter.get('/user/followers', checkAuthentication, userController.getFollowed);
 
+userRouter.post('/users/:id/follow', checkAuthentication, userController.followUser);
+
 module.exports = userRouter;

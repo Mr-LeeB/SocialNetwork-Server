@@ -18,6 +18,7 @@ const handleError = (error, statusCode) => {
 
 const upPost_Service = async (post, id) => {
   const { title, content, linkImage } = post;
+  const user = await User.GetUser(id);
 
   const newPost = {
     title,
@@ -28,6 +29,9 @@ const upPost_Service = async (post, id) => {
 
   try {
     const result = await Post.SavePost(newPost);
+
+    // thêm post vào user
+    await user.SavePost(result);
 
     return {
       status: STATUS_CODE.CREATED,
@@ -174,6 +178,15 @@ const getPost_Service = async (id, callerID) => {
       contacts: user.contacts,
       firstname: user.firstname,
       lastname: user.lastname,
+      followers: user.followers,
+      following: user.following,
+      posts: user.posts,
+      dayJoined: new Date(user.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      location: user.location,
     };
 
     return {
@@ -319,6 +332,15 @@ const getPostShare_Service = async (id, callerID) => {
       contacts: userCaller.contacts,
       firstname: userCaller.firstname,
       lastname: userCaller.lastname,
+      followers: userCaller.followers,
+      following: userCaller.following,
+      posts: userCaller.posts,
+      dayJoined: new Date(userCaller.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      location: userCaller.location,
     };
 
     return {
@@ -614,6 +636,15 @@ const loadAllPost_Service = async (callerID) => {
       contacts: user.contacts,
       firstname: user.firstname,
       lastname: user.lastname,
+      followers: user.followers,
+      following: user.following,
+      posts: user.posts,
+      dayJoined: new Date(user.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      location: user.location,
     };
 
     return {
@@ -926,6 +957,16 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       contacts: owner.contacts,
       firstname: owner.firstname,
       lastname: owner.lastname,
+      followers: owner.followers,
+      following: owner.following,
+      posts: owner.posts,
+      dayJoined: new Date(owner.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      isFollowing: user.following.filter((follow) => follow.toString() === owner._id.toString()).length > 0,
+      location: owner.location,
     };
 
     const userInfo = {
@@ -936,6 +977,15 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       contacts: user.contacts,
       firstname: user.firstname,
       lastname: user.lastname,
+      followers: user.followers,
+      following: user.following,
+      posts: user.posts,
+      dayJoined: new Date(user.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      location: user.location,
     };
 
     return {
@@ -956,6 +1006,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
 const deletePost_Service = async (id, userID) => {
   //Find post
   const post = await Post.GetPost(id);
+  const user = await User.GetUser(userID);
 
   //Check user
   if (post.user._id.toString() !== userID) {
@@ -991,6 +1042,9 @@ const deletePost_Service = async (id, userID) => {
         }
       });
     });
+
+    // Remove post in user
+    await user.RemovePost(post);
 
     //Delete post
     const result = await Post.DeletePost(id);
