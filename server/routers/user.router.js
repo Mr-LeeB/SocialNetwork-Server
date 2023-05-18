@@ -10,10 +10,12 @@ userRouter.get('/users/:id', checkAuthentication, userController.findUserByID);
 
 userRouter.put('/users/:id', checkAuthentication, userController.UpdateUser);
 
-userRouter.post('/users/:id/expertise', checkAuthentication, userController.Expertise);
+userRouter.post('/users/expertise', checkAuthentication, userController.Expertise);
 
 userRouter.get('/user/followers', checkAuthentication, userController.getFollowed);
 
 userRouter.post('/users/:id/follow', checkAuthentication, userController.followUser);
+
+userRouter.get('/user/shouldFollow', checkAuthentication, userController.getShouldFollow);
 
 module.exports = userRouter;

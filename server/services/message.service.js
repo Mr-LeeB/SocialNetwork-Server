@@ -37,6 +37,17 @@ const createMessage_Service = async (message) => {
     }
   });
 
+  updatedConversation.users.forEach((user) => {
+    if (user._id && user._id.toString() !== sender.toString()) {
+      let channel_name = user._id;
+      channel_name = channel_name.toString();
+      pusherServer.trigger(channel_name, 'conversation-update-header', {
+        id: conversationID,
+        messages: [lastMessage],
+      });
+    }
+  });
+
   return {
     status: STATUS_CODE.SUCCESS,
     success: true,
