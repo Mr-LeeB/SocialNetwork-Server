@@ -76,15 +76,13 @@ const UpdateUser = async (req, res) => {
 };
 
 const Expertise = async (req, res) => {
-  const { id } = req.params;
+  const id = req.id;
 
-  const { expertise } = req.body;
-
-  const user = { expertise };
+  const des = req.body['des[]'];
 
   try {
     // Call service
-    const result = await userService.expertise_Service(id, user);
+    const result = await userService.expertise_Service(id, des);
 
     // Return result
     const { status, success, message, content } = result;
