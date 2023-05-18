@@ -131,7 +131,7 @@ const expertise_Service = async (userID, expertise) => {
     };
   }
 
-  await user.HandleDescription(expertise.expertise);
+  await user.HandleDescription(expertise);
 
   return {
     status: STATUS_CODE.SUCCESS,
