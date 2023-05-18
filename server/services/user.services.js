@@ -314,14 +314,6 @@ const getShouldFollow_Service = async (userID) => {
   );
   shouldFollowExpertiseSorted.splice(25);
 
-  if (!shouldFollowExpertiseSorted) {
-    return {
-      status: STATUS_CODE.NOT_FOUND,
-      success: false,
-      message: 'No user to follow!',
-    };
-  }
-
   // Remove unnecessary information
   shouldFollowExpertiseSorted.forEach((user) => {
     user.password = undefined;
@@ -355,6 +347,18 @@ const getShouldFollow_Service = async (userID) => {
     }),
     location: user.location,
   };
+
+  if (shouldFollowExpertiseSorted.length === 0) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Get all users successfully',
+      content: {
+        userInfo,
+        users: users,
+      },
+    };
+  }
 
   return {
     status: STATUS_CODE.SUCCESS,
