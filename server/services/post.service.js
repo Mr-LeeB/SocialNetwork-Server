@@ -415,6 +415,10 @@ const loadAllPost_Service = async (callerID) => {
           id: userInfo._id,
           username: userInfo.username,
           userImage: userInfo.userImage,
+          followers: userInfo.followers,
+          following: userInfo.following,
+          posts: userInfo.posts,
+          isFollowing: userInfo.followers.some((follower) => follower.toString() === callerID),
         };
         post.isLiked = checkLiked;
         post.isShared = checkShared;
