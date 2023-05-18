@@ -139,6 +139,26 @@ const followUser = async (req, res) => {
   }
 };
 
+const getShouldFollow = async (req, res) => {
+  const id = req.id;
+
+  try {
+    // Call service
+    const result = await userService.getShouldFollow_Service(id);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   registerUser,
   findUserByID,
@@ -146,4 +166,5 @@ module.exports = {
   Expertise,
   getFollowed,
   followUser,
+  getShouldFollow,
 };

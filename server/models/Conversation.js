@@ -65,7 +65,7 @@ ConversationSchema.statics = {
   UpdateConversation: async function (conversationID, updateData) {
     return this.findByIdAndUpdate(conversationID, updateData, { new: true })
       .populate('users')
-      .populate({ path: 'messages', populate: { path: 'seen' } });
+      .populate({ path: 'messages', populate: [{ path: 'seen' }, { path: 'sender' }] });
   },
   DeleteConversation: async function (conversationID) {
     return this.findByIdAndDelete(conversationID).populate('users');

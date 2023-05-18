@@ -269,6 +269,104 @@ const followUser_Service = async (userID, userFollowID) => {
   };
 };
 
+const getShouldFollow_Service = async (userID) => {
+  const user = await User.GetUser(userID);
+
+  if (!user) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'User does not exist!',
+    };
+  }
+
+  const users = await User.GetAllUsers();
+
+  // Remove user from users
+  const shouldFollow = users.filter((user) => user._id.toString() !== userID);
+
+  // Remove users that user already follow
+  shouldFollow.forEach((user) => {
+    user.followers.forEach((follower) => {
+      if (follower.toString() === userID) {
+        shouldFollow.splice(shouldFollow.indexOf(user), 1);
+      }
+    });
+  });
+
+  // Remove users that follow user
+  shouldFollow.forEach((user) => {
+    user.following.forEach((follow) => {
+      if (follow.toString() === userID) {
+        shouldFollow.splice(shouldFollow.indexOf(user), 1);
+      }
+    });
+  });
+
+  // Select users with 1 of the same expertise as the user, remove duplicate users, sort by number of followers and get top 25
+  const userExpertise = user.description;
+  const shouldFollowExpertise = shouldFollow.filter((user) =>
+    user.description.filter((expertise) => userExpertise.includes(expertise)),
+  );
+  const shouldFollowExpertiseUnique = _.unionBy(shouldFollowExpertise, 'email');
+  const shouldFollowExpertiseSorted = shouldFollowExpertiseUnique.sort(
+    (a, b) => b.followers.length - a.followers.length,
+  );
+  shouldFollowExpertiseSorted.splice(25);
+
+  if (!shouldFollowExpertiseSorted) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'No user to follow!',
+    };
+  }
+
+  // Remove unnecessary information
+  shouldFollowExpertiseSorted.forEach((user) => {
+    user.password = undefined;
+    user.accessToken = undefined;
+    user.followers = undefined;
+    user.following = undefined;
+    user.shares = undefined;
+    user.favorites = undefined;
+    user.__v = undefined;
+    user.posts = undefined;
+    user.userRole = undefined;
+    user.contacts = undefined;
+    user.location = undefined;
+  });
+
+  const userInfo = {
+    id: user._id,
+    firstname: user.firstname,
+    lastname: user.lastname,
+    descriptions: user.description,
+    contacts: user.contacts,
+    username: user.username,
+    userImage: user.userImage,
+    followers: user.followers,
+    following: user.following,
+    posts: user.posts,
+    dayJoined: new Date(user.createdAt).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }),
+    location: user.location,
+  };
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Get all users successfully',
+    content: {
+      userInfo,
+      users: shouldFollowExpertiseSorted,
+    },
+  };
+};
+
 module.exports = {
   registerUser_Service,
   findUserByID_Service,
@@ -276,4 +374,5 @@ module.exports = {
   expertise_Service,
   getFollowed_Service,
   followUser_Service,
+  getShouldFollow_Service,
 };
