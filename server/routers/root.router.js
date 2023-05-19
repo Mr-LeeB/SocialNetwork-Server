@@ -5,6 +5,7 @@ const authRouter = require('./auth.router');
 const postRouter = require('./post.router');
 const conversationRouter = require('./conversation.router');
 const messageRouter = require('./message.router');
+const communityRouter = require('./community.router');
 const { pusherServer } = require('../config/pusher');
 const { checkAuthentication } = require('../middlewares/authentication/checkAuthentication');
 
@@ -17,6 +18,8 @@ router.use('/', postRouter);
 router.use('/', conversationRouter);
 
 router.use('/', messageRouter);
+
+router.use('/', communityRouter);
 
 router.post('/pusher/auth', checkAuthentication, (req, res) => {
   const socketId = req.body.socket_id;
