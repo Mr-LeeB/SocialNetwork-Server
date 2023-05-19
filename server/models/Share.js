@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-require('./Like');
-require('./Comment');
 
 const ShareSchema = new mongoose.Schema(
   {

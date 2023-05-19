@@ -3,8 +3,6 @@ const argon2 = require('argon2');
 const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
-require('./Share');
-require('./Post');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -84,6 +82,10 @@ const UserSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
       default: [],
     },
+    communities: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Community' }],
+      default: [],
+    },
   },
   { timestamps: true },
 );
@@ -147,6 +149,9 @@ UserSchema.methods = {
   RemoveFollower: async function (userID) {
     this.followers.pull(userID);
     return this.save();
+  },
+  GetPosts: async function () {
+    return this.populate('posts');
   },
 };
 

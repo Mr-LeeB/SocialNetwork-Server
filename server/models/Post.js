@@ -1,7 +1,4 @@
 const mongoose = require('mongoose');
-require('./Like');
-require('./Comment');
-require('./User');
 
 const PostSchema = new mongoose.Schema(
   {

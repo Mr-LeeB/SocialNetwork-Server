@@ -361,7 +361,7 @@ const loadAllPost_Service = async (callerID) => {
     const user = await User.GetUser(callerID);
 
     // Thao tác trên mỗi post
-    postArr = await Promise.all(
+    const postArrPromised = await Promise.all(
       postArr.map(async (post) => {
         // Nếu không có ảnh thì thêm link
         let link = null;
@@ -395,15 +395,14 @@ const loadAllPost_Service = async (callerID) => {
         }
 
         // thêm biến isLiked vào post
-        const checkLiked = (await post.likes.filter((like) => like.user.toString() === callerID).length) > 0;
+        const checkLiked = post.likes.some((like) => like?.user.toString() === callerID);
 
         // thêm biến isShared vào post
-        const checkShared = (await post.shares.filter((share) => share.user.toString() === callerID).length) > 0;
+        const checkShared = post.shares.some((share) => share?.user.toString() === callerID);
 
         // thêm biến isSaved vào post
         const userSave = await user.populate('favorites');
-        const checkSaved =
-          userSave.favorites.filter((postSaved) => postSaved._id.toString() === post._id.toString()).length > 0;
+        const checkSaved = userSave.favorites.some((postSaved) => postSaved._id.toString() === post._id.toString());
 
         post = post.toObject();
         const userInfo = post.user;
@@ -467,9 +466,7 @@ const loadAllPost_Service = async (callerID) => {
 
         // thêm biến isLiked vào post
         const postLike = await share.populate('likes');
-        const checkLiked = await postLike.likes.some(async (like) => {
-          return like?.user.toString() === callerID;
-        });
+        const checkLiked = postLike.likes.some(async (like) => like?.user.toString() === callerID);
 
         const _id = share._id;
         const createdAt = share.createdAt;
@@ -518,10 +515,10 @@ const loadAllPost_Service = async (callerID) => {
       }),
     );
 
-    postArr = postArr.concat(sharePostArr);
+    const result = postArrPromised.concat(sharePostArr);
 
     // Sắp xếp các bài post theo thời gian gần nhất
-    postArr.sort((a, b) => {
+    result.sort((a, b) => {
       return b.createdAt - a.createdAt;
     });
 
@@ -550,7 +547,7 @@ const loadAllPost_Service = async (callerID) => {
       message: 'Post found',
       content: {
         userInfo,
-        postArr,
+        postArr: result,
       },
     };
   } catch (error) {
@@ -592,7 +589,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
     const owner = await User.GetUser(ownerID);
 
     // Thao tác trên mỗi post
-    postArr = await Promise.all(
+    const postArrPromised = await Promise.all(
       postArr.map(async (post) => {
         post.user = undefined;
 
@@ -730,10 +727,10 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       }),
     );
 
-    postArr = postArr.concat(sharePostArr);
+    const result = postArrPromised.concat(sharePostArr);
 
     // Sắp xếp các bài post theo thời gian gần nhất
-    postArr.sort((a, b) => {
+    result.sort((a, b) => {
       return b.createdAt - a.createdAt;
     });
 
@@ -783,7 +780,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       content: {
         userInfo,
         ownerInfo,
-        postArr,
+        postArr: result,
       },
     };
   } catch (error) {
