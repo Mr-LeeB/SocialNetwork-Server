@@ -705,7 +705,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         share._id = _id;
         share.postID = postID;
         share.user = undefined;
-        share.user = {
+        share.owner = {
           id: owner._id,
           username: owner.username,
           userImage: owner.userImage,
