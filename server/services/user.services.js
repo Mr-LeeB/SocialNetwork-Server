@@ -61,7 +61,7 @@ const findUserByID_Service = async (userID) => {
           id: userFind._id,
           firstname: userFind.firstname,
           lastname: userFind.lastname,
-          descriptions: userFind.description,
+          tags: userFind.tags,
           contacts: userFind.contacts,
           username: userFind.username,
           userImage: userFind.userImage,
@@ -102,7 +102,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         id: user._id,
         firstname: user.firstname,
         lastname: user.lastname,
-        descriptions: user.description,
+        tags: user.tags,
         contacts: user.contacts,
         username: user.username,
         userImage: user.userImage,
@@ -131,7 +131,7 @@ const expertise_Service = async (userID, expertise) => {
     };
   }
 
-  await user.HandleDescription(expertise);
+  await user.HandleTags(expertise);
 
   return {
     status: STATUS_CODE.SUCCESS,
@@ -142,7 +142,7 @@ const expertise_Service = async (userID, expertise) => {
         id: user._id,
         firstname: user.firstname,
         lastname: user.lastname,
-        descriptions: user.description,
+        tags: user.tags,
         contacts: user.contacts,
         username: user.username,
         userImage: user.userImage,
@@ -183,7 +183,7 @@ const getFollowed_Service = async (userID) => {
     follower.following = undefined;
     follower.shares = undefined;
     follower.favorites = undefined;
-    follower.description = undefined;
+    follower.tags = undefined;
     follower.__v = undefined;
   });
 
@@ -194,7 +194,7 @@ const getFollowed_Service = async (userID) => {
     follow.following = undefined;
     follow.shares = undefined;
     follow.favorites = undefined;
-    follow.description = undefined;
+    follow.tags = undefined;
     follow.__v = undefined;
   });
 
@@ -205,7 +205,7 @@ const getFollowed_Service = async (userID) => {
     id: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
-    descriptions: user.description,
+    tags: user.tags,
     contacts: user.contacts,
     username: user.username,
     userImage: user.userImage,
@@ -304,9 +304,9 @@ const getShouldFollow_Service = async (userID) => {
   });
 
   // Select users with 1 of the same expertise as the user, remove duplicate users, sort by number of followers and get top 25
-  const userExpertise = user.description;
+  const userExpertise = user.tags;
   const shouldFollowExpertise = shouldFollow.filter((user) =>
-    user.description.filter((expertise) => userExpertise.includes(expertise)),
+    user.tags.filter((expertise) => userExpertise.includes(expertise)),
   );
   const shouldFollowExpertiseUnique = _.unionBy(shouldFollowExpertise, 'email');
   const shouldFollowExpertiseSorted = shouldFollowExpertiseUnique.sort(
@@ -333,7 +333,7 @@ const getShouldFollow_Service = async (userID) => {
     id: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
-    descriptions: user.description,
+    tags: user.tags,
     contacts: user.contacts,
     username: user.username,
     userImage: user.userImage,
