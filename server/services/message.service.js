@@ -17,6 +17,12 @@ const createMessage_Service = async (message) => {
   await newMessage.populate('sender');
   await newMessage.populate('seen');
 
+  if (image) {
+    await Conversation.UpdateConversation(conversationID, {
+      $push: { image: newMessage._id },
+    });
+  }
+
   const updatedConversation = await Conversation.UpdateConversation(conversationID, {
     $push: { messages: newMessage._id },
     lastMessageAt: newMessage.createdAt,
@@ -36,6 +42,19 @@ const createMessage_Service = async (message) => {
       });
     }
   });
+
+  if (image) {
+    updatedConversation.users.forEach((user) => {
+      if (user._id) {
+        let channel_name = user._id;
+        channel_name = channel_name.toString();
+        pusherServer.trigger(channel_name, 'conversation-update-media', {
+          id: conversationID,
+          image: newMessage,
+        });
+      }
+    });
+  }
 
   updatedConversation.users.forEach((user) => {
     if (user._id && user._id.toString() !== sender.toString()) {

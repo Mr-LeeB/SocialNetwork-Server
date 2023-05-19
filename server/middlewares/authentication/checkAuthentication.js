@@ -3,7 +3,7 @@ const STATUS_CODE = require('../../util/SettingSystem');
 const { User } = require('../../models/User');
 
 const checkAuthentication = async (req, res, next) => {
-  const accessToken = req.header('Authorization').split(' ')[1].replace(/"/g, '');
+  const accessToken = req?.header('Authorization')?.split(' ')[1]?.replace(/"/g, '');
 
   if (!accessToken) {
     return res.status(STATUS_CODE.NOT_FOUND).send({
@@ -27,7 +27,7 @@ const checkAuthentication = async (req, res, next) => {
       });
     }
 
-    if (user.accessToken!== accessToken) {
+    if (user.accessToken !== accessToken) {
       return res.status(STATUS_CODE.UNAUTHORIZED).send({
         authentication: false,
         success: false,
