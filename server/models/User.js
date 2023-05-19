@@ -48,7 +48,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: false,
     },
-    description: {
+    tags: {
       type: [{ type: String }],
       default: null,
     },
@@ -117,8 +117,8 @@ UserSchema.methods = {
   GetShares: async function () {
     return this.populate('shares');
   },
-  HandleDescription: async function (description) {
-    this.description = description;
+  HandleTags: async function (tags) {
+    this.tags = tags;
     return this.save();
   },
   GetFollowers: async function () {

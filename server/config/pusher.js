@@ -9,12 +9,4 @@ const pusherServer = new PusherServer({
   useTLS: true,
 });
 
-// const pusherClient = new PusherClient(process.env.PUSHER_APP_KEY, {
-//   channelAuthorization: {
-//     endpoint: '/api/pusher/auth',
-//     transport: 'ajax',
-//   },
-//   cluster: 'ap1',
-// });
-
-module.exports = { pusherServer /*, pusherClient */ };
+module.exports = { pusherServer };
