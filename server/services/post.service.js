@@ -185,6 +185,7 @@ const getPost_Service = async (id, callerID) => {
         day: 'numeric',
       }),
       location: user.location,
+      coverImage: user.coverImage,
     };
 
     return {
@@ -339,6 +340,7 @@ const getPostShare_Service = async (id, callerID) => {
         day: 'numeric',
       }),
       location: userCaller.location,
+      coverImage: userCaller.coverImage,
     };
 
     return {
@@ -539,6 +541,7 @@ const loadAllPost_Service = async (callerID) => {
         day: 'numeric',
       }),
       location: user.location,
+      coverImage: user.coverImage,
     };
 
     return {
@@ -752,6 +755,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       }),
       isFollowing: user.following.filter((follow) => follow.toString() === owner._id.toString()).length > 0,
       location: owner.location,
+      coverImage: owner.coverImage,
     };
 
     const userInfo = {
@@ -771,6 +775,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         day: 'numeric',
       }),
       location: user.location,
+      coverImage: user.coverImage,
     };
 
     return {

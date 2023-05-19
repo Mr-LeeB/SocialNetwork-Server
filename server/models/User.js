@@ -29,6 +29,7 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      select: false,
     },
     userRole: {
       type: Number,
@@ -39,6 +40,10 @@ const UserSchema = new mongoose.Schema(
       type: Number,
     },
     userImage: {
+      type: String,
+      default: null,
+    },
+    coverImage: {
       type: String,
       default: null,
     },

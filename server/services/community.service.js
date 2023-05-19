@@ -46,6 +46,7 @@ const findCommunityByID_Service = async (id, userID) => {
       following: user.following,
       followers: user.followers,
       posts: user.posts,
+      coverImage: user.coverImage,
     };
 
     if (!community) {
