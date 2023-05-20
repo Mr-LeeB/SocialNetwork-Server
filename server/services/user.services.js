@@ -74,6 +74,8 @@ const findUserByID_Service = async (userID) => {
             day: 'numeric',
           }),
           location: userFind.location,
+          coverImage: userFind.coverImage,
+          alias: userFind.alias,
         },
       },
     };
@@ -115,6 +117,28 @@ const updateUser_Service = async (userID, userUpdate) => {
           day: 'numeric',
         }),
         location: user.location,
+        coverImage: user.coverImage,
+        alias: user.alias,
+      },
+      userInfo: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        tags: user.tags,
+        contacts: user.contacts,
+        username: user.username,
+        userImage: user.userImage,
+        followers: user.followers,
+        following: user.following,
+        posts: user.posts,
+        dayJoined: new Date(user.createdAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        location: user.location,
+        coverImage: user.coverImage,
+        alias: user.alias,
       },
     },
   };
@@ -155,6 +179,8 @@ const expertise_Service = async (userID, expertise) => {
           day: 'numeric',
         }),
         location: user.location,
+        coverImage: user.coverImage,
+        alias: user.alias,
       },
     },
   };
@@ -218,6 +244,8 @@ const getFollowed_Service = async (userID) => {
       day: 'numeric',
     }),
     location: user.location,
+    coverImage: user.coverImage,
+    alias: user.alias,
   };
 
   return {
@@ -346,6 +374,8 @@ const getShouldFollow_Service = async (userID) => {
       day: 'numeric',
     }),
     location: user.location,
+    coverImage: user.coverImage,
+    alias: user.alias,
   };
 
   if (shouldFollowExpertiseSorted.length === 0) {

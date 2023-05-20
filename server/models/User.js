@@ -3,8 +3,6 @@ const argon2 = require('argon2');
 const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
-require('./Share');
-require('./Post');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -31,6 +29,7 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      select: false,
     },
     userRole: {
       type: Number,
@@ -44,12 +43,20 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    coverImage: {
+      type: String,
+      default: null,
+    },
     verified: {
       type: String,
       default: false,
     },
     tags: {
       type: [{ type: String }],
+      default: null,
+    },
+    alias: {
+      type: String,
       default: null,
     },
     contacts: {
@@ -82,6 +89,14 @@ const UserSchema = new mongoose.Schema(
     },
     favorites: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+      default: [],
+    },
+    communities: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Community' }],
+      default: [],
+    },
+    notifications: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Notification' }],
       default: [],
     },
   },
@@ -147,6 +162,16 @@ UserSchema.methods = {
   RemoveFollower: async function (userID) {
     this.followers.pull(userID);
     return this.save();
+  },
+  GetPosts: async function () {
+    return this.populate('posts');
+  },
+  SaveNotification: async function (notification) {
+    this.notifications.push(notification);
+    return this.save();
+  },
+  GetNotifications: async function () {
+    return this.populate('notifications');
   },
 };
 

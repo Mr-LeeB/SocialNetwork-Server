@@ -5,9 +5,11 @@ const findCommunityByID = async (req, res) => {
 
     const { id } = req.params;
 
+    const userID = req.id
+
     try {
         // Call service
-        const result = await communityService.findCommunityByID_Service(id);
+        const result = await communityService.findCommunityByID_Service(id, userID);
 
         // Return result
         const { status, success, message, content } = result;
