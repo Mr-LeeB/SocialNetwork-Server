@@ -97,6 +97,10 @@ const getPost_Service = async (id, callerID) => {
       id: userPost._id,
       username: userPost.username,
       userImage: userPost.userImage,
+      isFollowing: userPost.followers.some((follower) => follower.toString() === callerID),
+      followers: userPost.followers,
+      following: userPost.following,
+      posts: userPost.posts,
     };
     post.isLiked = checkLiked;
     post.isShared = checkShared;
@@ -186,6 +190,7 @@ const getPost_Service = async (id, callerID) => {
       }),
       location: user.location,
       coverImage: user.coverImage,
+      alias: user.alias,
     };
 
     return {
@@ -304,12 +309,20 @@ const getPostShare_Service = async (id, callerID) => {
       id: post.user._id,
       username: post.user.username,
       userImage: post.user.userImage,
+      isFollowing: post.user.followers.some((follower) => follower.toString() === callerID),
+      followers: post.user.followers,
+      following: post.user.following,
+      posts: post.user.posts,
     };
     share.shares = undefined;
     share.user = {
       id: user._id,
       username: user.username,
       userImage: user.userImage,
+      isFollowing: user.followers.some((follower) => follower.toString() === callerID),
+      followers: user.followers,
+      following: user.following,
+      posts: user.posts,
     };
     share.link = link;
     share.postCreatedAt = postCreatedAt;
@@ -341,6 +354,7 @@ const getPostShare_Service = async (id, callerID) => {
       }),
       location: userCaller.location,
       coverImage: userCaller.coverImage,
+      alias: userCaller.alias,
     };
 
     return {
@@ -542,6 +556,7 @@ const loadAllPost_Service = async (callerID) => {
       }),
       location: user.location,
       coverImage: user.coverImage,
+      alias: user.alias,
     };
 
     return {
@@ -570,10 +585,16 @@ const editPost_Service = async (id, post, userID) => {
     };
   }
 
-  const { title, content } = post;
+  const { title, content, linkImage } = post;
+
+  const newPost = {
+    title,
+    content,
+    url: linkImage ? linkImage : null,
+  };
 
   try {
-    const result = await Post.UpdatePost(id, { title, content });
+    const result = await Post.UpdatePost(id, newPost);
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
@@ -756,6 +777,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       isFollowing: user.following.filter((follow) => follow.toString() === owner._id.toString()).length > 0,
       location: owner.location,
       coverImage: owner.coverImage,
+      alias: owner.alias,
     };
 
     const userInfo = {
@@ -776,6 +798,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       }),
       location: user.location,
       coverImage: user.coverImage,
+      alias: user.alias,
     };
 
     return {

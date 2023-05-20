@@ -75,6 +75,7 @@ const findUserByID_Service = async (userID) => {
           }),
           location: userFind.location,
           coverImage: userFind.coverImage,
+          alias: userFind.alias,
         },
       },
     };
@@ -117,6 +118,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         }),
         location: user.location,
         coverImage: user.coverImage,
+        alias: user.alias,
       },
       userInfo: {
         id: user._id,
@@ -136,6 +138,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         }),
         location: user.location,
         coverImage: user.coverImage,
+        alias: user.alias,
       },
     },
   };
@@ -177,6 +180,7 @@ const expertise_Service = async (userID, expertise) => {
         }),
         location: user.location,
         coverImage: user.coverImage,
+        alias: user.alias,
       },
     },
   };
@@ -241,6 +245,7 @@ const getFollowed_Service = async (userID) => {
     }),
     location: user.location,
     coverImage: user.coverImage,
+    alias: user.alias,
   };
 
   return {
@@ -370,6 +375,7 @@ const getShouldFollow_Service = async (userID) => {
     }),
     location: user.location,
     coverImage: user.coverImage,
+    alias: user.alias,
   };
 
   if (shouldFollowExpertiseSorted.length === 0) {
