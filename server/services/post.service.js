@@ -373,51 +373,37 @@ const getPostShare_Service = async (id, callerID) => {
 
 const loadAllPost_Service = async (callerID) => {
   try {
-    let postArr = await Post.GetPosts();
-    const user = await User.GetUser(callerID);
+    const [postArr, user] = await Promise.all([Post.GetPosts(), User.GetUser(callerID)]);
+    const [shareArr, userSave] = await Promise.all([Share.GetShares(), user.populate('favorites')]);
 
-    // Thao tác trên mỗi post
     const postArrPromised = await Promise.all(
       postArr.map(async (post) => {
-        // Nếu không có ảnh thì thêm link
         let link = null;
         if (!post.image) {
           const dom1 = new JSDOM(post.content);
-          // lấy link đầu tiền trong post
           const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
           if (firstLink) {
-            await axios.get(firstLink).then((res) => {
-              const dom2 = new JSDOM(res.data);
-
-              const title =
-                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('title')?.textContent;
-
-              const description =
-                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-
-              const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-
-              link = {
-                title,
-                description,
-                image,
-                linkAddress: firstLink,
-              };
-            });
+            const res = await axios.get(firstLink);
+            const dom2 = new JSDOM(res.data);
+            const title =
+              dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('title')?.textContent;
+            const description =
+              dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+            const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+            link = {
+              title,
+              description,
+              image,
+              linkAddress: firstLink,
+            };
           }
         }
 
-        // thêm biến isLiked vào post
         const checkLiked = post.likes.some((like) => like?.user.toString() === callerID);
-
-        // thêm biến isShared vào post
         const checkShared = post.shares.some((share) => share?.user.toString() === callerID);
-
-        // thêm biến isSaved vào post
-        const userSave = await user.populate('favorites');
         const checkSaved = userSave.favorites.some((postSaved) => postSaved._id.toString() === post._id.toString());
 
         post = post.toObject();
@@ -440,59 +426,42 @@ const loadAllPost_Service = async (callerID) => {
       }),
     );
 
-    // Tìm và tạo post mới cho các bài share bởi tất cả user và thêm vào postArr
-    let shareArr = await Share.GetShares();
-    shareArr = shareArr.flat();
-    const sharePostArr = await Promise.all(
-      shareArr.map(async (share) => {
-        const post = await Post.GetPost(share.post);
-        const user = await User.GetUser(share.user._id);
-        share = Share(share);
+    let sharePostArr = shareArr.flat();
+    sharePostArr = await Promise.all(
+      sharePostArr.map(async (share) => {
+        const [post, user] = await Promise.all([Post.GetPost(share.post), User.GetUser(share.user._id)]);
 
-        // Nếu không có ảnh thì thêm link
         let link = null;
         if (!post.image) {
           const dom1 = new JSDOM(post.content);
-          // lấy link đầu tiền trong post
           const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
           if (firstLink) {
-            await axios.get(firstLink).then((res) => {
-              const dom2 = new JSDOM(res.data);
-
-              const title =
-                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('title')?.textContent;
-
-              const description =
-                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-
-              const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-
-              link = {
-                title,
-                description,
-                image,
-                linkAddress: firstLink,
-              };
-            });
+            const res = await axios.get(firstLink);
+            const dom2 = new JSDOM(res.data);
+            const title =
+              dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('title')?.textContent;
+            const description =
+              dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+            const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+            link = {
+              title,
+              description,
+              image,
+              linkAddress: firstLink,
+            };
           }
         }
 
-        // thêm biến isLiked vào post
         const postLike = await share.populate('likes');
-        const checkLiked = postLike.likes.some(async (like) => like?.user.toString() === callerID);
+        const checkLiked = postLike.likes.some((like) => like?.user.toString() === callerID);
 
-        const _id = share._id;
-        const createdAt = share.createdAt;
-        const updatedAt = share.updatedAt;
+        const { _id, createdAt, updatedAt, views, likes, comments } = share;
+
         const postCreatedAt = post.createdAt;
         const postUpdatedAt = post.updatedAt;
-        const postID = post._id;
-        const views = share.views;
-        const likes = share.likes;
-        const comments = share.comments;
 
         share = post.toObject();
         share._id = _id;
@@ -515,7 +484,7 @@ const loadAllPost_Service = async (callerID) => {
           posts: user.posts,
           isFollowing: user.followers.some((follower) => follower.toString() === callerID),
         };
-        share.postID = postID;
+        share.postID = post._id;
         share.createdAt = createdAt;
         share.updatedAt = updatedAt;
         share.views = views;
@@ -533,10 +502,7 @@ const loadAllPost_Service = async (callerID) => {
 
     const result = postArrPromised.concat(sharePostArr);
 
-    // Sắp xếp các bài post theo thời gian gần nhất
-    result.sort((a, b) => {
-      return b.createdAt - a.createdAt;
-    });
+    result.sort((a, b) => b.createdAt - a.createdAt);
 
     const userInfo = {
       id: user._id,
@@ -608,56 +574,46 @@ const editPost_Service = async (id, post, userID) => {
 
 const getPostByUser_Service = async (callerID, ownerID) => {
   try {
-    let postArr = await Post.GetPostByUser(ownerID);
-    const user = await User.GetUser(callerID);
-    const owner = await User.GetUser(ownerID);
+    const [postArr, user, owner] = await Promise.all([
+      Post.GetPostByUser(ownerID),
+      User.GetUser(callerID),
+      User.GetUser(ownerID),
+    ]);
 
-    // Thao tác trên mỗi post
+    const [ownerShareArr, userSave] = await Promise.all([owner.GetShares(), user.populate('favorites')]);
+
     const postArrPromised = await Promise.all(
       postArr.map(async (post) => {
         post.user = undefined;
 
-        // Nếu không có ảnh thì thêm link
         let link = null;
         if (!post.image) {
           const dom1 = new JSDOM(post.content);
-          // lấy link đầu tiền trong post
           const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
           if (firstLink) {
-            await axios.get(firstLink).then((res) => {
-              const dom2 = new JSDOM(res.data);
+            const res = await axios.get(firstLink);
+            const dom2 = new JSDOM(res.data);
+            const title =
+              dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('title')?.textContent;
+            const description =
+              dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+            const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
-              const title =
-                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('title')?.textContent;
-
-              const description =
-                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-
-              const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-
-              link = {
-                title,
-                description,
-                image,
-                linkAddress: firstLink,
-              };
-            });
+            link = {
+              title,
+              description,
+              image,
+              linkAddress: firstLink,
+            };
           }
         }
 
-        // thêm biến isLiked vào post
-        const checkLiked = (await post.likes.filter((like) => like.user.toString() === callerID).length) > 0;
-
-        // thêm biến isShared vào post
-        const checkShared = (await post.shares.filter((share) => share.user.toString() === callerID).length) > 0;
-
-        // thêm biến isSaved vào post
-        const userSave = await user.populate('favorites');
-        const checkSaved =
-          userSave.favorites.filter((postSaved) => postSaved._id.toString() === post._id.toString()).length > 0;
+        const checkLiked = post.likes.some((like) => like.user.toString() === callerID);
+        const checkShared = post.shares.some((share) => share.user.toString() === callerID);
+        const checkSaved = userSave.favorites.some((postSaved) => postSaved._id.toString() === post._id.toString());
 
         post = post.toObject();
         post.isLiked = checkLiked;
@@ -669,71 +625,56 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       }),
     );
 
-    // Tìm và tạo post mới cho các bài share bởi owner user và thêm vào postArr
-    let shareArr = await owner.GetShares();
-    shareArr = shareArr.shares;
+    let shareArr = ownerShareArr.shares;
     const sharePostArr = await Promise.all(
       shareArr.map(async (share) => {
         const post = await Post.GetPost(share.post);
 
-        // Nếu không có ảnh thì thêm link
         let link = null;
         if (!post.image) {
           const dom1 = new JSDOM(post.content);
-          // lấy link đầu tiền trong post
           const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
           if (firstLink) {
-            await axios.get(firstLink).then((res) => {
-              const dom2 = new JSDOM(res.data);
+            const res = await axios.get(firstLink);
+            const dom2 = new JSDOM(res.data);
+            const title =
+              dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('title')?.textContent;
+            const description =
+              dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+              dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+            const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
-              const title =
-                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('title')?.textContent;
-
-              const description =
-                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-
-              const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-
-              link = {
-                title,
-                description,
-                image,
-                linkAddress: firstLink,
-              };
-            });
+            link = {
+              title,
+              description,
+              image,
+              linkAddress: firstLink,
+            };
           }
         }
 
-        // thêm biến isLiked vào post
         const postLike = await share.populate('likes');
-        const checkLiked = (await postLike.likes.filter((like) => like.user.toString() === callerID).length) > 0;
+        const checkLiked = postLike.likes.some((like) => like.user.toString() === callerID);
 
-        const _id = share._id;
-        const createdAt = share.createdAt;
-        const updatedAt = share.updatedAt;
+        const { _id, createdAt, updatedAt, views, likes, comments } = share;
+
         const postCreatedAt = post.createdAt;
         const postUpdatedAt = post.updatedAt;
-        const postID = post._id;
-        const owner = await User.GetUser(post.user);
-        const views = share.views;
-        const likes = share.likes;
-        const comments = share.comments;
 
         share = post.toObject();
         share._id = _id;
-        share.postID = postID;
+        share.postID = post._id;
         share.user = undefined;
         share.owner = {
-          id: owner._id,
-          username: owner.username,
-          userImage: owner.userImage,
-          followers: owner.followers,
-          following: owner.following,
-          posts: owner.posts,
-          isFollowing: owner.followers.some((follower) => follower.toString() === callerID),
+          id: post.user._id,
+          username: post.user.username,
+          userImage: post.user.userImage,
+          followers: post.user.followers,
+          following: post.user.following,
+          posts: post.user.posts,
+          isFollowing: post.user.followers.some((follower) => follower.toString() === callerID),
         };
         share.shares = undefined;
         share.link = link;
@@ -752,11 +693,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
     );
 
     const result = postArrPromised.concat(sharePostArr);
-
-    // Sắp xếp các bài post theo thời gian gần nhất
-    result.sort((a, b) => {
-      return b.createdAt - a.createdAt;
-    });
+    result.sort((a, b) => b.createdAt - a.createdAt);
 
     const ownerInfo = {
       id: owner._id,
@@ -774,7 +711,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         month: 'long',
         day: 'numeric',
       }),
-      isFollowing: user.following.filter((follow) => follow.toString() === owner._id.toString()).length > 0,
+      isFollowing: user.following.some((follow) => follow.toString() === owner._id.toString()),
       location: owner.location,
       coverImage: owner.coverImage,
       alias: owner.alias,
