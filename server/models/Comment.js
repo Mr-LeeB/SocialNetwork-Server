@@ -68,6 +68,9 @@ CommentSchema.methods = {
     this.listReply.pull(commentID);
     return this.save();
   },
+  GetCommentHasReply: async function (commentID) {
+    return this.findOne({ listReply: commentID });
+  }
 };
 
 module.exports = {
