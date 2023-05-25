@@ -341,7 +341,7 @@ const getPostShare_Service = async (id, callerID) => {
           isLiked: checkLiked,
           PostShared: true,
           likes: likeArr,
-          comments: commentArr.filter(Boolean),
+          comments: commentArr,
         },
       },
     };
