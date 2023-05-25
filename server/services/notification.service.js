@@ -89,6 +89,8 @@ const getNotifications_Service = async (userID) => {
       location: user.location,
       coverImage: user.coverImage,
       alias: user.alias,
+      about: user.about,
+      experiences: user.experiences,
     };
 
     return {

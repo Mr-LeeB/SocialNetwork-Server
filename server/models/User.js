@@ -59,7 +59,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    experience: {
+    experiences: {
       type: [
         {
           title: String,

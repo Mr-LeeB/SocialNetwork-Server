@@ -184,6 +184,8 @@ const getPost_Service = async (id, callerID) => {
       location: user.location,
       coverImage: user.coverImage,
       alias: user.alias,
+      about: user.about,
+      experiences: user.experiences,
     };
 
     return {
@@ -307,6 +309,8 @@ const getPostShare_Service = async (id, callerID) => {
       location: userCaller.location,
       coverImage: userCaller.coverImage,
       alias: userCaller.alias,
+      about: userCaller.about,
+      experiences: userCaller.experiences,
     };
 
     return {
@@ -508,6 +512,8 @@ const loadAllPost_Service = async (callerID) => {
       location: user.location,
       coverImage: user.coverImage,
       alias: user.alias,
+      about: user.about,
+      experiences: user.experiences,
     };
 
     return {
@@ -700,6 +706,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       location: owner.location,
       coverImage: owner.coverImage,
       alias: owner.alias,
+      about: owner.about,
+      experiences: owner.experiences,
     };
 
     const userInfo = {
@@ -721,6 +729,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       location: user.location,
       coverImage: user.coverImage,
       alias: user.alias,
+      about: user.about,
+      experiences: user.experiences,
     };
 
     return {
