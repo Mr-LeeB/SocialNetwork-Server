@@ -68,6 +68,28 @@ const login_GoogleV2 = async (req, res) => {
   }
 };
 
+const login_Github = async (req, res) => {
+  const { code } = req.query;
+
+  try {
+    const result = await authService.login_Github_Service(code);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    }
+    return res.send(
+      `<script>window.opener.postMessage(${JSON.stringify(
+        content,
+      )}, 'http://localhost:3000'); window.close();</script>`,
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
 const logout = async (req, res) => {
   const id = req.id;
 
@@ -166,4 +188,5 @@ module.exports = {
   checkLogin,
   getUserID,
   login_GoogleV2,
+  login_Github,
 };
