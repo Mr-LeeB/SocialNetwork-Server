@@ -92,9 +92,9 @@ const loadAllPost = async (req, res) => {
 
 const editPost = async (req, res) => {
   const { id } = req.params;
-  const { title, content } = req.body;
+  const { title, content, linkImage } = req.body;
 
-  const post = { title, content };
+  const post = { title, content, linkImage };
 
   const userID = req.id;
 

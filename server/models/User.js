@@ -29,6 +29,7 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      select: false,
     },
     userRole: {
       type: Number,
@@ -42,12 +43,20 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    coverImage: {
+      type: String,
+      default: null,
+    },
     verified: {
       type: String,
       default: false,
     },
     tags: {
       type: [{ type: String }],
+      default: null,
+    },
+    alias: {
+      type: String,
       default: null,
     },
     contacts: {
@@ -84,6 +93,10 @@ const UserSchema = new mongoose.Schema(
     },
     communities: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Community' }],
+      default: [],
+    },
+    notifications: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Notification' }],
       default: [],
     },
   },
@@ -152,6 +165,13 @@ UserSchema.methods = {
   },
   GetPosts: async function () {
     return this.populate('posts');
+  },
+  SaveNotification: async function (notification) {
+    this.notifications.push(notification);
+    return this.save();
+  },
+  GetNotifications: async function () {
+    return this.populate('notifications');
   },
 };
 
