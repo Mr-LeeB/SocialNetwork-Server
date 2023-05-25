@@ -54,9 +54,22 @@ const findUserByID = async (req, res) => {
 const UpdateUser = async (req, res) => {
   const { id } = req.params;
 
-  const { firstname, lastname, tags, contacts, username, userImage, coverImage, alias, location } = req.body;
+  const { firstname, lastname, tags, contacts, username, userImage, coverImage, alias, location, about, experience } =
+    req.body;
 
-  const user = { firstname, lastname, tags, contacts, username, userImage, coverImage, alias, location };
+  const user = {
+    firstname,
+    lastname,
+    tags,
+    contacts,
+    username,
+    userImage,
+    coverImage,
+    alias,
+    location,
+    about,
+    experience,
+  };
 
   try {
     // Call service

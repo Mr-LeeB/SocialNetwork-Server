@@ -55,6 +55,21 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    about: {
+      type: String,
+      default: null,
+    },
+    experience: {
+      type: [
+        {
+          title: String,
+          company: String,
+          startDate: Date,
+          endDate: Date,
+        },
+      ],
+      default: null,
+    },
     contacts: {
       type: [{}],
       default: null,
