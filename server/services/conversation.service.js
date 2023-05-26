@@ -181,6 +181,11 @@ const seenConversation_Service = async (conversationID, userID) => {
     messages: [updatedMessage],
   });
 
+  await pusherServer.trigger(channel_name, 'conversation-update-seen', {
+    id: conversationID,
+    messages: [updatedMessage],
+  });
+
   // if user has already seen the message
   if (lastMessage.seen.indexOf(userID) !== -1) {
     return {
