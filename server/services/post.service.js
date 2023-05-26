@@ -46,131 +46,149 @@ const upPost_Service = async (post, id) => {
 
 const getPost_Service = async (id, callerID) => {
   try {
-    let post = await Post.GetPost(id);
+    let [post, user] = await Promise.all([Post.GetPost(id), User.GetUser(callerID)]);
 
-    // Nếu không có ảnh thì thêm link
     let link = null;
     if (!post.image) {
       const dom1 = new JSDOM(post.content);
-      // lấy link đầu tiền trong post
       const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
       if (firstLink) {
-        await axios.get(firstLink).then((res) => {
-          const dom2 = new JSDOM(res.data);
+        const res = await axios.get(firstLink);
+        const dom2 = new JSDOM(res.data);
 
-          const title =
-            dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-            dom2.window.document.querySelector('title')?.textContent;
+        const title =
+          dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+          dom2.window.document.querySelector('title')?.textContent;
+        const description =
+          dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+          dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+        const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
-          const description =
-            dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-            dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-
-          const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-
-          link = {
-            title,
-            description,
-            image,
-            linkAddress: firstLink,
-          };
-        });
+        link = {
+          title,
+          description,
+          image,
+          linkAddress: firstLink,
+        };
       }
     }
 
-    const user = await User.GetUser(callerID);
-    // thêm biến isLiked vào post
-    const checkLiked = (await post.likes.filter((like) => like.user.toString() === callerID).length) > 0;
+    const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);
+    const checkShared = post.shares.some((share) => share?.user?.toString() === callerID);
 
-    // thêm biến isShared vào post
-    const checkShared = (await post.shares.filter((share) => share.user.toString() === callerID).length) > 0;
-
-    // thêm biến isSaved vào post
     const userSave = await user.populate('favorites');
-    const checkSaved =
-      userSave.favorites.filter((postSaved) => postSaved._id.toString() === post._id.toString()).length > 0;
+    const checkSaved = userSave.favorites.some((postSaved) => postSaved._id.toString() === post._id.toString());
 
     post = post.toObject();
-    const userPost = post.user;
+
     post.user = {
-      id: userPost._id,
-      username: userPost.username,
-      userImage: userPost.userImage,
-      isFollowing: userPost.followers.some((follower) => follower.toString() === callerID),
-      followers: userPost.followers,
-      following: userPost.following,
-      posts: userPost.posts,
+      id: post.user._id,
+      username: post.user.username,
+      userImage: post.user.userImage,
+      isFollowing: post.user.followers.some((follower) => follower.toString() === callerID),
+      followers: post.user.followers,
+      following: post.user.following,
+      posts: post.user.posts,
     };
-    post.isLiked = checkLiked;
-    post.isShared = checkShared;
-    post.isSaved = checkSaved;
-    post.link = link;
 
-    // tìm thông tin user trong like
-    const likeArr = await post.likes.map(async (like) => {
-      const user = await User.GetUser(like.user);
-      like.user = {
-        id: user._id,
-        username: user.username,
-        userImage: user.userImage,
-      };
-      return like;
-    });
+    post = {
+      ...post,
+      isLiked: checkLiked,
+      isShared: checkShared,
+      isSaved: checkSaved,
+      link: link,
+    };
 
-    post.likes = await Promise.all(likeArr);
-
-    // tìm thông tin user trong share
-    const shareArr = await post.shares.map(async (share) => {
-      const user = await User.GetUser(share.user);
-      share.user = {
-        id: user._id,
-        username: user.username,
-        userImage: user.userImage,
-      };
-      // Remove all fields except user
-      Object.keys(share).forEach((key) => {
-        if (key !== 'user' && key !== '_id' && key !== 'post' && key !== 'createdAt' && key !== 'updatedAt') {
-          delete share[key];
-        }
-      });
-
-      return share;
-    });
-
-    post.shares = await Promise.all(shareArr);
-
-    // tìm thông tin user trong comment và trong list reply
-    const commentArr = await post.comments.map(async (comment) => {
-      // check nếu comment là comment reply thì xóa comment đó đi
-      if (comment.isReply) {
-        return;
-      }
-
-      const user = await User.GetUser(comment.user);
-      comment.user = {
-        id: user._id,
-        username: user.username,
-        userImage: user.userImage,
-      };
-
-      const replyArr = await comment.listReply.map(async (reply) => {
-        const commentReply = await Comment.GetCommentByID(reply);
-        reply = commentReply.toObject();
-        reply.user = {
-          id: commentReply.user._id,
-          username: commentReply.user.username,
-          userImage: commentReply.user.userImage,
+    const likeArr = await Promise.all(
+      post.likes.map(async (like) => {
+        const user = await User.GetUser(like.user);
+        like.user = {
+          id: user._id,
+          username: user.username,
+          userImage: user.userImage,
         };
-        return reply;
-      });
+        return like;
+      }),
+    );
 
-      comment.listReply = await Promise.all(replyArr);
+    post.likes = likeArr;
 
-      return comment;
+    const shareArr = await Promise.all(
+      post.shares.map(async (share) => {
+        const user = await User.GetUser(share.user);
+        share.user = {
+          id: user._id,
+          username: user.username,
+          userImage: user.userImage,
+        };
+        return {
+          user: share.user,
+          _id: share._id,
+        };
+      }),
+    );
+
+    post.shares = shareArr;
+
+    const commentArr = await Promise.all(
+      post.comments.map(async (comment) => {
+        if (comment.isReply) {
+          return;
+        }
+
+        const user = await User.GetUser(comment.user);
+        comment.user = {
+          id: user._id,
+          username: user.username,
+          userImage: user.userImage,
+        };
+
+        // check liked
+        const checkLiked = comment.likes.some((like) => like?.user?.toString() === callerID);
+        // check disliked
+        const checkDisliked = comment.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
+        comment = {
+          ...comment,
+          isLiked: checkLiked,
+          isDisliked: checkDisliked,
+        };
+
+        const replyArr = await Promise.all(
+          comment.listReply.map(async (reply) => {
+            const commentReply = await Comment.GetCommentByID(reply);
+            // check liked
+            const checkLiked = commentReply.likes.some((like) => like?.user?.toString() === callerID);
+            // check disliked
+            const checkDisliked = commentReply.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
+            return {
+              ...commentReply.toObject(),
+              isLiked: checkLiked,
+              isDisliked: checkDisliked,
+              user: {
+                id: commentReply.user._id,
+                username: commentReply.user.username,
+                userImage: commentReply.user.userImage,
+              },
+            };
+          }),
+        );
+
+        comment.listReply = replyArr.filter(Boolean);
+        return comment;
+      }),
+    );
+
+    // Sort comment by like amd dislike, the most liked will be on top, the most disliked will be on bottom
+    commentArr.sort((a, b) => {
+      if (!a || !b) return 0;
+      const aTotal = a.likes.length - a.dislikes.length;
+      const bTotal = b.likes.length - b.dislikes.length;
+
+      return bTotal - aTotal;
     });
 
-    post.comments = await Promise.all(commentArr);
+    post.comments = commentArr;
 
     const userInfo = {
       id: user._id,
@@ -191,6 +209,8 @@ const getPost_Service = async (id, callerID) => {
       location: user.location,
       coverImage: user.coverImage,
       alias: user.alias,
+      about: user.about,
+      experiences: user.experiences,
     };
 
     return {
@@ -209,132 +229,114 @@ const getPost_Service = async (id, callerID) => {
 
 const getPostShare_Service = async (id, callerID) => {
   try {
-    let share = await Share.GetShare(id);
-    const post = await Post.GetPost(share.post);
-    const user = await User.GetUser(share.user.id);
-    const userCaller = await User.GetUser(callerID);
+    const share = await Share.GetShare(id);
+    const [post, user, userCaller] = await Promise.all([
+      Post.GetPost(share.post),
+      User.GetUser(share.user.id),
+      User.GetUser(callerID),
+    ]);
 
-    // Nếu không có ảnh thì thêm link
     let link = null;
     if (!post.image) {
       const dom1 = new JSDOM(post.content);
-      // lấy link đầu tiền trong post
       const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
       if (firstLink) {
-        await axios.get(firstLink).then((res) => {
-          const dom2 = new JSDOM(res.data);
+        const res = await axios.get(firstLink);
+        const dom2 = new JSDOM(res.data);
 
-          const title =
-            dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-            dom2.window.document.querySelector('title')?.textContent;
+        const title =
+          dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+          dom2.window.document.querySelector('title')?.textContent;
+        const description =
+          dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+          dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+        const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
-          const description =
-            dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-            dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-
-          const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-
-          link = {
-            title,
-            description,
-            image,
-            linkAddress: firstLink,
-          };
-        });
+        link = {
+          title,
+          description,
+          image,
+          linkAddress: firstLink,
+        };
       }
     }
 
-    // thêm biến isLiked vào post
     const postLike = await share.populate('likes');
-    const checkLiked = await postLike.likes.some(async (like) => {
-      return like?.user.toString() === callerID;
-    });
+    const checkLiked = postLike.likes.some((like) => like?.user.toString() === callerID);
 
-    // tìm thông tin user trong like
-    const likeArr = await postLike.likes.map(async (like) => {
-      const user = await User.GetUser(like.user);
-      like.user = {
-        id: user._id,
-        username: user.username,
-        userImage: user.userImage,
-      };
-      return like;
-    });
-
-    // tìm thông tin user trong comment và trong list reply
-    const postComment = await share.populate('comments');
-    const commentArr = await postComment.comments.map(async (comment) => {
-      const commentPopulate = await Comment.GetCommentByID(comment);
-      comment = commentPopulate.toObject();
-      // check nếu comment là comment reply thì xóa comment đó đi
-      if (comment.isReply) {
-        return;
-      }
-
-      const user = await User.GetUser(comment.user);
-      comment.user = {
-        id: user._id,
-        username: user.username,
-        userImage: user.userImage,
-      };
-
-      const replyArr = await comment.listReply.map(async (reply) => {
-        const commentReply = await Comment.GetCommentByID(reply);
-        reply = commentReply.toObject();
-        reply.user = {
-          id: commentReply.user._id,
-          username: commentReply.user.username,
-          userImage: commentReply.user.userImage,
+    const likeArr = await Promise.all(
+      postLike.likes.map(async (like) => {
+        const user = await User.GetUser(like.user);
+        return {
+          ...like.toObject(),
+          user: {
+            id: user._id,
+            username: user.username,
+            userImage: user.userImage,
+          },
         };
-        return reply;
-      });
+      }),
+    );
 
-      comment.listReply = await Promise.all(replyArr);
+    const postComment = await share.populate('comments');
+    const commentArr = await Promise.all(
+      postComment.comments.map(async (comment) => {
+        const commentPopulate = await Comment.GetCommentByID(comment);
+        if (commentPopulate.isReply) {
+          return null;
+        }
 
-      return comment;
+        // check liked
+        const checkLiked = commentPopulate.likes.some((like) => like?.user?.toString() === callerID);
+
+        // check disliked
+        const checkDisliked = commentPopulate.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
+
+        const user = await User.GetUser(commentPopulate.user);
+        const replyArr = await Promise.all(
+          commentPopulate.listReply.map(async (reply) => {
+            const commentReply = await Comment.GetCommentByID(reply);
+            const replyUser = await User.GetUser(commentReply.user);
+            // check liked
+            const checkLiked = commentReply.likes.some((like) => like?.user?.toString() === callerID);
+            // check disliked
+            const checkDisliked = commentReply.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
+            return {
+              ...commentReply.toObject(),
+              isLiked: checkLiked,
+              isDisliked: checkDisliked,
+              user: {
+                id: replyUser._id,
+                username: replyUser.username,
+                userImage: replyUser.userImage,
+              },
+            };
+          }),
+        );
+
+        return {
+          ...commentPopulate.toObject(),
+          isLiked: checkLiked,
+          isDisliked: checkDisliked,
+          user: {
+            id: user._id,
+            username: user.username,
+            userImage: user.userImage,
+          },
+          listReply: replyArr.filter(Boolean),
+        };
+      }),
+    );
+
+    // Sort comment by like amd dislike, the most liked will be on top, the most disliked will be on bottom
+    commentArr.sort((a, b) => {
+      if (!a || !b) return 0;
+      const aTotal = a.likes.length - a.dislikes.length;
+      const bTotal = b.likes.length - b.dislikes.length;
+
+      return bTotal - aTotal;
     });
-
-    const _id = share._id;
-    const createdAt = share.createdAt;
-    const updatedAt = share.updatedAt;
-    const postCreatedAt = post.createdAt;
-    const postUpdatedAt = post.updatedAt;
-    const postID = post._id;
-    const views = share.views;
-
-    share = post.toObject();
-    share._id = _id;
-    share.owner = {
-      id: post.user._id,
-      username: post.user.username,
-      userImage: post.user.userImage,
-      isFollowing: post.user.followers.some((follower) => follower.toString() === callerID),
-      followers: post.user.followers,
-      following: post.user.following,
-      posts: post.user.posts,
-    };
-    share.shares = undefined;
-    share.user = {
-      id: user._id,
-      username: user.username,
-      userImage: user.userImage,
-      isFollowing: user.followers.some((follower) => follower.toString() === callerID),
-      followers: user.followers,
-      following: user.following,
-      posts: user.posts,
-    };
-    share.link = link;
-    share.postCreatedAt = postCreatedAt;
-    share.postUpdatedAt = postUpdatedAt;
-    share.postID = postID;
-    share.createdAt = createdAt;
-    share.views = views;
-    share.updatedAt = updatedAt;
-    share.isLiked = checkLiked;
-    share.PostShared = true;
-    share.likes = await Promise.all(likeArr);
-    share.comments = await Promise.all(commentArr);
 
     const userInfo = {
       id: userCaller._id,
@@ -355,6 +357,8 @@ const getPostShare_Service = async (id, callerID) => {
       location: userCaller.location,
       coverImage: userCaller.coverImage,
       alias: userCaller.alias,
+      about: userCaller.about,
+      experiences: userCaller.experiences,
     };
 
     return {
@@ -363,7 +367,40 @@ const getPostShare_Service = async (id, callerID) => {
       message: 'Post found',
       content: {
         userInfo,
-        post: share,
+        post: {
+          ...post.toObject(),
+          _id: share._id,
+          owner: {
+            id: post.user._id,
+            username: post.user.username,
+            userImage: post.user.userImage,
+            isFollowing: post.user.followers.some((follower) => follower.toString() === callerID),
+            followers: post.user.followers,
+            following: post.user.following,
+            posts: post.user.posts,
+          },
+          shares: undefined,
+          user: {
+            id: user._id,
+            username: user.username,
+            userImage: user.userImage,
+            isFollowing: user.followers.some((follower) => follower.toString() === callerID),
+            followers: user.followers,
+            following: user.following,
+            posts: user.posts,
+          },
+          link,
+          postCreatedAt: post.createdAt,
+          postUpdatedAt: post.updatedAt,
+          postID: post._id,
+          createdAt: share.createdAt,
+          views: share.views,
+          updatedAt: share.updatedAt,
+          isLiked: checkLiked,
+          PostShared: true,
+          likes: likeArr,
+          comments: commentArr,
+        },
       },
     };
   } catch (error) {
@@ -523,6 +560,8 @@ const loadAllPost_Service = async (callerID) => {
       location: user.location,
       coverImage: user.coverImage,
       alias: user.alias,
+      about: user.about,
+      experiences: user.experiences,
     };
 
     return {
@@ -611,8 +650,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
           }
         }
 
-        const checkLiked = post.likes.some((like) => like.user.toString() === callerID);
-        const checkShared = post.shares.some((share) => share.user.toString() === callerID);
+        const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);
+        const checkShared = post.shares.some((share) => share?.user?.toString() === callerID);
         const checkSaved = userSave.favorites.some((postSaved) => postSaved._id.toString() === post._id.toString());
 
         post = post.toObject();
@@ -656,7 +695,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         }
 
         const postLike = await share.populate('likes');
-        const checkLiked = postLike.likes.some((like) => like.user.toString() === callerID);
+        const checkLiked = postLike.likes.some((like) => like?.user?.toString() === callerID);
 
         const { _id, createdAt, updatedAt, views, likes, comments } = share;
 
@@ -715,6 +754,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       location: owner.location,
       coverImage: owner.coverImage,
       alias: owner.alias,
+      about: owner.about,
+      experiences: owner.experiences,
     };
 
     const userInfo = {
@@ -736,6 +777,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       location: user.location,
       coverImage: user.coverImage,
       alias: user.alias,
+      about: user.about,
+      experiences: user.experiences,
     };
 
     return {
@@ -754,50 +797,44 @@ const getPostByUser_Service = async (callerID, ownerID) => {
 };
 
 const deletePost_Service = async (id, userID) => {
-  //Find post
-  const post = await Post.GetPost(id);
-  const user = await User.GetUser(userID);
-
-  //Check user
-  if (post.user._id.toString() !== userID) {
-    return {
-      status: STATUS_CODE.BAD_REQUEST,
-      success: false,
-      message: 'User is not the owner of this post',
-    };
-  }
-
   try {
-    // Remove every like of this post
-    await post.likes.map(async (like) => {
-      await Like.DeleteLike(like);
-    });
+    // Find post and user
+    const post = await Post.GetPost(id);
+    const user = await User.GetUser(userID);
 
-    // Remove every comment of this post
-    await post.comments.map(async (comment) => {
-      await Comment.DeleteComment(comment);
-    });
+    // Check if the user is the owner of the post
+    if (post.user._id.toString() !== userID) {
+      return {
+        status: STATUS_CODE.BAD_REQUEST,
+        success: false,
+        message: 'User is not the owner of this post',
+      };
+    }
 
-    // Remove every share of this post
-    await post.shares.map(async (share) => {
-      await Share.DeleteShare(share);
-    });
+    // Delete every like of this post
+    await Promise.all(post.likes.map((like) => Like.DeleteLike(like)));
+
+    // Delete every comment of this post
+    await Promise.all(post.comments.map((comment) => Comment.DeleteComment(comment)));
+
+    // Delete every share of this post
+    await Promise.all(post.shares.map((share) => Share.DeleteShare(share)));
 
     // Remove every favorite of this post in every user
     const users = await User.GetAllUsers();
-    await users.map(async (user) => {
-      await user.favorites.map(async (favorite) => {
-        if (favorite.toString() === id) {
-          await user.RemoveFavorite(favorite);
-        }
-      });
-    });
+    await Promise.all(
+      users.map(async (user) => {
+        const favorites = user.favorites.filter((favorite) => favorite.toString() === id);
+        await user.RemoveFavorites(favorites);
+      }),
+    );
 
-    // Remove post in user
+    // Remove post from user
     await user.RemovePost(post);
 
-    //Delete post
+    // Delete post
     const result = await Post.DeletePost(id);
+
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
@@ -810,18 +847,20 @@ const deletePost_Service = async (id, userID) => {
 };
 
 const handleLikePost_Service = async (id, userID) => {
-  //Find post
-  let post = await Post.GetPost(id);
-  post = await post.populate('likes');
+  try {
+    // Find post
+    let post = await Post.GetPost(id);
+    post = await post.populate('likes');
 
-  //Check user liked
-  if (post.likes.filter((like) => like.user.toString() === userID).length > 0) {
-    //Remove like
-    const like = await Like.GetLikeByPostAndUser(id, userID);
-    await post.RemoveLike(like);
-    await Like.DeleteLike(like._id);
+    // Check if the user has already liked the post
+    const userLiked = post.likes.some((like) => like?.user?.toString() === userID);
 
-    try {
+    if (userLiked) {
+      // Unlike post
+      const like = await Like.GetLikeByPostAndUser(id, userID);
+      await post.RemoveLike(like);
+      await Like.DeleteLike(like._id);
+
       const result = await post.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -829,15 +868,11 @@ const handleLikePost_Service = async (id, userID) => {
         message: 'Post unliked successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
-    }
-  } else {
-    //Add like
-    const like = await Like.SaveLike(userID, id);
-    await post.SaveLike(like);
+    } else {
+      // Like post
+      const like = await Like.SaveLike(userID, id);
+      await post.SaveLike(like);
 
-    try {
       const result = await post.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -845,40 +880,39 @@ const handleLikePost_Service = async (id, userID) => {
         message: 'Post liked successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
     }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 
 const handleSharePost_Service = async (id, userID) => {
-  //Find post
-  let post = await Post.GetPost(id);
-  post = await post.populate('shares');
-  const user = await User.GetUser(userID);
+  try {
+    // Find post
+    let post = await Post.GetPost(id);
+    post = await post.populate('shares');
+    const user = await User.GetUser(userID);
 
-  //Check user shared
-  if (post.shares.filter((share) => share.user.toString() === userID).length > 0) {
-    // Remove every like of this share
-    const shareObject = await Share.GetShareByPostAndUser(id, userID);
-    const shareLike = await shareObject.populate('likes');
-    shareLike.likes.forEach(async (like) => {
-      await Like.DeleteLike(like._id);
-    });
+    // Check if the user has already shared the post
+    const userShared = post.shares.some((share) => share?.user?.toString() === userID);
 
-    // Remove every comment of this share
-    const shareComment = await shareObject.populate('comments');
-    shareComment.comments.forEach(async (comment) => {
-      await Comment.DeleteComment(comment._id);
-    });
+    if (userShared) {
+      // Unshare post
+      const shareObject = await Share.GetShareByPostAndUser(id, userID);
+      const shareLike = await shareObject.populate('likes');
+      shareLike.likes.forEach(async (like) => {
+        await Like.DeleteLike(like._id);
+      });
 
-    //Remove share
-    const share = await Share.GetShareByPostAndUser(id, userID);
-    await post.RemoveShare(share);
-    await user.RemoveShare(share);
-    await Share.DeleteShare(share._id);
+      const shareComment = await shareObject.populate('comments');
+      shareComment.comments.forEach(async (comment) => {
+        await Comment.DeleteComment(comment._id);
+      });
 
-    try {
+      await post.RemoveShare(shareObject);
+      await user.RemoveShare(shareObject);
+      await Share.DeleteShare(shareObject._id);
+
       const result = await post.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -886,16 +920,12 @@ const handleSharePost_Service = async (id, userID) => {
         message: 'Post unshared successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
-    }
-  } else {
-    //Add share
-    const share = await Share.SaveShare(userID, id);
-    await post.SaveShare(share);
-    await user.SaveShare(share);
+    } else {
+      // Share post
+      const share = await Share.SaveShare(userID, id);
+      await post.SaveShare(share);
+      await user.SaveShare(share);
 
-    try {
       const result = await post.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -903,24 +933,26 @@ const handleSharePost_Service = async (id, userID) => {
         message: 'Post shared successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
     }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 
 const handleFavoritePost_Service = async (id, userID) => {
-  //Find post
-  let post = await Post.GetPost(id);
-  let user = await User.GetUser(userID);
-  user = await user.populate('favorites');
+  try {
+    // Find post
+    let post = await Post.GetPost(id);
+    let user = await User.GetUser(userID);
+    user = await user.populate('favorites');
 
-  //Check user shared
-  if (user.favorites.filter((favorite) => favorite._id?.toString() === id).length > 0) {
-    //Remove favorite
-    await user.RemoveFavorite(post);
+    // Check if the post is already in user's favorites
+    const postInFavorites = user.favorites.some((favorite) => favorite._id?.toString() === id);
 
-    try {
+    if (postInFavorites) {
+      // Remove favorite
+      await user.RemoveFavorite(post);
+
       const result = await user.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -928,14 +960,10 @@ const handleFavoritePost_Service = async (id, userID) => {
         message: 'Post unfavorited successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
-    }
-  } else {
-    //Add favorite
-    await user.SaveFavorite(post);
+    } else {
+      // Add favorite
+      await user.SaveFavorite(post);
 
-    try {
       const result = await user.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -943,24 +971,24 @@ const handleFavoritePost_Service = async (id, userID) => {
         message: 'Post favorited successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
     }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 
 const commentPost_Service = async (id, userID, contentComment) => {
-  //Find post
-  let post = await Post.GetPost(id);
-
-  const commentContent = {
-    user: userID,
-    content: contentComment,
-    post: id,
-  };
-
   try {
-    //Add comment
+    // Find post
+    let post = await Post.GetPost(id);
+
+    const commentContent = {
+      user: userID,
+      content: contentComment,
+      post: id,
+    };
+
+    // Add comment
     const comment = await Comment.SaveComment(commentContent);
     await post.SaveComment(comment);
 
@@ -977,19 +1005,18 @@ const commentPost_Service = async (id, userID, contentComment) => {
 };
 
 const replyComment_Service = async (id, userID, contentComment, idComment) => {
-  //Find post
-  let post = await Post.GetPost(id);
-  post = await post.populate('comments');
-
-  const commentContent = {
-    user: userID,
-    content: contentComment,
-    post: id,
-    isReply: true,
-  };
-
   try {
-    //Add comment
+    // Find post
+    let post = await Post.GetPost(id);
+
+    const commentContent = {
+      user: userID,
+      content: contentComment,
+      post: id,
+      isReply: true,
+    };
+
+    // Add comment
     const comment = await Comment.SaveComment(commentContent);
     await post.SaveComment(comment);
 
@@ -1010,31 +1037,38 @@ const replyComment_Service = async (id, userID, contentComment, idComment) => {
 };
 
 const deleteComment_Service = async (id, userID, idComment) => {
-  //Find post
-  let post = await Post.GetPost(id);
-  post = await post.populate('comments');
-
   try {
-    //Find comment on post
-    const commentFind = post.comments.filter((comment) => comment._id.toString() === idComment)[0];
+    // Find post
+    let post = await Post.GetPost(id);
 
-    // Find any comment if it has this comment on list reply
-    const comments = await Comment.GetComments();
-    const commentsReply = comments.filter((comment) => comment.listReply.indexOf(idComment) !== -1);
+    // Find comment on post
+    const commentFind = post.comments.find((comment) => comment._id.toString() === idComment);
 
-    // Remove comment on list reply
-    commentsReply.forEach(async (comment) => {
+    if (!commentFind) {
+      return {
+        status: STATUS_CODE.BAD_REQUEST,
+        success: false,
+        message: 'Comment not found',
+      };
+    }
+
+    // Find any comment if it has this comment on the list of replies
+    const commentsReply = await Comment.GetCommentHasReply(idComment);
+
+    // Remove comment from the list of replies in other comments
+    for (const comment of commentsReply) {
       await comment.RemoveReplyComment(idComment);
-    });
+      await comment.save();
+    }
 
-    // Remove any comment that exists on commentFind's list reply
-    commentFind.listReply.forEach(async (idComment) => {
-      const comment = await Comment.GetComment(idComment);
-      await Comment.DeleteComment(idComment);
-      await post.RemoveComment(comment);
-    });
+    // Remove comments that exist in the list of replies of the comment being deleted
+    for (const replyId of commentFind.listReply) {
+      const replyComment = await Comment.GetComment(replyId);
+      await Comment.DeleteComment(replyId);
+      await post.RemoveComment(replyComment);
+    }
 
-    //Remove comment
+    // Remove comment
     await post.RemoveComment(commentFind);
     await Comment.DeleteComment(idComment);
 
@@ -1042,7 +1076,7 @@ const deleteComment_Service = async (id, userID, idComment) => {
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
-      message: 'Post commented successfully',
+      message: 'Comment deleted successfully',
       content: result,
     };
   } catch (error) {
@@ -1051,18 +1085,20 @@ const deleteComment_Service = async (id, userID, idComment) => {
 };
 
 const handleLikePostShare_Service = async (userID, idShare) => {
-  //Find share
-  let share = await Share.GetShare(idShare);
-  share = await share.populate('likes');
+  try {
+    // Find share
+    let share = await Share.GetShare(idShare);
+    share = await share.populate('likes');
 
-  //Check user liked
-  if (share.likes.filter((like) => like.user.toString() === userID).length > 0) {
-    //Remove like
+    // Check if the user has already liked the share
     const like = await Like.GetLikeBySharePostAndUser(idShare, userID);
-    await share.RemoveLike(like);
-    await Like.DeleteLike(like._id);
+    const hasLiked = !!like;
 
-    try {
+    if (hasLiked) {
+      // User has already liked the share, remove the like
+      await share.RemoveLike(like);
+      await Like.DeleteLike(like._id);
+
       const result = await share.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -1070,15 +1106,11 @@ const handleLikePostShare_Service = async (userID, idShare) => {
         message: 'Post unliked successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
-    }
-  } else {
-    //Add like
-    const like = await Like.SaveLikeSharePost(userID, idShare);
-    await share.SaveLike(like);
+    } else {
+      // User has not liked the share, add the like
+      const newLike = await Like.SaveLikeSharePost(userID, idShare);
+      await share.SaveLike(newLike);
 
-    try {
       const result = await share.save();
       return {
         status: STATUS_CODE.SUCCESS,
@@ -1086,24 +1118,24 @@ const handleLikePostShare_Service = async (userID, idShare) => {
         message: 'Post liked successfully',
         content: result,
       };
-    } catch (error) {
-      return handleError(error, STATUS_CODE.SERVER_ERROR);
     }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
 };
 
 const commentPostShare_Service = async (userID, idShare, contentComment) => {
-  //Find share
-  let share = await Share.GetShare(idShare);
-
-  const commentContent = {
-    user: userID,
-    content: contentComment,
-    postShare: idShare,
-  };
-
   try {
-    //Add comment
+    // Find share
+    let share = await Share.GetShare(idShare);
+
+    const commentContent = {
+      user: userID,
+      content: contentComment,
+      postShare: idShare,
+    };
+
+    // Add comment
     const comment = await Comment.SaveComment(commentContent);
     await share.SaveComment(comment);
 
@@ -1120,19 +1152,19 @@ const commentPostShare_Service = async (userID, idShare, contentComment) => {
 };
 
 const replyCommentPostShare_Service = async (userID, idShare, contentComment, idComment) => {
-  //Find share
-  let share = await Share.GetShare(idShare);
-  share = await share.populate('comments');
-
-  const commentContent = {
-    user: userID,
-    content: contentComment,
-    postShare: idShare,
-    isReply: true,
-  };
-
   try {
-    //Add comment
+    // Find share
+    let share = await Share.GetShare(idShare);
+    share = await share.populate('comments');
+
+    const commentContent = {
+      user: userID,
+      content: contentComment,
+      postShare: idShare,
+      isReply: true,
+    };
+
+    // Add comment
     const comment = await Comment.SaveComment(commentContent);
     await share.SaveComment(comment);
 
@@ -1153,83 +1185,201 @@ const replyCommentPostShare_Service = async (userID, idShare, contentComment, id
 };
 
 const handleViewPost_Service = async (id, userID, res, req) => {
-  //Find post
-  const post = await Post.GetPost(id);
+  try {
+    // Find post
+    const post = await Post.GetPost(id);
 
-  if (!post) {
-    return {
-      status: STATUS_CODE.NOT_FOUND,
-      success: false,
-      message: 'Post not found',
-      content: null,
-    };
-  }
+    if (!post) {
+      return {
+        status: STATUS_CODE.NOT_FOUND,
+        success: false,
+        message: 'Post not found',
+        content: null,
+      };
+    }
 
-  let viewedPosts = req?.cookies?.viewedPosts || [];
-  if (viewedPosts.includes(post._id.toString())) {
+    // Check if the post has already been viewed
+    let viewedPosts = req?.cookies?.viewedPosts || [];
+    if (viewedPosts.includes(post._id.toString())) {
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Post viewed successfully',
+        content: post,
+      };
+    }
+
+    // Increase view count
+    await post.IncreaseView();
+
+    // Add post to viewedPosts
+    viewedPosts.push(post._id.toString());
+    res.cookie('viewedPosts', viewedPosts, {
+      maxAge: 12 * 60 * 60 * 1000, // 12 hours
+    });
+
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
       message: 'Post viewed successfully',
       content: post,
     };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
-
-  //Add view
-  await post.IncreaseView();
-
-  //Add post to viewedPosts
-  viewedPosts.push(post._id);
-  res.cookie('viewedPosts', [...viewedPosts, post._id], {
-    maxAge: 30 * 24 * 60 * 60,
-  });
-
-  return {
-    status: STATUS_CODE.SUCCESS,
-    success: true,
-    message: 'Post viewed successfully',
-    content: post,
-  };
 };
 
 const handleViewPostShare_Service = async (id, userID, res, req) => {
-  //Find post share
-  const post = await Share.GetShare(id);
+  try {
+    // Find post share
+    const post = await Share.GetShare(id);
 
-  if (!post) {
-    return {
-      status: STATUS_CODE.NOT_FOUND,
-      success: false,
-      message: 'Post not found',
-      content: null,
-    };
-  }
+    if (!post) {
+      return {
+        status: STATUS_CODE.NOT_FOUND,
+        success: false,
+        message: 'Post not found',
+        content: null,
+      };
+    }
 
-  let viewedPosts = req?.cookies?.viewedPosts || [];
-  if (viewedPosts.includes(post._id.toString())) {
+    // Check if the post has already been viewed
+    let viewedPosts = req?.cookies?.viewedPosts || [];
+    if (viewedPosts.includes(post._id.toString())) {
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Post viewed successfully',
+        content: post,
+      };
+    }
+
+    // Increase view count
+    await post.IncreaseView();
+
+    // Add post to viewedPosts
+    viewedPosts.push(post._id.toString());
+    res.cookie('viewedPosts', viewedPosts, {
+      maxAge: 12 * 60 * 60 * 1000, // 12 hours
+    });
+
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
       message: 'Post viewed successfully',
       content: post,
     };
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
   }
+};
 
-  //Add view
-  await post.IncreaseView();
+const handleLikeCommentPost_Service = async (userID, idComment) => {
+  try {
+    // Find comment
+    const comment = await Comment.GetComment(idComment);
 
-  //Add post to viewedPosts
-  viewedPosts.push(post._id);
-  res.cookie('viewedPosts', [...viewedPosts, post._id], {
-    maxAge: 30 * 24 * 60 * 60,
-  });
+    if (!comment) {
+      return {
+        status: STATUS_CODE.NOT_FOUND,
+        success: false,
+        message: 'Comment not found',
+        content: null,
+      };
+    }
 
-  return {
-    status: STATUS_CODE.SUCCESS,
-    success: true,
-    message: 'Post viewed successfully',
-    content: post,
-  };
+    // Check if the user has already liked the comment
+    const isLiked = comment.likes.find((like) => like?.user?.toString() === userID);
+
+    if (isLiked) {
+      // Unlike like
+      await comment.RemoveLikeComment(isLiked._id);
+      await Like.DeleteLike(isLiked._id);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment unliked successfully',
+        content: null,
+      };
+    } else {
+      // check if the user has already disliked the comment
+      const isDisliked = comment.dislikes.find((dislike) => dislike?.user?.toString() === userID);
+
+      if (isDisliked) {
+        // Remove dislike
+        await comment.RemoveDislikeComment(isDisliked._id);
+        await Like.DeleteLike(isDisliked._id);
+      }
+      // Like comment
+      const newLike = await Like.SaveLikeComment(userID, idComment);
+
+      await comment.LikeComment(newLike);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment liked successfully',
+        content: null,
+      };
+    }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
+const handleDislikeCommentPost_Service = async (userID, idComment) => {
+  try {
+    // Find comment
+    const comment = await Comment.GetComment(idComment);
+
+    if (!comment) {
+      return {
+        status: STATUS_CODE.NOT_FOUND,
+        success: false,
+        message: 'Comment not found',
+        content: null,
+      };
+    }
+
+    // Check if the user has already disliked the comment
+    const isDisliked = comment.dislikes.find((dislike) => dislike?.user?.toString() === userID);
+
+    if (isDisliked) {
+      // Remove dislike
+      await comment.RemoveDislikeComment(isDisliked._id);
+      await Like.DeleteLike(isDisliked._id);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment undisliked successfully',
+        content: null,
+      };
+    } else {
+      // check if the user has already liked the comment
+      const isLiked = comment.likes.find((like) => like?.user?.toString() === userID);
+
+      if (isLiked) {
+        // Remove like
+        await comment.RemoveLikeComment(isLiked._id);
+        await Like.DeleteLike(isLiked._id);
+      }
+      // Dislike comment
+      const newDislike = await Like.SaveLikeComment(userID, idComment);
+
+      await comment.DislikeComment(newDislike);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment disliked successfully',
+        content: null,
+      };
+    }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
 };
 
 module.exports = {
@@ -1251,4 +1401,6 @@ module.exports = {
   getPostShare_Service,
   handleViewPost_Service,
   handleViewPostShare_Service,
+  handleLikeCommentPost_Service,
+  handleDislikeCommentPost_Service,
 };

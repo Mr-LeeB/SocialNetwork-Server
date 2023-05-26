@@ -9,17 +9,13 @@ const UserSchema = new mongoose.Schema(
     firstname: {
       type: String,
       required: true,
-      maxlength: 16,
     },
     lastname: {
       type: String,
-      required: true,
-      maxlength: 16,
     },
     username: {
       type: String,
       required: true,
-      maxlength: 32,
     },
     email: {
       type: String,
@@ -57,6 +53,21 @@ const UserSchema = new mongoose.Schema(
     },
     alias: {
       type: String,
+      default: null,
+    },
+    about: {
+      type: String,
+      default: null,
+    },
+    experiences: {
+      type: [
+        {
+          jobName: String,
+          company: String,
+          startDate: Date,
+          endDate: Date,
+        },
+      ],
       default: null,
     },
     contacts: {

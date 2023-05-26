@@ -416,6 +416,52 @@ const handleViewPostShare = async (req, res) => {
   }
 };
 
+const handleLikeCommentPost = async (req, res) => {
+  const { idComment } = req.params;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.handleLikeCommentPost_Service(userID, idComment);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const handleDislikeCommentPost = async (req, res) => {
+  const { idComment } = req.params;
+
+  const userID = req.id;
+
+  try {
+    // Call service
+    const result = await postService.handleDislikeCommentPost_Service(userID, idComment);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   upPost,
   getPost,
@@ -435,4 +481,6 @@ module.exports = {
   getPostShare,
   handleViewPost,
   handleViewPostShare,
+  handleLikeCommentPost,
+  handleDislikeCommentPost,
 };

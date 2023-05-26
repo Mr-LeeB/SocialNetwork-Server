@@ -5,6 +5,7 @@ const client = require('../config/google-config');
 const transporter = require('../config/email-config');
 const crypto = require('crypto');
 const { default: axios } = require('axios');
+const qs = require('qs');
 
 const cache = {
   get: (key) => cache[key],
@@ -239,6 +240,75 @@ const login_GoogleV2_Service = async (token) => {
   };
 };
 
+const login_Github_Service = async (code) => {
+  const URL = 'https://github.com/login/oauth/access_token';
+  const options = {
+    client_id: process.env.GITHUB_CLIENT_ID,
+    client_secret: process.env.GITHUB_CLIENT_SECRET,
+    code: code,
+  };
+
+  const queryString = qs.stringify(options);
+
+  const { data } = await axios.post(`${URL}?${queryString}`, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+
+  const accessTokenGitHub = qs.parse(data).access_token;
+
+  const { data: user } = await axios.get('https://api.github.com/user', {
+    headers: {
+      Authorization: `Bearer ${accessTokenGitHub}`,
+    },
+  });
+
+  const {data:email} = await axios.get('https://api.github.com/user/emails', {
+    headers: {
+      Authorization: `Bearer ${accessTokenGitHub}`,
+    },
+  });
+
+  const userEmail = email[0].email;
+
+  // Check user exist
+  const userFind = await User.findOne({ email: userEmail });
+
+  if (!userFind) {
+    const newUser = new User({
+      email: userEmail,
+      firstname: user.name,
+      lastname: null,
+      userImage: user.avatar_url,
+      verified: true,
+      username: user.name,
+    });
+    await newUser.save();
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'User login successfully',
+      content: {
+        accessToken: newUser.accessToken,
+      },
+    };
+  }
+
+  // User exist
+  const accessToken = jwt.sign({ id: userFind._id }, process.env.ACCESS_TOKEN_SECRET);
+  await User.updateOne({ email: userEmail }, { accessToken: accessToken });
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'User login successfully',
+    content: {
+      accessToken: accessToken,
+    },
+  };
+};
+
 module.exports = {
   login_Service,
   login_Google_Callback_Service,
@@ -246,4 +316,5 @@ module.exports = {
   forgot_password_Service,
   verify_code_Service,
   login_GoogleV2_Service,
+  login_Github_Service,
 };

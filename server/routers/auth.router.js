@@ -14,6 +14,8 @@ authRouter.get('/auth/google/callback', authValidation.login_validation_Google, 
 
 authRouter.post('/auth/googleV2', authController.login_GoogleV2);
 
+authRouter.get('/auth/github', authController.login_Github);
+
 authRouter.post('/logout', checkAuthentication, authController.logout);
 
 authRouter.post('/forgot', authValidation.checkEmail_Empty, authController.forgot_password);
