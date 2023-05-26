@@ -74,8 +74,8 @@ const getPost_Service = async (id, callerID) => {
       }
     }
 
-    const checkLiked = post.likes.some((like) => like.user.toString() === callerID);
-    const checkShared = post.shares.some((share) => share.user.toString() === callerID);
+    const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);
+    const checkShared = post.shares.some((share) => share?.user?.toString() === callerID);
 
     const userSave = await user.populate('favorites');
     const checkSaved = userSave.favorites.some((postSaved) => postSaved._id.toString() === post._id.toString());
@@ -144,11 +144,27 @@ const getPost_Service = async (id, callerID) => {
           userImage: user.userImage,
         };
 
+        // check liked
+        const checkLiked = comment.likes.some((like) => like?.user?.toString() === callerID);
+        // check disliked
+        const checkDisliked = comment.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
+        comment = {
+          ...comment,
+          isLiked: checkLiked,
+          isDisliked: checkDisliked,
+        };
+
         const replyArr = await Promise.all(
           comment.listReply.map(async (reply) => {
             const commentReply = await Comment.GetCommentByID(reply);
+            // check liked
+            const checkLiked = commentReply.likes.some((like) => like?.user?.toString() === callerID);
+            // check disliked
+            const checkDisliked = commentReply.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
             return {
               ...commentReply.toObject(),
+              isLiked: checkLiked,
+              isDisliked: checkDisliked,
               user: {
                 id: commentReply.user._id,
                 username: commentReply.user.username,
@@ -162,6 +178,15 @@ const getPost_Service = async (id, callerID) => {
         return comment;
       }),
     );
+
+    // Sort comment by like amd dislike, the most liked will be on top, the most disliked will be on bottom
+    commentArr.sort((a, b) => {
+      if (!a || !b) return 0;
+      const aTotal = a.likes.length - a.dislikes.length;
+      const bTotal = b.likes.length - b.dislikes.length;
+
+      return bTotal - aTotal;
+    });
 
     post.comments = commentArr;
 
@@ -262,13 +287,25 @@ const getPostShare_Service = async (id, callerID) => {
           return null;
         }
 
+        // check liked
+        const checkLiked = commentPopulate.likes.some((like) => like?.user?.toString() === callerID);
+
+        // check disliked
+        const checkDisliked = commentPopulate.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
+
         const user = await User.GetUser(commentPopulate.user);
         const replyArr = await Promise.all(
           commentPopulate.listReply.map(async (reply) => {
             const commentReply = await Comment.GetCommentByID(reply);
             const replyUser = await User.GetUser(commentReply.user);
+            // check liked
+            const checkLiked = commentReply.likes.some((like) => like?.user?.toString() === callerID);
+            // check disliked
+            const checkDisliked = commentReply.dislikes.some((dislike) => dislike?.user?.toString() === callerID);
             return {
               ...commentReply.toObject(),
+              isLiked: checkLiked,
+              isDisliked: checkDisliked,
               user: {
                 id: replyUser._id,
                 username: replyUser.username,
@@ -280,6 +317,8 @@ const getPostShare_Service = async (id, callerID) => {
 
         return {
           ...commentPopulate.toObject(),
+          isLiked: checkLiked,
+          isDisliked: checkDisliked,
           user: {
             id: user._id,
             username: user.username,
@@ -289,6 +328,15 @@ const getPostShare_Service = async (id, callerID) => {
         };
       }),
     );
+
+    // Sort comment by like amd dislike, the most liked will be on top, the most disliked will be on bottom
+    commentArr.sort((a, b) => {
+      if (!a || !b) return 0;
+      const aTotal = a.likes.length - a.dislikes.length;
+      const bTotal = b.likes.length - b.dislikes.length;
+
+      return bTotal - aTotal;
+    });
 
     const userInfo = {
       id: userCaller._id,
@@ -602,8 +650,8 @@ const getPostByUser_Service = async (callerID, ownerID) => {
           }
         }
 
-        const checkLiked = post.likes.some((like) => like.user.toString() === callerID);
-        const checkShared = post.shares.some((share) => share.user.toString() === callerID);
+        const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);
+        const checkShared = post.shares.some((share) => share?.user?.toString() === callerID);
         const checkSaved = userSave.favorites.some((postSaved) => postSaved._id.toString() === post._id.toString());
 
         post = post.toObject();
@@ -647,7 +695,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         }
 
         const postLike = await share.populate('likes');
-        const checkLiked = postLike.likes.some((like) => like.user.toString() === callerID);
+        const checkLiked = postLike.likes.some((like) => like?.user?.toString() === callerID);
 
         const { _id, createdAt, updatedAt, views, likes, comments } = share;
 
@@ -805,7 +853,7 @@ const handleLikePost_Service = async (id, userID) => {
     post = await post.populate('likes');
 
     // Check if the user has already liked the post
-    const userLiked = post.likes.some((like) => like.user.toString() === userID);
+    const userLiked = post.likes.some((like) => like?.user?.toString() === userID);
 
     if (userLiked) {
       // Unlike post
@@ -846,7 +894,7 @@ const handleSharePost_Service = async (id, userID) => {
     const user = await User.GetUser(userID);
 
     // Check if the user has already shared the post
-    const userShared = post.shares.some((share) => share.user.toString() === userID);
+    const userShared = post.shares.some((share) => share?.user?.toString() === userID);
 
     if (userShared) {
       // Unshare post
@@ -1226,6 +1274,114 @@ const handleViewPostShare_Service = async (id, userID, res, req) => {
   }
 };
 
+const handleLikeCommentPost_Service = async (userID, idComment) => {
+  try {
+    // Find comment
+    const comment = await Comment.GetComment(idComment);
+
+    if (!comment) {
+      return {
+        status: STATUS_CODE.NOT_FOUND,
+        success: false,
+        message: 'Comment not found',
+        content: null,
+      };
+    }
+
+    // Check if the user has already liked the comment
+    const isLiked = comment.likes.find((like) => like?.user?.toString() === userID);
+
+    if (isLiked) {
+      // Unlike like
+      await comment.RemoveLikeComment(isLiked._id);
+      await Like.DeleteLike(isLiked._id);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment unliked successfully',
+        content: null,
+      };
+    } else {
+      // check if the user has already disliked the comment
+      const isDisliked = comment.dislikes.find((dislike) => dislike?.user?.toString() === userID);
+
+      if (isDisliked) {
+        // Remove dislike
+        await comment.RemoveDislikeComment(isDisliked._id);
+        await Like.DeleteLike(isDisliked._id);
+      }
+      // Like comment
+      const newLike = await Like.SaveLikeComment(userID, idComment);
+
+      await comment.LikeComment(newLike);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment liked successfully',
+        content: null,
+      };
+    }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
+const handleDislikeCommentPost_Service = async (userID, idComment) => {
+  try {
+    // Find comment
+    const comment = await Comment.GetComment(idComment);
+
+    if (!comment) {
+      return {
+        status: STATUS_CODE.NOT_FOUND,
+        success: false,
+        message: 'Comment not found',
+        content: null,
+      };
+    }
+
+    // Check if the user has already disliked the comment
+    const isDisliked = comment.dislikes.find((dislike) => dislike?.user?.toString() === userID);
+
+    if (isDisliked) {
+      // Remove dislike
+      await comment.RemoveDislikeComment(isDisliked._id);
+      await Like.DeleteLike(isDisliked._id);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment undisliked successfully',
+        content: null,
+      };
+    } else {
+      // check if the user has already liked the comment
+      const isLiked = comment.likes.find((like) => like?.user?.toString() === userID);
+
+      if (isLiked) {
+        // Remove like
+        await comment.RemoveLikeComment(isLiked._id);
+        await Like.DeleteLike(isLiked._id);
+      }
+      // Dislike comment
+      const newDislike = await Like.SaveLikeComment(userID, idComment);
+
+      await comment.DislikeComment(newDislike);
+
+      return {
+        status: STATUS_CODE.SUCCESS,
+        success: true,
+        message: 'Comment disliked successfully',
+        content: null,
+      };
+    }
+  } catch (error) {
+    return handleError(error, STATUS_CODE.SERVER_ERROR);
+  }
+};
+
 module.exports = {
   upPost_Service,
   getPost_Service,
@@ -1245,4 +1401,6 @@ module.exports = {
   getPostShare_Service,
   handleViewPost_Service,
   handleViewPostShare_Service,
+  handleLikeCommentPost_Service,
+  handleDislikeCommentPost_Service,
 };

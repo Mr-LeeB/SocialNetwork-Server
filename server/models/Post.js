@@ -79,25 +79,22 @@ PostSchema.statics = {
   },
   // Get post by id
   GetPost: async function (id) {
-    return this.findById(id).populate('user').populate('likes').populate('comments').populate('shares');
+    return this.findById(id)
+      .populate('user')
+      .populate('likes')
+      .populate({
+        path: 'comments',
+        populate: [{ path: 'user' }, { path: 'likes' }, { path: 'dislikes' }],
+      })
+      .populate('shares');
   },
   // Get post by user id and sort by createdAt, the latest post will be on top
   GetPostByUser: async function (id) {
-    return this.find({ user: id })
-      .sort({ createdAt: -1 })
-      .populate('user')
-      .populate('likes')
-      .populate('comments')
-      .populate('shares');
+    return this.find({ user: id }).sort({ createdAt: -1 }).populate('user').populate('likes').populate('shares');
   },
   // Get all posts and sort by createdAt, the latest post will be on top
   GetPosts: async function () {
-    return this.find()
-      .sort({ createdAt: -1 })
-      .populate('user')
-      .populate('likes')
-      .populate('comments')
-      .populate('shares');
+    return this.find().sort({ createdAt: -1 }).populate('user').populate('likes').populate('shares');
   },
   UpdatePost: async function (id, post) {
     return this.findOneAndUpdate({ _id: id }, { $set: post });

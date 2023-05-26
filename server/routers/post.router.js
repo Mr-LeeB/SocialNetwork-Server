@@ -86,5 +86,8 @@ postRouter.post(
   postController.handleViewPostShare
 )
 
+postRouter.post("/comment/:idComment/like", checkAuthentication, postController.handleLikeCommentPost)
+
+postRouter.post("/comment/:idComment/dislike", checkAuthentication, postController.handleDislikeCommentPost)
 
 module.exports = postRouter;
