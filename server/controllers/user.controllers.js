@@ -172,6 +172,26 @@ const getShouldFollow = async (req, res) => {
   }
 };
 
+const getRepositoryGithub = async (req, res) => {
+  const access_token_github = req.header('access_token_github');
+
+  try {
+    // Call service
+    const result = await userService.getRepositoryGithub_Service(access_token_github);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+}
+
 module.exports = {
   registerUser,
   findUserByID,
@@ -180,4 +200,5 @@ module.exports = {
   getFollowed,
   followUser,
   getShouldFollow,
+  getRepositoryGithub,
 };
