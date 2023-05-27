@@ -60,13 +60,13 @@ LikeSchema.statics = {
     return this.find({ user: userID }).populate('post');
   },
   GetLikeByPostAndUser: async function (postID, userID) {
-    return this.find({ user: userID, post: postID });
+    return this.findOne({ user: userID, post: postID });
   },
   GetLikeBySharePostAndUser: async function (sharepostID, userID) {
-    return this.find({ user: userID, sharepost: sharepostID });
+    return this.findOne({ user: userID, sharepost: sharepostID });
   },
   GetLikeByCommentAndUser: async function (commentID, userID) {
-    return this.find({ user: userID, comment: commentID });
+    return this.findOne({ user: userID, comment: commentID });
   },
 };
 
