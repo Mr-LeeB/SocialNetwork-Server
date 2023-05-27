@@ -62,10 +62,10 @@ const UserSchema = new mongoose.Schema(
     experiences: {
       type: [
         {
-          jobName: String,
-          company: String,
-          startDate: Date,
-          endDate: Date,
+          positionName: String,
+          companyName: String,
+          startDate: String,
+          endDate: String,
         },
       ],
       default: null,

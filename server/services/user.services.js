@@ -1,7 +1,7 @@
 const { User } = require('../models/User');
 const STATUS_CODE = require('../util/SettingSystem');
 const _ = require('lodash');
-const axios = require('axios');
+const { default: axios } = require('axios');
 
 const registerUser_Service = async (user) => {
   const { firstname, lastname, email, password } = user;
@@ -407,29 +407,54 @@ const getShouldFollow_Service = async (userID) => {
 };
 
 const getRepositoryGithub_Service = async (access_token_github) => {
-  const result = await axios.get('https://api.github.com/user/repos', {
+  const { data: result } = await axios.get('https://api.github.com/user/repos', {
     headers: {
       Authorization: `Bearer ${access_token_github}`,
       Accept: 'application/vnd.github.v3+json',
     },
   });
 
-  if (result.status === STATUS_CODE.SUCCESS) {
-    return {
-      status: STATUS_CODE.SUCCESS,
-      success: true,
-      message: 'Get repository successfully',
-      content: {
-        repository: result.data,
-      },
-    };
-  } else {
-    return {
-      status: STATUS_CODE.BAD_REQUEST,
-      success: false,
-      message: 'Get repository failed',
-    };
-  }
+  // Remove unnecessary information
+  const repositories = Promise.all(
+    result.map(async (repository) => {
+      const { data } = await axios.get(repository.languages_url, {
+        headers: {
+          Authorization: `Bearer ${access_token_github}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
+
+      
+      return {
+        id: repository.id,
+        name: repository.name,
+        description: repository.description,
+        url: repository.html_url,
+        watchersCount: repository.watchers_count,
+        forksCount: repository.forks_count,
+        stargazersCount: repository.stargazers_count,
+        languageURL: data,
+      };
+    }),
+  );
+
+  console.log(repositories);
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Get repository successfully',
+    content: {
+      repository: repositories,
+    },
+  };
+  // } else {
+  //   return {
+  //     status: STATUS_CODE.BAD_REQUEST,
+  //     success: false,
+  //     message: 'Get repository failed',
+  //   };
+  // }
 };
 
 module.exports = {
