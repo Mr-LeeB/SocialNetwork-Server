@@ -415,7 +415,7 @@ const getRepositoryGithub_Service = async (access_token_github) => {
   });
 
   // Remove unnecessary information
-  const repositories = Promise.all(
+  Promise.resolve(
     result.map(async (repository) => {
       const { data } = await axios.get(repository.languages_url, {
         headers: {
@@ -424,7 +424,6 @@ const getRepositoryGithub_Service = async (access_token_github) => {
         },
       });
 
-      
       return {
         id: repository.id,
         name: repository.name,
@@ -436,25 +435,16 @@ const getRepositoryGithub_Service = async (access_token_github) => {
         languageURL: data,
       };
     }),
-  );
-
-  console.log(repositories);
-
-  return {
-    status: STATUS_CODE.SUCCESS,
-    success: true,
-    message: 'Get repository successfully',
-    content: {
-      repository: repositories,
-    },
-  };
-  // } else {
-  //   return {
-  //     status: STATUS_CODE.BAD_REQUEST,
-  //     success: false,
-  //     message: 'Get repository failed',
-  //   };
-  // }
+  ).then((repositories) => {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Get repository successfully',
+      content: {
+        repository: repositories,
+      },
+    };
+  });
 };
 
 module.exports = {
