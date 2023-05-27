@@ -407,10 +407,9 @@ const getShouldFollow_Service = async (userID) => {
 };
 
 const getRepositoryGithub_Service = async (access_token_github) => {
-
   const result = await axios.get('https://api.github.com/user/repos', {
     headers: {
-      Authorization: `token ${access_token_github}`,
+      Authorization: `Bearer ${access_token_github}`,
       Accept: 'application/vnd.github.v3+json',
     },
   });
@@ -421,18 +420,17 @@ const getRepositoryGithub_Service = async (access_token_github) => {
       success: true,
       message: 'Get repository successfully',
       content: {
-        repository: result.data
-      }
-    }
+        repository: result.data,
+      },
+    };
   } else {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
       message: 'Get repository failed',
-    }
+    };
   }
-}
-
+};
 
 module.exports = {
   registerUser_Service,

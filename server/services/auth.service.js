@@ -291,6 +291,7 @@ const login_Github_Service = async (code) => {
       message: 'User login successfully',
       content: {
         accessToken: newUser.accessToken,
+        accessTokenGitHub: accessTokenGitHub,
       },
     };
   }
@@ -305,6 +306,7 @@ const login_Github_Service = async (code) => {
     message: 'User login successfully',
     content: {
       accessToken: accessToken,
+      accessTokenGitHub: accessTokenGitHub,
     },
   };
 };
