@@ -820,15 +820,6 @@ const deletePost_Service = async (id, userID) => {
     // Delete every share of this post
     await Promise.all(post.shares.map((share) => Share.DeleteShare(share)));
 
-    // Remove every favorite of this post in every user
-    const users = await User.GetAllUsers();
-    await Promise.all(
-      users.map(async (user) => {
-        const favorites = user.favorites.filter((favorite) => favorite.toString() === id);
-        await user.RemoveFavorites(favorites);
-      }),
-    );
-
     // Remove post from user
     await user.RemovePost(post);
 
