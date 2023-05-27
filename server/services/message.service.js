@@ -60,7 +60,7 @@ const createMessage_Service = async (message) => {
     if (user._id && user._id.toString() !== sender.toString()) {
       let channel_name = user._id;
       channel_name = channel_name.toString();
-      pusherServer.trigger(channel_name, 'conversation-update-header', {
+      pusherServer.trigger(channel_name, 'conversation-update-noti', {
         id: conversationID,
         messages: [lastMessage],
       });
