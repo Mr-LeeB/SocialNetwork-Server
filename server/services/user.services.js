@@ -1,17 +1,10 @@
 const { User } = require('../models/User');
 const STATUS_CODE = require('../util/SettingSystem');
 const _ = require('lodash');
+const axios = require('axios');
 
 const registerUser_Service = async (user) => {
   const { firstname, lastname, email, password } = user;
-
-  // let location = ''
-
-  //   await axios
-  //     .get(`https://ipgeolocation.abstractapi.com/v1/?api_key=${process.env.ABSTRACT_API_KEY}`)
-  //     .then((response) => {
-  //       location = response.data.city;
-  //     });
 
   // Check for existing user
   const userFind = await User.CheckEmail(email);
@@ -413,6 +406,34 @@ const getShouldFollow_Service = async (userID) => {
   };
 };
 
+const getRepositoryGithub_Service = async (access_token_github) => {
+
+  const result = await axios.get('https://api.github.com/user/repos', {
+    headers: {
+      Authorization: `token ${access_token_github}`,
+      Accept: 'application/vnd.github.v3+json',
+    },
+  });
+
+  if (result.status === STATUS_CODE.SUCCESS) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Get repository successfully',
+      content: {
+        repository: result.data
+      }
+    }
+  } else {
+    return {
+      status: STATUS_CODE.BAD_REQUEST,
+      success: false,
+      message: 'Get repository failed',
+    }
+  }
+}
+
+
 module.exports = {
   registerUser_Service,
   findUserByID_Service,
@@ -421,4 +442,5 @@ module.exports = {
   getFollowed_Service,
   followUser_Service,
   getShouldFollow_Service,
+  getRepositoryGithub_Service,
 };
