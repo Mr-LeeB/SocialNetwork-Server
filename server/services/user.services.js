@@ -414,6 +414,14 @@ const getRepositoryGithub_Service = async (access_token_github) => {
     },
   });
 
+  if (!result) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'User does not exist!',
+    };
+  }
+
   // Remove unnecessary information
   const repos = await Promise.all(result.map(async (repository) => {
     const { data } = await axios.get(repository.languages_url, {
@@ -426,24 +434,22 @@ const getRepositoryGithub_Service = async (access_token_github) => {
     return {
       id: repository.id,
       name: repository.name,
-      description: repository.description,
+      private: repository.private,
       url: repository.html_url,
       watchersCount: repository.watchers_count,
       forksCount: repository.forks_count,
       stargazersCount: repository.stargazers_count,
-      languages: data,
+      languages: Object.keys(data)[0],
     };
   }));
-  console.log(repos);
-  // return {
-  //   status: STATUS_CODE.SUCCESS,
-  //   success: true,
-  //   message: 'Get repository successfully',
-  //   content: {
-  //     repository: repositories,
-  //   },
-  // };
-  // });
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Get repository successfully',
+    content: {
+      repository: repos,
+    },
+  };
 
 };
 
