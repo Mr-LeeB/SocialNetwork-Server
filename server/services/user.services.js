@@ -414,37 +414,43 @@ const getRepositoryGithub_Service = async (access_token_github) => {
     },
   });
 
-  // Remove unnecessary information
-  Promise.resolve(
-    result.map(async (repository) => {
-      const { data } = await axios.get(repository.languages_url, {
-        headers: {
-          Authorization: `Bearer ${access_token_github}`,
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
-
-      return {
-        id: repository.id,
-        name: repository.name,
-        description: repository.description,
-        url: repository.html_url,
-        watchersCount: repository.watchers_count,
-        forksCount: repository.forks_count,
-        stargazersCount: repository.stargazers_count,
-        languageURL: data,
-      };
-    }),
-  ).then((repositories) => {
+  if (!result) {
     return {
-      status: STATUS_CODE.SUCCESS,
-      success: true,
-      message: 'Get repository successfully',
-      content: {
-        repository: repositories,
-      },
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'User does not exist!',
     };
-  });
+  }
+
+  // Remove unnecessary information
+  const repos = await Promise.all(result.map(async (repository) => {
+    const { data } = await axios.get(repository.languages_url, {
+      headers: {
+        Authorization: `Bearer ${access_token_github}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    return {
+      id: repository.id,
+      name: repository.name,
+      private: repository.private,
+      url: repository.html_url,
+      watchersCount: repository.watchers_count,
+      forksCount: repository.forks_count,
+      stargazersCount: repository.stargazers_count,
+      languages: Object.keys(data)[0],
+    };
+  }));
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Get repository successfully',
+    content: {
+      repository: repos,
+    },
+  };
+
 };
 
 module.exports = {
