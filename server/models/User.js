@@ -80,7 +80,7 @@ const UserSchema = new mongoose.Schema(
           watchersCount: Number,
           forksCount: Number,
           stargazersCount: Number,
-          language: String,
+          languages: String,
         },
       ],
       default: null,
