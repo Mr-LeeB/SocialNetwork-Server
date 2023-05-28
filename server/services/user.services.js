@@ -71,6 +71,7 @@ const findUserByID_Service = async (userID) => {
           alias: userFind.alias,
           about: userFind.about,
           experiences: userFind.experiences,
+          repositories: userFind.repositories,
         },
       },
     };
@@ -116,6 +117,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         alias: user.alias,
         about: user.about,
         experiences: user.experiences,
+        repositories: user.repositories,
       },
       userInfo: {
         id: user._id,
@@ -138,6 +140,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         alias: user.alias,
         about: user.about,
         experiences: user.experiences,
+        repositories: user.repositories,
       },
     },
   };
@@ -182,6 +185,7 @@ const expertise_Service = async (userID, expertise) => {
         alias: user.alias,
         about: user.about,
         experiences: user.experiences,
+        repositories: user.repositories,
       },
     },
   };
@@ -249,6 +253,7 @@ const getFollowed_Service = async (userID) => {
     alias: user.alias,
     about: user.about,
     experiences: user.experiences,
+    repositories: user.repositories,
   };
 
   return {
@@ -381,6 +386,7 @@ const getShouldFollow_Service = async (userID) => {
     alias: user.alias,
     about: user.about,
     experiences: user.experiences,
+    repositories: user.repositories,
   };
 
   if (shouldFollowExpertiseSorted.length === 0) {

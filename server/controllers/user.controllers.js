@@ -54,8 +54,20 @@ const findUserByID = async (req, res) => {
 const UpdateUser = async (req, res) => {
   const { id } = req.params;
 
-  const { firstname, lastname, tags, contacts, username, userImage, coverImage, alias, location, about, experiences } =
-    req.body;
+  const {
+    firstname,
+    lastname,
+    tags,
+    contacts,
+    username,
+    userImage,
+    coverImage,
+    alias,
+    location,
+    about,
+    experiences,
+    repositories,
+  } = req.body;
 
   const user = {
     firstname,
@@ -69,7 +81,10 @@ const UpdateUser = async (req, res) => {
     location,
     about,
     experiences,
+    repositories,
   };
+
+  console.log(req.body);
 
   try {
     // Call service
@@ -190,7 +205,7 @@ const getRepositoryGithub = async (req, res) => {
     console.log(error);
     res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
   }
-}
+};
 
 module.exports = {
   registerUser,

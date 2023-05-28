@@ -70,6 +70,21 @@ const UserSchema = new mongoose.Schema(
       ],
       default: null,
     },
+    repositories: {
+      type: [
+        {
+          id: Number,
+          name: String,
+          private: Boolean,
+          url: String,
+          watchersCount: Number,
+          forksCount: Number,
+          stargazersCount: Number,
+          language: String,
+        },
+      ],
+      default: null,
+    },
     contacts: {
       type: [{}],
       default: null,

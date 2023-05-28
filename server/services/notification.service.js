@@ -91,6 +91,7 @@ const getNotifications_Service = async (userID) => {
       alias: user.alias,
       about: user.about,
       experiences: user.experiences,
+      repositories: user.repositories,
     };
 
     return {
