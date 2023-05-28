@@ -179,6 +179,8 @@ const getRepositoryGithub = async (req, res) => {
     // Call service
     const result = await userService.getRepositoryGithub_Service(access_token_github);
 
+    return;
+
     // Return result
     const { status, success, message, content } = result;
     if (!success) {
