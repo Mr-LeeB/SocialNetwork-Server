@@ -84,8 +84,6 @@ const UpdateUser = async (req, res) => {
     repositories,
   };
 
-  console.log(req.body);
-
   try {
     // Call service
     const result = await userService.updateUser_Service(id, user);
