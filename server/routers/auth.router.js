@@ -3,7 +3,6 @@ const authRouter = express.Router();
 const authController = require('../controllers/auth.controllers');
 const authValidation = require('../middlewares/validations/auth.validation');
 const { checkAuthentication } = require('../middlewares/authentication/checkAuthentication');
-const { auth } = require('google-auth-library');
 
 authRouter.post('/login', authValidation.login_checkEmpty, authController.login);
 
