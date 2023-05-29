@@ -18,4 +18,6 @@ userRouter.post('/users/:id/follow', checkAuthentication, userController.followU
 
 userRouter.get('/user/shouldFollow', checkAuthentication, userController.getShouldFollow);
 
+userRouter.get('/user/github', checkAuthentication, userController.getRepositoryGithub);
+
 module.exports = userRouter;

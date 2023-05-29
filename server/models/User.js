@@ -62,10 +62,25 @@ const UserSchema = new mongoose.Schema(
     experiences: {
       type: [
         {
-          jobName: String,
-          company: String,
-          startDate: Date,
-          endDate: Date,
+          positionName: String,
+          companyName: String,
+          startDate: String,
+          endDate: String,
+        },
+      ],
+      default: null,
+    },
+    repositories: {
+      type: [
+        {
+          id: Number,
+          name: String,
+          private: Boolean,
+          url: String,
+          watchersCount: Number,
+          forksCount: Number,
+          stargazersCount: Number,
+          languages: String,
         },
       ],
       default: null,
@@ -184,11 +199,14 @@ UserSchema.methods = {
   GetNotifications: async function () {
     return this.populate('notifications');
   },
+  UpdateData: async function (data) {
+    return this.updateOne({ $set: data });
+  },
 };
 
 UserSchema.statics = {
   CheckEmail: async function (email) {
-    const user = await this.findOne({ email: email });
+    const user = await this.findOne({ email: email }).select('+password');
     return user === null ? false : user;
   },
   UpdateUser: async function (id, data) {

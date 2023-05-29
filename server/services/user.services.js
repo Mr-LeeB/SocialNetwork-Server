@@ -1,17 +1,10 @@
 const { User } = require('../models/User');
 const STATUS_CODE = require('../util/SettingSystem');
 const _ = require('lodash');
+const { default: axios } = require('axios');
 
 const registerUser_Service = async (user) => {
   const { firstname, lastname, email, password } = user;
-
-  // let location = ''
-
-  //   await axios
-  //     .get(`https://ipgeolocation.abstractapi.com/v1/?api_key=${process.env.ABSTRACT_API_KEY}`)
-  //     .then((response) => {
-  //       location = response.data.city;
-  //     });
 
   // Check for existing user
   const userFind = await User.CheckEmail(email);
@@ -78,6 +71,7 @@ const findUserByID_Service = async (userID) => {
           alias: userFind.alias,
           about: userFind.about,
           experiences: userFind.experiences,
+          repositories: userFind.repositories,
         },
       },
     };
@@ -123,6 +117,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         alias: user.alias,
         about: user.about,
         experiences: user.experiences,
+        repositories: user.repositories,
       },
       userInfo: {
         id: user._id,
@@ -145,6 +140,7 @@ const updateUser_Service = async (userID, userUpdate) => {
         alias: user.alias,
         about: user.about,
         experiences: user.experiences,
+        repositories: user.repositories,
       },
     },
   };
@@ -189,6 +185,7 @@ const expertise_Service = async (userID, expertise) => {
         alias: user.alias,
         about: user.about,
         experiences: user.experiences,
+        repositories: user.repositories,
       },
     },
   };
@@ -256,6 +253,7 @@ const getFollowed_Service = async (userID) => {
     alias: user.alias,
     about: user.about,
     experiences: user.experiences,
+    repositories: user.repositories,
   };
 
   return {
@@ -388,6 +386,7 @@ const getShouldFollow_Service = async (userID) => {
     alias: user.alias,
     about: user.about,
     experiences: user.experiences,
+    repositories: user.repositories,
   };
 
   if (shouldFollowExpertiseSorted.length === 0) {
@@ -413,6 +412,53 @@ const getShouldFollow_Service = async (userID) => {
   };
 };
 
+const getRepositoryGithub_Service = async (access_token_github) => {
+  const { data: result } = await axios.get('https://api.github.com/user/repos', {
+    headers: {
+      Authorization: `Bearer ${access_token_github}`,
+      Accept: 'application/vnd.github.v3+json',
+    },
+  });
+
+  if (!result) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'User does not exist!',
+    };
+  }
+
+  // Remove unnecessary information
+  const repos = await Promise.all(result.map(async (repository) => {
+    const { data } = await axios.get(repository.languages_url, {
+      headers: {
+        Authorization: `Bearer ${access_token_github}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    return {
+      id: repository.id,
+      name: repository.name,
+      private: repository.private,
+      url: repository.html_url,
+      watchersCount: repository.watchers_count,
+      forksCount: repository.forks_count,
+      stargazersCount: repository.stargazers_count,
+      languages: Object.keys(data)[0],
+    };
+  }));
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Get repository successfully',
+    content: {
+      repository: repos,
+    },
+  };
+
+};
+
 module.exports = {
   registerUser_Service,
   findUserByID_Service,
@@ -421,4 +467,5 @@ module.exports = {
   getFollowed_Service,
   followUser_Service,
   getShouldFollow_Service,
+  getRepositoryGithub_Service,
 };

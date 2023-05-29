@@ -18,7 +18,7 @@ const checkAuthentication = async (req, res, next) => {
     const { id } = decoded;
 
     //Check user
-    const user = await User.findById(id);
+    const user = await User.GetUser(id);
     if (!user) {
       return res.status(STATUS_CODE.BAD_REQUEST).send({
         authentication: false,

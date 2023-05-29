@@ -211,6 +211,7 @@ const getPost_Service = async (id, callerID) => {
       alias: user.alias,
       about: user.about,
       experiences: user.experiences,
+      repositories: user.repositories,
     };
 
     return {
@@ -359,6 +360,7 @@ const getPostShare_Service = async (id, callerID) => {
       alias: userCaller.alias,
       about: userCaller.about,
       experiences: userCaller.experiences,
+      repositories: userCaller.repositories,
     };
 
     return {
@@ -562,6 +564,7 @@ const loadAllPost_Service = async (callerID) => {
       alias: user.alias,
       about: user.about,
       experiences: user.experiences,
+      repositories: user.repositories,
     };
 
     return {
@@ -756,6 +759,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       alias: owner.alias,
       about: owner.about,
       experiences: owner.experiences,
+      repositories: owner.repositories,
     };
 
     const userInfo = {
@@ -779,6 +783,7 @@ const getPostByUser_Service = async (callerID, ownerID) => {
       alias: user.alias,
       about: user.about,
       experiences: user.experiences,
+      repositories: user.repositories,
     };
 
     return {
@@ -819,15 +824,6 @@ const deletePost_Service = async (id, userID) => {
 
     // Delete every share of this post
     await Promise.all(post.shares.map((share) => Share.DeleteShare(share)));
-
-    // Remove every favorite of this post in every user
-    const users = await User.GetAllUsers();
-    await Promise.all(
-      users.map(async (user) => {
-        const favorites = user.favorites.filter((favorite) => favorite.toString() === id);
-        await user.RemoveFavorites(favorites);
-      }),
-    );
 
     // Remove post from user
     await user.RemovePost(post);

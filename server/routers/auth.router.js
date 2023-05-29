@@ -22,6 +22,12 @@ authRouter.post('/forgot', authValidation.checkEmail_Empty, authController.forgo
 
 authRouter.post('/verify', authController.verify_code);
 
+authRouter.post('/checkVerify', authController.checkVerify);
+
+authRouter.post('/reset', authValidation.checkPassword_Empty, authController.reset_password);
+
+authRouter.post('/checkReset', authController.checkReset);
+
 authRouter.get('/getUserID', checkAuthentication, authController.getUserID);
 
 module.exports = authRouter;

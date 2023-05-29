@@ -16,7 +16,7 @@ const cache = {
 const generateCode = (email) => {
   const code = crypto.randomBytes(3).toString('hex');
   const timestamp = Date.now();
-  const expires = timestamp + 30 * 60 * 1000; // 30 minutes in milliseconds
+  const expires = timestamp + 10 * 60 * 1000; // 10 minutes in milliseconds
   return {
     code,
     email,
@@ -28,7 +28,7 @@ const generateCode = (email) => {
 const storeCache = (email) => {
   const code = generateCode(email);
   cache.set(email, code);
-  setTimeout(() => cache.del(email), 30 * 60 * 1000); // 30 minutes in milliseconds
+  setTimeout(() => cache.del(email), 10 * 60 * 1000); // 10 minutes in milliseconds
   return code.code;
 };
 
@@ -98,6 +98,7 @@ const login_Google_Callback_Service = async (code) => {
       userImage: user.picture,
       verified: user.email_verified,
     });
+
     await newUser.save();
     return {
       status: STATUS_CODE.SUCCESS,
@@ -181,17 +182,116 @@ const verify_code_Service = async (email, code) => {
   }
 
   //Check code
-  if (codeCache && codeCache.code === code && codeCache.expires > Date.now()) {
+  if (codeCache && codeCache.code === code && codeCache.expires > Date.now() && !codeCache.verified) {
+    cache.set(email, { ...codeCache, verified: true });
     return {
       status: STATUS_CODE.SUCCESS,
       success: true,
-      message: 'Code is valid',
+      message: 'Code is valid!',
     };
   } else {
     return {
       status: STATUS_CODE.BAD_REQUEST,
       success: false,
-      message: 'Code is invalid',
+      message: 'Code is invalid!',
+    };
+  }
+};
+
+const checkVerify_Service = async (email) => {
+  const codeCache = cache.get(email);
+
+  if (!codeCache) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'Code does not exist!',
+    };
+  }
+
+  //Check code
+  if (codeCache.verified || codeCache.expires < Date.now()) {
+    return {
+      status: STATUS_CODE.BAD_REQUEST,
+      success: false,
+      message: 'Code is expired or verified!',
+    };
+  }
+
+  return {
+    status: STATUS_CODE.SUCCESS,
+    success: true,
+    message: 'Code is exist!',
+  };
+};
+
+const reset_password_Service = async (email, password) => {
+  const cacheCode = cache.get(email);
+
+  if (!cacheCode) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'Code does not exist!',
+    };
+  }
+
+  //Check code
+  if (cacheCode && cacheCode.expires > Date.now() && cacheCode.verified) {
+    const user = await User.CheckEmail(email);
+
+    if (!user) {
+      return {
+        status: STATUS_CODE.NOT_FOUND,
+        success: false,
+        message: 'Email does not exist!',
+      };
+    }
+
+    //Update password
+    await user.UpdateData({ password: password, accessToken: null });
+
+    //Delete code
+    cache.del(email);
+
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Reset password successfully!',
+    };
+  } else {
+    cache.del(email);
+    return {
+      status: STATUS_CODE.BAD_REQUEST,
+      success: false,
+      message: 'Code is expired or not verified yet!',
+    };
+  }
+};
+
+const checkReset_Service = async (email) => {
+  const cacheCode = cache.get(email);
+
+  if (!cacheCode) {
+    return {
+      status: STATUS_CODE.NOT_FOUND,
+      success: false,
+      message: 'Code does not exist!',
+    };
+  }
+
+  //Check code
+  if (cacheCode && cacheCode.expires > Date.now() && cacheCode.verified) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'Code is valid!',
+    };
+  } else {
+    return {
+      status: STATUS_CODE.BAD_REQUEST,
+      success: false,
+      message: 'Code is expired or not verified yet!',
     };
   }
 };
@@ -264,7 +364,7 @@ const login_Github_Service = async (code) => {
     },
   });
 
-  const {data:email} = await axios.get('https://api.github.com/user/emails', {
+  const { data: email } = await axios.get('https://api.github.com/user/emails', {
     headers: {
       Authorization: `Bearer ${accessTokenGitHub}`,
     },
@@ -291,6 +391,7 @@ const login_Github_Service = async (code) => {
       message: 'User login successfully',
       content: {
         accessToken: newUser.accessToken,
+        accessTokenGitHub: accessTokenGitHub,
       },
     };
   }
@@ -305,6 +406,7 @@ const login_Github_Service = async (code) => {
     message: 'User login successfully',
     content: {
       accessToken: accessToken,
+      accessTokenGitHub: accessTokenGitHub,
     },
   };
 };
@@ -317,4 +419,7 @@ module.exports = {
   verify_code_Service,
   login_GoogleV2_Service,
   login_Github_Service,
+  reset_password_Service,
+  checkVerify_Service,
+  checkReset_Service,
 };

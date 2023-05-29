@@ -150,6 +150,26 @@ const verify_code = async (req, res) => {
   }
 };
 
+const checkVerify = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Call service
+    const result = await authService.checkVerify_Service(email);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
 const checkLogin = async (req, res) => {
   const userID = req.id;
 
@@ -178,6 +198,46 @@ const getUserID = async (req, res) => {
   });
 };
 
+const reset_password = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Call service
+    const result = await authService.reset_password_Service(email, password);
+
+    // Return result
+    const { status, success, message } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
+const checkReset = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Call service
+    const result = await authService.checkReset_Service(email);
+
+    // Return result
+    const { status, success, message, content } = result;
+    if (!success) {
+      return res.status(status).send({ success, message });
+    } else {
+      return res.status(status).send({ success, message, content });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   login,
   logout,
@@ -189,4 +249,7 @@ module.exports = {
   getUserID,
   login_GoogleV2,
   login_Github,
+  reset_password,
+  checkVerify,
+  checkReset,
 };
