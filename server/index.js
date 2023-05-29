@@ -5,9 +5,12 @@ const connectDB = require('./config/connectDB');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
+const { SenderMailServer } = require('./config/email-config');
 
 // Connect to database
 connectDB();
+// Set up mail server
+SenderMailServer();
 
 const app = express();
 app.use(cookieParser());
