@@ -24,13 +24,13 @@ router.use('/', communityRouter);
 
 router.use('/', notificationRouter);
 
-router.post('/pusher/auth', checkAuthentication, (req, res) => {
+router.post('/pusher/auth', checkAuthentication, async (req, res) => {
   const socketId = req.body.socket_id;
   const channel = req.body.channel_name;
   const presenceData = {
     user_id: req.id,
   };
-  const auth = pusherServer.authorizeChannel(socketId, channel, presenceData);
+  const auth = await pusherServer.authorizeChannel(socketId, channel, presenceData);
   res.send(auth);
 });
 

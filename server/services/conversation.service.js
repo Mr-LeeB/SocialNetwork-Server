@@ -25,11 +25,11 @@ const createConversation_Service = async (conversation) => {
     await newConversation.populate('users');
 
     // Update all connections with new conversation
-    newConversation.users.forEach((user) => {
+    newConversation.users.forEach(async (user) => {
       if (user._id) {
         let channel_name = user._id;
         channel_name = channel_name.toString();
-        pusherServer.trigger(channel_name, 'new-conversation', newConversation);
+        await pusherServer.trigger(channel_name, 'new-conversation', newConversation);
       }
     });
 
@@ -63,11 +63,11 @@ const createConversation_Service = async (conversation) => {
   await newConversation.populate('users');
 
   // Update all connections with new conversation
-  newConversation.users.forEach((user) => {
+  newConversation.users.forEach(async (user) => {
     if (user._id) {
       let channel_name = user._id;
       channel_name = channel_name.toString();
-      pusherServer.trigger(channel_name, 'new-conversation', newConversation);
+      await pusherServer.trigger(channel_name, 'new-conversation', newConversation);
     }
   });
 
@@ -126,11 +126,11 @@ const deleteConversation_Service = async (conversationID) => {
     };
   } else {
     // Update all connections with new conversation
-    conversationFind.users.forEach((user) => {
+    conversationFind.users.forEach(async (user) => {
       if (user._id) {
         let channel_name = user._id;
         channel_name = channel_name.toString();
-        pusherServer.trigger(channel_name, 'conversation-remove', conversationID);
+        await pusherServer.trigger(channel_name, 'conversation-remove', conversationID);
       }
     });
 

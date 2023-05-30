@@ -32,11 +32,11 @@ const createMessage_Service = async (message) => {
 
   const lastMessage = updatedConversation.messages[updatedConversation.messages.length - 1];
 
-  updatedConversation.users.forEach((user) => {
+  updatedConversation.users.forEach(async (user) => {
     if (user._id) {
       let channel_name = user._id;
       channel_name = channel_name.toString();
-      pusherServer.trigger(channel_name, 'conversation-update', {
+      await pusherServer.trigger(channel_name, 'conversation-update', {
         id: conversationID,
         messages: [lastMessage],
       });
@@ -44,11 +44,11 @@ const createMessage_Service = async (message) => {
   });
 
   if (image) {
-    updatedConversation.users.forEach((user) => {
+    updatedConversation.users.forEach(async (user) => {
       if (user._id) {
         let channel_name = user._id;
         channel_name = channel_name.toString();
-        pusherServer.trigger(channel_name, 'conversation-update-media', {
+        await pusherServer.trigger(channel_name, 'conversation-update-media', {
           id: conversationID,
           image: newMessage,
         });
@@ -56,11 +56,11 @@ const createMessage_Service = async (message) => {
     });
   }
 
-  updatedConversation.users.forEach((user) => {
+  updatedConversation.users.forEach(async (user) => {
     if (user._id && user._id.toString() !== sender.toString()) {
       let channel_name = user._id;
       channel_name = channel_name.toString();
-      pusherServer.trigger(channel_name, 'conversation-update-noti', {
+      await pusherServer.trigger(channel_name, 'conversation-update-noti', {
         id: conversationID,
         messages: [lastMessage],
       });
