@@ -33,19 +33,38 @@ MessageSchema.statics = {
     return newMessage.save();
   },
   GetMessage: async function (messageID) {
-    return this.findById(messageID).populate('sender').populate('seen');
+    return this.findById(messageID)
+      .populate({
+        path: 'seen',
+        select: '_id firstname lastname username email userImage',
+      })
+      .populate({
+        path: 'sender',
+        select: '_id firstname lastname username email userImage',
+      });
   },
   GetMessages: async function (conversationID) {
-    return this.find({ conversation: conversationID }).populate('sender').populate('seen').sort({ createdAt: 'asc' });
+    return this.find({ conversation: conversationID })
+      .populate({
+        path: 'seen',
+        select: '_id firstname lastname username email userImage',
+      })
+      .populate({
+        path: 'sender',
+        select: '_id firstname lastname username email userImage',
+      })
+      .sort({ createdAt: 'asc' });
   },
   UpdateMessage: async function (messageID, data) {
-    return this.findByIdAndUpdate(messageID, data, { new: true }).populate({
-      path: 'seen',
-      select: '_id firstname lastname username email userImage',
-    }).populate({
-      path: 'sender',
-      select: '_id firstname lastname username email userImage',
-    });
+    return this.findByIdAndUpdate(messageID, data, { new: true })
+      .populate({
+        path: 'seen',
+        select: '_id firstname lastname username email userImage',
+      })
+      .populate({
+        path: 'sender',
+        select: '_id firstname lastname username email userImage',
+      });
   },
 };
 

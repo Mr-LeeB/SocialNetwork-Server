@@ -156,7 +156,7 @@ const getPost_Service = async (id, callerID) => {
 
         const replyArr = await Promise.all(
           comment.listReply.map(async (reply) => {
-            const commentReply = await Comment.GetCommentByID(reply);
+            const commentReply = await Comment.GetCommentWithInfo(reply);
             // check liked
             const checkLiked = commentReply.likes.some((like) => like?.user?.toString() === callerID);
             // check disliked
@@ -283,7 +283,7 @@ const getPostShare_Service = async (id, callerID) => {
     const postComment = await share.populate('comments');
     const commentArr = await Promise.all(
       postComment.comments.map(async (comment) => {
-        const commentPopulate = await Comment.GetCommentByID(comment);
+        const commentPopulate = await Comment.GetCommentWithInfo(comment);
         if (commentPopulate.isReply) {
           return null;
         }
@@ -297,7 +297,7 @@ const getPostShare_Service = async (id, callerID) => {
         const user = await User.GetUser(commentPopulate.user);
         const replyArr = await Promise.all(
           commentPopulate.listReply.map(async (reply) => {
-            const commentReply = await Comment.GetCommentByID(reply);
+            const commentReply = await Comment.GetCommentWithInfo(reply);
             const replyUser = await User.GetUser(commentReply.user);
             // check liked
             const checkLiked = commentReply.likes.some((like) => like?.user?.toString() === callerID);

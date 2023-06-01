@@ -54,7 +54,10 @@ LikeSchema.statics = {
     return this.findByIdAndDelete(id);
   },
   GetLikeByPost: async function (postID) {
-    return this.find({ post: postID }).populate('user');
+    return this.find({ post: postID }).populate({
+      path: 'user',
+      select: '_id firstname lastname username email userImage',
+    });
   },
   GetLikeByUser: async function (userID) {
     return this.find({ user: userID }).populate('post');

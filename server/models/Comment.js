@@ -45,16 +45,28 @@ CommentSchema.statics = {
     return newComment.save();
   },
   GetComment: async function (commentID) {
-    return this.findById(commentID).populate('likes').populate('dislikes');
+    return this.findById(commentID);
   },
   GetComments: async function () {
     return this.find();
   },
-  GetCommentByID: async function (commentID) {
-    return this.findById(commentID).populate('user').populate('likes').populate('dislikes');
+  GetCommentWithInfo: async function (commentID) {
+    return this.findById(commentID)
+      .populate({
+        path: 'user',
+        select: '_id firstname lastname username email userImage',
+      })
+      .populate('likes')
+      .populate('dislikes');
   },
   GetCommentByPost: async function (postID) {
-    return this.find({ post: postID }).populate('user').populate('likes').populate('dislikes');
+    return this.find({ post: postID })
+      .populate({
+        path: 'user',
+        select: '_id firstname lastname username email userImage',
+      })
+      .populate('likes')
+      .populate('dislikes');
   },
   GetCommentByUser: async function (userID) {
     return this.find({ user: userID }).populate('post').populate('likes').populate('dislikes');

@@ -35,60 +35,96 @@ ConversationSchema.statics = {
   },
   GetConversation: async function (conversationID) {
     return this.findById(conversationID)
-      .populate('users')
+      .populate({
+        path: 'users',
+        select: '_id firstname lastname username email userImage',
+      })
       .populate({
         path: 'messages',
-        populate: [{ path: 'sender' }, { path: 'seen' }],
+        populate: [
+          { path: 'sender', select: '_id firstname lastname username email userImage' },
+          { path: 'seen', select: '_id firstname lastname username email userImage' },
+        ],
       })
       .populate({
         path: 'image',
-        populate: { path: 'sender' },
+        populate: { path: 'sender', select: '_id firstname lastname username email userImage' },
       });
   },
   GetConversations: async function (userID) {
     return this.find({ users: userID })
-      .populate('users')
+      .populate({
+        path: 'users',
+        select: '_id firstname lastname username email userImage',
+      })
       .populate({
         path: 'messages',
-        populate: [{ path: 'sender' }, { path: 'seen' }],
+        populate: [
+          { path: 'sender', select: '_id firstname lastname username email userImage' },
+          { path: 'seen', select: '_id firstname lastname username email userImage' },
+        ],
       })
       .populate({
         path: 'image',
-        populate: { path: 'sender' },
+        populate: { path: 'sender', select: '_id firstname lastname username email userImage' },
       })
       .sort({ lastMessageAt: 'desc' });
   },
   GetConversationByUser: async function (userID) {
     return this.find({ users: userID })
-      .populate('users')
+      .populate({
+        path: 'users',
+        select: '_id firstname lastname username email userImage',
+      })
       .populate({
         path: 'messages',
-        populate: [{ path: 'sender' }, { path: 'seen' }],
+        populate: [
+          { path: 'sender', select: '_id firstname lastname username email userImage' },
+          { path: 'seen', select: '_id firstname lastname username email userImage' },
+        ],
       })
       .populate({
         path: 'image',
-        populate: { path: 'sender' },
+        populate: { path: 'sender', select: '_id firstname lastname username email userImage' },
       });
   },
   GetConversationByUsers: async function (userID1, userID2) {
     return this.find({ users: { $size: 2, $all: [userID1, userID2] } })
-      .populate('users')
+      .populate({
+        path: 'users',
+        select: '_id firstname lastname username email userImage',
+      })
       .populate({
         path: 'messages',
-        populate: [{ path: 'sender' }, { path: 'seen' }],
+        populate: [
+          { path: 'sender', select: '_id firstname lastname username email userImage' },
+          { path: 'seen', select: '_id firstname lastname username email userImage' },
+        ],
       })
       .populate({
         path: 'image',
-        populate: { path: 'sender' },
+        populate: { path: 'sender', select: '_id firstname lastname username email userImage' },
       });
   },
   UpdateConversation: async function (conversationID, updateData) {
     return this.findByIdAndUpdate(conversationID, updateData, { new: true })
-      .populate('users')
-      .populate({ path: 'messages', populate: [{ path: 'seen' }, { path: 'sender' }] });
+      .populate({
+        path: 'users',
+        select: '_id firstname lastname username email userImage',
+      })
+      .populate({
+        path: 'messages',
+        populate: [
+          { path: 'seen', select: '_id firstname lastname username email userImage' },
+          { path: 'sender', select: '_id firstname lastname username email userImage' },
+        ],
+      });
   },
   DeleteConversation: async function (conversationID) {
-    return this.findByIdAndDelete(conversationID).populate('users');
+    return this.findByIdAndDelete(conversationID).populate({
+      path: 'users',
+      select: '_id firstname lastname username email userImage',
+    });
   },
 };
 
