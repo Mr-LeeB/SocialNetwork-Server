@@ -39,7 +39,13 @@ MessageSchema.statics = {
     return this.find({ conversation: conversationID }).populate('sender').populate('seen').sort({ createdAt: 'asc' });
   },
   UpdateMessage: async function (messageID, data) {
-    return this.findByIdAndUpdate(messageID, data, { new: true }).populate('seen').populate('sender');
+    return this.findByIdAndUpdate(messageID, data, { new: true }).populate({
+      path: 'seen',
+      select: '_id firstname lastname username email userImage',
+    }).populate({
+      path: 'sender',
+      select: '_id firstname lastname username email userImage',
+    });
   },
 };
 
