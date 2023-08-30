@@ -49,29 +49,39 @@ const getPost_Service = async (id, callerID) => {
     let [post, user] = await Promise.all([Post.GetPost(id), User.GetUser(callerID)]);
 
     let link = null;
-    if (!post.image) {
-      const dom1 = new JSDOM(post.content);
-      const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+    try {
+      if (!post.image) {
+        const dom1 = new JSDOM(post.content);
+        const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-      if (firstLink) {
-        const res = await axios.get(firstLink);
-        const dom2 = new JSDOM(res.data);
+        if (firstLink) {
+          const res = await axios.get(firstLink);
+          const dom2 = new JSDOM(res.data);
 
-        const title =
-          dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-          dom2.window.document.querySelector('title')?.textContent;
-        const description =
-          dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-          dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-        const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+          const title =
+            dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('title')?.textContent;
+          const description =
+            dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+          const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
-        link = {
-          title,
-          description,
-          image,
-          linkAddress: firstLink,
-        };
+          link = {
+            title,
+            description,
+            image,
+            linkAddress: firstLink,
+          };
+        }
       }
+    } catch (error) {
+      console.log(error);
+      link = {
+        title: 'Link not found',
+        description: 'Link not found',
+        image: 'Link not found',
+        linkAddress: 'Link not found',
+      };
     }
 
     const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);
@@ -238,29 +248,39 @@ const getPostShare_Service = async (id, callerID) => {
     ]);
 
     let link = null;
-    if (!post.image) {
-      const dom1 = new JSDOM(post.content);
-      const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+    try {
+      if (!post.image) {
+        const dom1 = new JSDOM(post.content);
+        const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-      if (firstLink) {
-        const res = await axios.get(firstLink);
-        const dom2 = new JSDOM(res.data);
+        if (firstLink) {
+          const res = await axios.get(firstLink);
+          const dom2 = new JSDOM(res.data);
 
-        const title =
-          dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-          dom2.window.document.querySelector('title')?.textContent;
-        const description =
-          dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-          dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-        const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+          const title =
+            dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('title')?.textContent;
+          const description =
+            dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+            dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+          const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
-        link = {
-          title,
-          description,
-          image,
-          linkAddress: firstLink,
-        };
+          link = {
+            title,
+            description,
+            image,
+            linkAddress: firstLink,
+          };
+        }
       }
+    } catch (error) {
+      console.log(error);
+      link = {
+        title: 'Link not found',
+        description: 'Link not found',
+        image: 'Link not found',
+        linkAddress: 'Link not found',
+      };
     }
 
     const postLike = await share.populate('likes');
@@ -418,27 +438,37 @@ const loadAllPost_Service = async (callerID) => {
     const postArrPromised = await Promise.all(
       postArr.map(async (post) => {
         let link = null;
-        if (!post.image) {
-          const dom1 = new JSDOM(post.content);
-          const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+        try {
+          if (!post.image) {
+            const dom1 = new JSDOM(post.content);
+            const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-          if (firstLink) {
-            const res = await axios.get(firstLink);
-            const dom2 = new JSDOM(res.data);
-            const title =
-              dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-              dom2.window.document.querySelector('title')?.textContent;
-            const description =
-              dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-              dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-            const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-            link = {
-              title,
-              description,
-              image,
-              linkAddress: firstLink,
-            };
+            if (firstLink) {
+              const res = await axios.get(firstLink);
+              const dom2 = new JSDOM(res.data);
+              const title =
+                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('title')?.textContent;
+              const description =
+                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+              const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+              link = {
+                title,
+                description,
+                image,
+                linkAddress: firstLink,
+              };
+            }
           }
+        } catch (error) {
+          console.log(error);
+          link = {
+            title: 'Link not found',
+            description: 'Link not found',
+            image: 'Link not found',
+            linkAddress: 'Link not found',
+          };
         }
 
         const checkLiked = post.likes.some((like) => like?.user.toString() === callerID);
@@ -629,28 +659,38 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         post.user = undefined;
 
         let link = null;
-        if (!post.image) {
-          const dom1 = new JSDOM(post.content);
-          const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+        try {
+          if (!post.image) {
+            const dom1 = new JSDOM(post.content);
+            const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-          if (firstLink) {
-            const res = await axios.get(firstLink);
-            const dom2 = new JSDOM(res.data);
-            const title =
-              dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-              dom2.window.document.querySelector('title')?.textContent;
-            const description =
-              dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-              dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
-            const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+            if (firstLink) {
+              const res = await axios.get(firstLink);
+              const dom2 = new JSDOM(res.data);
+              const title =
+                dom2.window.document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('title')?.textContent;
+              const description =
+                dom2.window.document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+                dom2.window.document.querySelector('meta[name="description"]')?.getAttribute('content');
+              const image = dom2.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content');
 
-            link = {
-              title,
-              description,
-              image,
-              linkAddress: firstLink,
-            };
+              link = {
+                title,
+                description,
+                image,
+                linkAddress: firstLink,
+              };
+            }
           }
+        } catch (error) {
+          console.log(error);
+          link = {
+            title: 'Link not found',
+            description: 'Link not found',
+            image: 'Link not found',
+            linkAddress: 'Link not found',
+          };
         }
 
         const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);

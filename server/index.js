@@ -6,6 +6,7 @@ const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
 const { SenderMailServer } = require('./config/email-config');
+const Compression = require('compression');
 
 // Connect to database
 connectDB();
@@ -16,6 +17,7 @@ const app = express();
 app.use(cookieParser());
 app.use(fileUpload());
 app.use(express.json());
+app.use(Compression());
 app.use(express.urlencoded({ extended: false }));
 app.use(
   cors({
