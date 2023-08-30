@@ -49,12 +49,12 @@ const getPost_Service = async (id, callerID) => {
     let [post, user] = await Promise.all([Post.GetPost(id), User.GetUser(callerID)]);
 
     let link = null;
-    try {
-      if (!post.image) {
-        const dom1 = new JSDOM(post.content);
-        const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+    if (!post.image) {
+      const dom1 = new JSDOM(post.content);
+      const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-        if (firstLink) {
+      if (firstLink) {
+        try {
           const res = await axios.get(firstLink);
           const dom2 = new JSDOM(res.data);
 
@@ -72,16 +72,16 @@ const getPost_Service = async (id, callerID) => {
             image,
             linkAddress: firstLink,
           };
+        } catch (error) {
+          console.log(error);
+          link = {
+            title: 'Link not found',
+            description: 'Link not found',
+            image: 'Link not found',
+            linkAddress: firstLink,
+          };
         }
       }
-    } catch (error) {
-      console.log(error);
-      link = {
-        title: 'Link not found',
-        description: 'Link not found',
-        image: 'Link not found',
-        linkAddress: 'Link not found',
-      };
     }
 
     const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);
@@ -248,12 +248,12 @@ const getPostShare_Service = async (id, callerID) => {
     ]);
 
     let link = null;
-    try {
-      if (!post.image) {
-        const dom1 = new JSDOM(post.content);
-        const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+    if (!post.image) {
+      const dom1 = new JSDOM(post.content);
+      const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-        if (firstLink) {
+      if (firstLink) {
+        try {
           const res = await axios.get(firstLink);
           const dom2 = new JSDOM(res.data);
 
@@ -271,16 +271,16 @@ const getPostShare_Service = async (id, callerID) => {
             image,
             linkAddress: firstLink,
           };
+        } catch (error) {
+          console.log(error);
+          link = {
+            title: 'Link not found',
+            description: 'Link not found',
+            image: 'Link not found',
+            linkAddress: firstLink,
+          };
         }
       }
-    } catch (error) {
-      console.log(error);
-      link = {
-        title: 'Link not found',
-        description: 'Link not found',
-        image: 'Link not found',
-        linkAddress: 'Link not found',
-      };
     }
 
     const postLike = await share.populate('likes');
@@ -438,12 +438,12 @@ const loadAllPost_Service = async (callerID) => {
     const postArrPromised = await Promise.all(
       postArr.map(async (post) => {
         let link = null;
-        try {
-          if (!post.image) {
-            const dom1 = new JSDOM(post.content);
-            const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+        if (!post.image) {
+          const dom1 = new JSDOM(post.content);
+          const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-            if (firstLink) {
+          if (firstLink) {
+            try {
               const res = await axios.get(firstLink);
               const dom2 = new JSDOM(res.data);
               const title =
@@ -459,16 +459,16 @@ const loadAllPost_Service = async (callerID) => {
                 image,
                 linkAddress: firstLink,
               };
+            } catch (error) {
+              console.log(error);
+              link = {
+                title: 'Link not found',
+                description: 'Link not found',
+                image: 'Link not found',
+                linkAddress: firstLink,
+              };
             }
           }
-        } catch (error) {
-          console.log(error);
-          link = {
-            title: 'Link not found',
-            description: 'Link not found',
-            image: 'Link not found',
-            linkAddress: 'Link not found',
-          };
         }
 
         const checkLiked = post.likes.some((like) => like?.user.toString() === callerID);
@@ -659,12 +659,12 @@ const getPostByUser_Service = async (callerID, ownerID) => {
         post.user = undefined;
 
         let link = null;
-        try {
-          if (!post.image) {
-            const dom1 = new JSDOM(post.content);
-            const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
+        if (!post.image) {
+          const dom1 = new JSDOM(post.content);
+          const firstLink = dom1.window.document.querySelector('a')?.getAttribute('href');
 
-            if (firstLink) {
+          if (firstLink) {
+            try {
               const res = await axios.get(firstLink);
               const dom2 = new JSDOM(res.data);
               const title =
@@ -681,16 +681,16 @@ const getPostByUser_Service = async (callerID, ownerID) => {
                 image,
                 linkAddress: firstLink,
               };
+            } catch (error) {
+              console.log(error);
+              link = {
+                title: 'Link not found',
+                description: 'Link not found',
+                image: 'Link not found',
+                linkAddress: firstLink,
+              };
             }
           }
-        } catch (error) {
-          console.log(error);
-          link = {
-            title: 'Link not found',
-            description: 'Link not found',
-            image: 'Link not found',
-            linkAddress: 'Link not found',
-          };
         }
 
         const checkLiked = post.likes.some((like) => like?.user?.toString() === callerID);
