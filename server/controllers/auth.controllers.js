@@ -41,9 +41,9 @@ const login_Google_Callback = async (req, res) => {
     // Return result
     const { status, success, message, content } = result;
     if (!success) {
-      return res.status(status).send({ success, message });
+      return res.redirect(`http://localhost:3000/login?message=${message}`);
     }
-    return res.status(status).send({ success, message, content });
+    return res.redirect(`http://localhost:3000?token=${content.accessToken}`);
   } catch (error) {
     console.log(error);
     res.status(STATUS_CODE.SERVER_ERROR).send({ success: false, message: 'Internal server error' });

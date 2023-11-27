@@ -79,6 +79,38 @@ const login_Service = async (user) => {
   };
 };
 
+const login_Google_Service = async (code) => {
+  const { tokens } = await client.getToken(code);
+
+  client.setCredentials(tokens);
+
+  // Use the access token to make API requests on behalf of the user
+  const user = await fetchUserProfile(tokens.access_token);
+
+  // Check user exist
+  const userFind = await User.findOne({ email: user.email });
+
+  if (!userFind) {
+    const newUser = new User({
+      email: user.email,
+      firstname: user.given_name,
+      lastname: user.family_name,
+      userImage: user.picture,
+      verified: user.email_verified,
+    });
+
+    await newUser.save();
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'User login successfully',
+      content: {
+        accessToken: newUser.accessToken,
+      },
+    };
+  }
+};
+
 const login_Google_Callback_Service = async (code) => {
   const { tokens } = await client.getToken(code);
 
@@ -417,6 +449,7 @@ module.exports = {
   logout_Service,
   forgot_password_Service,
   verify_code_Service,
+  login_Google_Service,
   login_GoogleV2_Service,
   login_Github_Service,
   reset_password_Service,

@@ -10,7 +10,7 @@ authRouter.post('/checklogin', checkAuthentication, authController.checkLogin);
 
 authRouter.get('/auth/google', authController.login_Google);
 
-authRouter.get('/auth/google/callback', authValidation.login_validation_Google, authController.login_Google_Callback);
+authRouter.get('/auth/google/callback', authController.login_Google_Callback);
 
 authRouter.post('/auth/googleV2', authController.login_GoogleV2);
 
