@@ -4,7 +4,7 @@ const conversationService = require('../services/conversation.service');
 const createConversation = async (req, res) => {
   const { name, isGroup } = req.body;
 
-  const users = req.body['users[]'];
+  const users = req.body.users;
 
   const userID = req.id;
 
