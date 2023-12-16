@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --testPathPattern=notification.test.js --watch --runInBand --detectOpenHandles --forceExit --testTimeout=100000",
+    "test": "jest --watchAll --runInBand --detectOpenHandles --forceExit --testTimeout=100000",
     "dev": "nodemon server.js"
   },
   "author": "",

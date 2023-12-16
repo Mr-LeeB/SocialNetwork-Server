@@ -6,7 +6,7 @@ const app = require('../app');
 // Connect to the database before each test.
 beforeAll(async () => {
   await mongoose.connect(
-    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ktjepad.mongodb.net/SocialNetworkTestUser`,
+    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ktjepad.mongodb.net/SocialNetworkTestMessage`,
   );
 });
 
