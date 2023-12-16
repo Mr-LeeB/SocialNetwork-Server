@@ -75,6 +75,7 @@ const login_Service = async (user) => {
     message: 'User login successfully',
     content: {
       accessToken,
+      _id: userFind._id,
     },
   };
 };

@@ -33,8 +33,6 @@ describe('POST /api/users', () => {
         lastname: 'User',
       })
       .then((response) => {
-        userID = response.body.content._id;
-        accessToken = response.body.content.accessToken;
         expect(response.statusCode).toBe(201);
         expect(response.body).toHaveProperty('content.accessToken');
       });
@@ -46,12 +44,18 @@ describe('POST /api/users', () => {
  */
 describe('POST /api/login', () => {
   it('should return accessToken', async () => {
-    const response = await request(app).post('/api/login').send({
-      email: 'test@gmail.com',
-      password: '123456',
-    });
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty('content.accessToken');
+    await request(app)
+      .post('/api/login')
+      .send({
+        email: 'test@gmail.com',
+        password: '123456',
+      })
+      .then((response) => {
+        userID = response.body.content._id;
+        accessToken = response.body.content.accessToken;
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toHaveProperty('content.accessToken');
+      });
   });
 });
 
