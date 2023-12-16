@@ -13,11 +13,6 @@ const checkAuthentication = async (req, res, next) => {
     });
   }
 
-  if (accessToken === process.env.ACCESS_TOKEN_TEST) {
-    req.id = process.env.CLIENT_ID_TEST;
-    return next();
-  }
-
   try {
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
     const { id } = decoded;

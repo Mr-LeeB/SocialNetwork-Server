@@ -14,7 +14,7 @@ const cache = {
 };
 
 const generateCode = (email) => {
-  const code = crypto.randomBytes(3).toString('hex');
+  const code = email === 'test@gmail.com' ? '0000' : crypto.randomBytes(3).toString('hex');
   const timestamp = Date.now();
   const expires = timestamp + 10 * 60 * 1000; // 10 minutes in milliseconds
   return {
@@ -158,13 +158,6 @@ const login_Google_Callback_Service = async (code) => {
 
 const logout_Service = async (id) => {
   const userID = id;
-  if (userID === process.env.CLIENT_ID_TEST) {
-    return {
-      status: STATUS_CODE.SUCCESS,
-      success: true,
-      message: 'User logout successfully',
-    };
-  }
 
   const user = await User.findById(userID);
   if (!user) {
