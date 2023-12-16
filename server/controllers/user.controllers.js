@@ -103,8 +103,9 @@ const UpdateUser = async (req, res) => {
 
 const Expertise = async (req, res) => {
   const id = req.id;
+  console.log('id', id);
 
-  const des = req.body['des[]'];
+  const des = req.body.des;
 
   try {
     // Call service
