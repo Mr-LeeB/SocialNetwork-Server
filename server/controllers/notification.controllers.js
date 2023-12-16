@@ -22,9 +22,9 @@ const getNotifications = async (req, res) => {
 };
 
 const createNotification = async (req, res) => {
-  const { user, post, comment, like, share } = req.body;
+  const { user, triggerUser, post, comment, like, share } = req.body;
 
-  const notification = { user, post, comment, like, share };
+  const notification = { user, triggerUser, post, comment, like, share };
 
   try {
     // Call service

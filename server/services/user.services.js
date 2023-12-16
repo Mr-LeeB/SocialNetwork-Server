@@ -56,6 +56,7 @@ const findUserByID_Service = async (userID) => {
           firstname: userFind.firstname,
           lastname: userFind.lastname,
           tags: userFind.tags,
+          email: userFind.email,
           contacts: userFind.contacts,
           username: userFind.username,
           userImage: userFind.userImage,

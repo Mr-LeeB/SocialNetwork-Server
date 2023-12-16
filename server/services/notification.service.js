@@ -15,7 +15,8 @@ const getNotifications_Service = async (userID) => {
       };
     }
 
-    const notifications = await user.GetNotifications();
+    let notifications = await user.GetNotifications();
+    notifications = notifications.notifications;
 
     const notificationsData = await Promise.all(
       notifications.map(async (notification) => {
@@ -117,7 +118,7 @@ const createNotification_Service = async (notification) => {
   try {
     const newNotification = await Notification.SaveNotification(notification);
     return {
-      status: STATUS_CODE.SUCCESS,
+      status: STATUS_CODE.CREATED,
       success: true,
       message: 'Create notification successfully',
       content: {
