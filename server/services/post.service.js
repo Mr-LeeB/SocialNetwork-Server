@@ -1091,10 +1091,12 @@ const deleteComment_Service = async (id, userID, idComment) => {
     // Find any comment if it has this comment on the list of replies
     const commentsReply = await Comment.GetCommentHasReply(idComment);
 
-    // Remove comment from the list of replies in other comments
-    for (const comment of commentsReply) {
-      await comment.RemoveReplyComment(idComment);
-      await comment.save();
+    if (commentsReply) {
+      // Remove comment from the list of replies in other comments
+      for (const comment of commentsReply) {
+        await comment.RemoveReplyComment(idComment);
+        await comment.save();
+      }
     }
 
     // Remove comments that exist in the list of replies of the comment being deleted
