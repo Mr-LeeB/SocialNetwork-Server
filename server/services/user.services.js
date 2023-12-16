@@ -31,6 +31,7 @@ const registerUser_Service = async (user) => {
     message: 'User created successfully',
     content: {
       accessToken: newUser.accessToken,
+      _id: newUser._id,
     },
   };
 };
@@ -429,25 +430,27 @@ const getRepositoryGithub_Service = async (access_token_github) => {
   }
 
   // Remove unnecessary information
-  const repos = await Promise.all(result.map(async (repository) => {
-    const { data } = await axios.get(repository.languages_url, {
-      headers: {
-        Authorization: `Bearer ${access_token_github}`,
-        Accept: 'application/vnd.github.v3+json',
-      },
-    });
+  const repos = await Promise.all(
+    result.map(async (repository) => {
+      const { data } = await axios.get(repository.languages_url, {
+        headers: {
+          Authorization: `Bearer ${access_token_github}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
 
-    return {
-      id: repository.id,
-      name: repository.name,
-      private: repository.private,
-      url: repository.html_url,
-      watchersCount: repository.watchers_count,
-      forksCount: repository.forks_count,
-      stargazersCount: repository.stargazers_count,
-      languages: Object.keys(data)[0],
-    };
-  }));
+      return {
+        id: repository.id,
+        name: repository.name,
+        private: repository.private,
+        url: repository.html_url,
+        watchersCount: repository.watchers_count,
+        forksCount: repository.forks_count,
+        stargazersCount: repository.stargazers_count,
+        languages: Object.keys(data)[0],
+      };
+    }),
+  );
   return {
     status: STATUS_CODE.SUCCESS,
     success: true,
@@ -456,7 +459,6 @@ const getRepositoryGithub_Service = async (access_token_github) => {
       repository: repos,
     },
   };
-
 };
 
 module.exports = {
