@@ -24,7 +24,7 @@ let conversationID = '';
 /**
  * Register 2 new users before testing the create conversation route.
  */
-describe('POST /api/users', () => {
+describe('Create user to create conversation', () => {
   it('should return accessToken', async () => {
     await request(app)
       .post('/api/users')
@@ -42,7 +42,7 @@ describe('POST /api/users', () => {
       });
   });
 });
-describe('POST /api/users', () => {
+describe('Create user to create conversation', () => {
   it('should return accessToken', async () => {
     await request(app)
       .post('/api/users')
