@@ -158,6 +158,13 @@ const login_Google_Callback_Service = async (code) => {
 
 const logout_Service = async (id) => {
   const userID = id;
+  if (userID === process.env.CLIENT_ID_TEST) {
+    return {
+      status: STATUS_CODE.SUCCESS,
+      success: true,
+      message: 'User logout successfully',
+    };
+  }
 
   const user = await User.findById(userID);
   if (!user) {

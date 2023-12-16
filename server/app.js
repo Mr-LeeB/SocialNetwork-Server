@@ -1,17 +1,9 @@
-require('dotenv').config();
 const express = require('express');
 const router = require('./routers/root.router');
-const connectDB = require('./config/connectDB');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
-const { SenderMailServer } = require('./config/email-config');
 const Compression = require('compression');
-
-// Connect to database
-connectDB();
-// Set up mail server
-SenderMailServer();
 
 const app = express();
 app.use(cookieParser());
@@ -27,6 +19,4 @@ app.use(
 );
 app.use('/api', router);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server started on port ${process.env.PORT}`);
-});
+module.exports = app;
